@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+*.egg-info/
+.env
+
+# Data: raw archives and derived artefacts are reproducible, not source.
+data/raw/**/*.zip
+data/raw/**/*.csv
+data/processed/*.parquet
+data/runs/**/*.json
+data/runs/**/*.md
+
+# Provenance manifests and append-only ledgers ARE tracked on purpose.
+!data/raw/**/MANIFEST.json
