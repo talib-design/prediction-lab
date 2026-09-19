@@ -5,10 +5,13 @@ import pytest
 
 from predlab.core.gamespec import LOTO_2019_11, NumberPool
 from predlab.eval.power import (
+    analytic_power,
     draws_required,
+    fair_null_distribution,
     minimum_detectable_effect,
     simulate_fair_counts,
     uniformity_monte_carlo,
+    uniformity_p_value,
 )
 
 MAIN = LOTO_2019_11.pool("main")
@@ -98,3 +101,42 @@ def test_uniformity_test_has_the_right_false_positive_rate() -> None:
         for i, h in enumerate(histories)
     )
     assert rejections <= 8, f"{rejections}/50 false positives is too many for a 5% test"
+
+
+def test_cached_null_matches_the_one_shot_call() -> None:
+    """The convenience wrapper and the cached path must agree exactly."""
+    pool = NumberPool("chance", 1, 10, 1)
+    counts = np.array([45, 38, 41, 39, 44, 36, 40, 42, 37, 38])
+    direct = uniformity_monte_carlo(counts, pool, 400, n_simulations=300, seed=9)
+    null = fair_null_distribution(pool, 400, n_simulations=300, seed=9)
+    cached = uniformity_p_value(counts, pool, 400, null)
+    assert direct == cached
+
+
+def test_a_cached_null_is_reusable_across_datasets() -> None:
+    pool = NumberPool("chance", 1, 10, 1)
+    null = fair_null_distribution(pool, 300, n_simulations=300, seed=10)
+    rng = np.random.default_rng(11)
+    fair = simulate_fair_counts(pool, 300, 3, rng)
+    for counts in fair:
+        _, p_value = uniformity_p_value(counts, pool, 300, null)
+        assert 0.0 < p_value <= 1.0
+    _, biased_p = uniformity_p_value(np.array([150, *([17] * 9)]), pool, 303, null)
+    assert biased_p < 0.01
+
+
+def test_analytic_power_inverts_the_detection_floor() -> None:
+    """Feed the floor back in and the power that produced it must come out."""
+    for n in (500, 1075, 10_000):
+        floor = minimum_detectable_effect(MAIN, n, power=0.80)
+        recovered = analytic_power(MAIN, n, floor.relative_effect)
+        assert recovered == pytest.approx(0.80, abs=0.01)
+
+
+def test_analytic_power_rises_with_effect_and_sample() -> None:
+    assert analytic_power(MAIN, 1075, 0.6) > analytic_power(MAIN, 1075, 0.3)
+    assert analytic_power(MAIN, 5000, 0.3) > analytic_power(MAIN, 1075, 0.3)
+
+
+def test_analytic_power_at_zero_effect_is_the_significance_level() -> None:
+    assert analytic_power(MAIN, 1075, 0.0, alpha=0.05) == pytest.approx(0.05)

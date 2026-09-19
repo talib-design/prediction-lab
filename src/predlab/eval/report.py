@@ -19,6 +19,7 @@ from typing import Any
 import numpy as np
 
 from predlab.backtest.engine import BacktestResult
+from predlab.benchmarks.sweep import per_number_p_values
 from predlab.core.gamespec import GameSpec
 from predlab.eval.metrics import expected_calibration_error
 from predlab.eval.power import minimum_detectable_effect, uniformity_monte_carlo
@@ -131,6 +132,14 @@ def describe_history(
             counts, pool, n_draws, n_simulations=n_simulations, seed=seed
         )
         expected = n_draws * pool.marginal_probability
+        # Per-number testing, FDR-controlled. This is the test the detection floor in
+        # section 1 actually describes; the omnibus chi-square above answers a
+        # different question ("is this pool uniform") and, as the benchmark sweep
+        # measured, detects a single-number bias far less often at the same effect size.
+        per_number = per_number_p_values(counts, pool, n_draws)
+        flagged = benjamini_hochberg(per_number, q=0.05)
+        extreme = int(np.argmin(per_number))
+
         out[pool.name] = {
             "n_draws": n_draws,
             "expected_count_per_number": expected,
@@ -141,6 +150,17 @@ def describe_history(
             "chi_square_statistic": statistic,
             "monte_carlo_p_value": p_value,
             "uniformity_rejected_at_5pct": p_value < 0.05,
+            "per_number_flagged": [int(i) + pool.low for i in np.flatnonzero(flagged)],
+            "per_number_n_flagged": int(flagged.sum()),
+            "most_extreme_number": extreme + pool.low,
+            "most_extreme_raw_p_value": float(per_number[extreme]),
+            "most_extreme_observed_rate": float(counts[extreme] / n_draws),
+            "selection_bias_warning": (
+                "The most extreme number won a contest among "
+                f"{pool.size} candidates, so its observed rate is biased away from the "
+                "mean by luck as well as any merit. Do not read it as an estimate of a "
+                "true rate without a selection-bias correction."
+            ),
             "counts": counts.tolist(),
         }
     return out
@@ -257,16 +277,31 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "Descriptive only. Nothing in this section is a claim about future draws.",
         "",
-        "| Pool | Draws | Expected count | Min | Max | chi2 | Monte-Carlo p | Uniformity rejected |",
+        "| Pool | Draws | Expected | Min | Max | Omnibus p | Numbers flagged (FDR) | Most extreme |",
         "|---|---|---|---|---|---|---|---|",
     ]
     for pool, d in report["descriptive"].items():
+        flagged = d["per_number_flagged"] or "none"
         lines.append(
             f"| {pool} | {d['n_draws']} | {d['expected_count_per_number']:.1f} | "
-            f"{d['observed_min']} | {d['observed_max']} | {d['chi_square_statistic']:.2f} | "
-            f"{d['monte_carlo_p_value']:.4f} | "
-            f"{'yes' if d['uniformity_rejected_at_5pct'] else 'no'} |"
+            f"{d['observed_min']} | {d['observed_max']} | "
+            f"{d['monte_carlo_p_value']:.4f} | {flagged} | "
+            f"n°{d['most_extreme_number']} (raw p={d['most_extreme_raw_p_value']:.3f}) |"
         )
+    lines.append("")
+    lines.append(
+        "*Two tests, deliberately. The omnibus column asks whether the pool as a whole "
+        "looks uniform; the flagged column tests each number separately with "
+        "false-discovery-rate control. They have different power against a "
+        "single-number bias, and the detection floor in section 1 describes the "
+        "per-number one.*"
+    )
+    lines.append("")
+    lines.append(
+        '*The "most extreme" number won a contest among all candidates, so its '
+        "observed rate reflects luck as well as any real departure. Its raw p-value is "
+        "shown uncorrected and should not be read as a finding on its own.*"
+    )
 
     lines += [
         "",

@@ -76,14 +76,15 @@ like.
   parser or verified spec exists.
 - **Older Loto eras** (1976, 2008, 2017, 2019-02). The archives are downloadable but
   their mechanics are unverified, so `get_spec` refuses them rather than guessing.
-- **Synthetic benchmark suite.** Only the positive control in the test suite exists;
-  the disappearing-signal, regime-change and seductive-false-pattern datasets from the
-  brief are not built.
+- **Synthetic benchmark suite: partially built.** All five case families from the
+  brief now generate, each carrying its own ground truth, and the weak-signal power
+  sweep has been run (see `docs/METHODOLOGY.md`). What is missing is running the
+  disappearing-signal, regime-change and seductive-false-pattern cases through the
+  full report pipeline and scoring the verdicts against their declared truth.
 - **Champion / challenger promotion.** Nothing blocks it architecturally; nothing
   implements it.
 - **LLM agents.** Not started, by design.
-- **Per-ball testing with FDR.** The machinery exists (`benjamini_hochberg`); the
-  descriptive section currently reports only the global uniformity test.
+
 - **Automatic scoring of matured forward predictions into the report.** `predictions
   score` prints them; they do not feed back into the evaluation yet.
 
@@ -154,7 +155,7 @@ Official FDJ archive, current era only.
 
 ## Current test coverage
 
-149 tests, 90% line coverage of `src/predlab`. Ruff and Pyright clean.
+174 tests, 91% line coverage of `src/predlab`. Ruff and Pyright clean.
 
 Measure with `uv run --with pytest-cov pytest --cov=predlab --cov-report=term-missing`.
 

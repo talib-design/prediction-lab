@@ -249,3 +249,54 @@ methodology, and anyone extending this project should treat them as such.
 **Proper scoring rules.** Log loss and the Brier score as *decision criteria*, and the
 `eps = 1e-6` clipping that keeps log loss finite, are not addressed by these five
 books. Unverified.
+
+
+## Measured sensitivity, and a floor that described the wrong test
+
+The detection floors above come from a formula. `predlab.benchmarks` plants biases of
+exactly known size and counts how often they are actually found, which is a different
+claim. Run at the real sample size (n = 1075, number 7 biased, 60 replications per
+point, alpha = 0.05):
+
+| Planted effect | Per-number test | Omnibus chi-square | Analytic prediction |
+|---|---|---|---|
+| 0% | 0.02 | 0.02 | 0.05 |
+| 19.2% (0.5x floor) | 0.15 | 0.10 | 0.14 |
+| 28.9% (0.75x floor) | 0.37 | 0.25 | 0.47 |
+| **38.5% (the floor)** | **0.85** | **0.42** | **0.80** |
+| 57.7% (1.5x floor) | 1.00 | 0.97 | 0.99 |
+| 77.0% (2x floor) | 1.00 | 1.00 | 1.00 |
+
+Two things come out of this.
+
+**The analytic formula is validated — for the test it describes.** The per-number
+column tracks the prediction across the range, including 0.85 against a predicted 0.80
+at the nominal floor. The power analysis is no longer algebra taken on trust.
+
+**But the report was running a different test.** Until now the descriptive section
+used only the omnibus chi-square, which at the quoted 38.5% floor detects a
+single-number bias **42%** of the time, not 80%. The floor printed at the top of every
+report was describing a per-number test that the pipeline never ran. It was not wrong
+about the arithmetic; it was attached to the wrong test.
+
+That is exactly the failure mode this project exists to catch, and it was caught by
+measurement rather than by reasoning about the code.
+
+**Fix:** the descriptive section now runs both. The per-number test (exact two-sided
+binomial, FDR-controlled) is reported alongside the omnibus, so the quoted floor
+describes a test that is actually performed. The omnibus is kept because it answers a
+different and still useful question — whether the pool as a whole looks uniform —
+rather than whether one particular number is off.
+
+Effect on the Milestone 1 verdict: none. Both tests agree that nothing is detectable
+at this sample size, and the corrected picture is *less* optimistic about the
+instrument, not more.
+
+### A caveat on the per-number flagging
+
+FDR control defaults to Benjamini-Yekutieli, valid under arbitrary dependence. For
+m = 49 the harmonic factor is about 4.5, which puts the rank-1 threshold *below*
+Bonferroni's. So for the single most extreme number this correction is the stricter of
+the two, and "no number flagged" is a weaker statement than it sounds. Stated here
+because it looks like a bug the first time you meet it, and because the alternative
+(plain Benjamini-Hochberg) assumes a dependence structure these counts do not have.

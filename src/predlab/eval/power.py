@@ -106,6 +106,38 @@ def minimum_detectable_effect(
     )
 
 
+def analytic_power(
+    pool: NumberPool,
+    n_draws: int,
+    relative_effect: float,
+    *,
+    alpha: float = 0.05,
+    multiplicity_correction: bool = True,
+) -> float:
+    """Probability of detecting a bias of this size, under the normal approximation.
+
+    The inverse of :func:`minimum_detectable_effect`: feed it that function's output
+    and it returns the ``power`` that produced it. Exposed separately so the analytic
+    prediction can be compared against what the pipeline actually achieves on planted
+    data -- algebra and behaviour are not the same claim.
+
+    This describes a **per-number two-sided test**, corrected across the pool. The
+    omnibus chi-square the descriptive report runs is a different test with different
+    power, which is precisely why both are measured in the benchmark sweep.
+    """
+    p0 = pool.marginal_probability
+    p1 = p0 * (1.0 + relative_effect)
+    if not 0.0 < p1 < 1.0:
+        raise ValueError(f"relative_effect {relative_effect} gives p={p1}")
+    delta = abs(p1 - p0)
+    if delta == 0.0:
+        return alpha
+    effective_alpha = alpha / pool.size if multiplicity_correction else alpha
+    z_alpha = float(stats.norm.ppf(1.0 - effective_alpha / 2.0))
+    z = (delta * math.sqrt(n_draws) - z_alpha * math.sqrt(p0 * (1 - p0))) / math.sqrt(p1 * (1 - p1))
+    return float(stats.norm.cdf(z))
+
+
 def draws_required(
     pool: NumberPool,
     relative_effect: float,
@@ -165,6 +197,36 @@ def chi_square_statistic(counts: np.ndarray, pool: NumberPool, n_draws: int) -> 
     return float(np.sum((counts - expected) ** 2, axis=-1) / expected)
 
 
+def fair_null_distribution(
+    pool: NumberPool, n_draws: int, *, n_simulations: int = 2000, seed: int = 0
+) -> np.ndarray:
+    """Chi-square statistics from ``n_simulations`` fair histories.
+
+    The null does **not** depend on the observed counts, only on ``(pool, n_draws)``.
+    Simulating it once and reusing it is what makes a benchmark sweep affordable: a
+    power curve over 150 replications would otherwise redraw several billion numbers
+    to re-derive the same distribution every time.
+    """
+    rng = np.random.default_rng(seed)
+    simulated = simulate_fair_counts(pool, n_draws, n_simulations, rng)
+    expected = n_draws * pool.marginal_probability
+    return np.sum((simulated - expected) ** 2, axis=1) / expected
+
+
+def uniformity_p_value(
+    counts: np.ndarray, pool: NumberPool, n_draws: int, null: np.ndarray
+) -> tuple[float, float]:
+    """Compare observed counts to a precomputed fair null.
+
+    Returns ``(statistic, p_value)`` with the ``(hits + 1) / (n + 1)`` convention, so
+    the p-value is never reported as zero: claiming more precision than the simulation
+    supports would be false.
+    """
+    observed = chi_square_statistic(np.asarray(counts, dtype=np.float64), pool, n_draws)
+    hits = int((np.asarray(null) >= observed).sum())
+    return observed, (hits + 1) / (len(null) + 1)
+
+
 def uniformity_monte_carlo(
     counts: np.ndarray,
     pool: NumberPool,
@@ -180,16 +242,9 @@ def uniformity_monte_carlo(
     multinomial variance is too large. That makes the classical test *conservative* --
     it under-rejects, which would let a real bias hide.
 
-    Simulating the actual mechanism sidesteps the approximation. Returns
-    ``(statistic, p_value)`` with the ``(hits + 1) / (n + 1)`` convention, so the
-    p-value is never reported as zero: with 2000 simulations the smallest attainable
-    value is about 0.0005, and claiming more would overstate the simulation.
+    Simulating the actual mechanism sidesteps the approximation. For repeated tests
+    against the same ``(pool, n_draws)``, build the null once with
+    :func:`fair_null_distribution` and call :func:`uniformity_p_value` instead.
     """
-    observed = chi_square_statistic(np.asarray(counts, dtype=np.float64), pool, n_draws)
-    rng = np.random.default_rng(seed)
-    simulated = simulate_fair_counts(pool, n_draws, n_simulations, rng)
-    null_stats = np.sum((simulated - n_draws * pool.marginal_probability) ** 2, axis=1) / (
-        n_draws * pool.marginal_probability
-    )
-    hits = int((null_stats >= observed).sum())
-    return observed, (hits + 1) / (n_simulations + 1)
+    null = fair_null_distribution(pool, n_draws, n_simulations=n_simulations, seed=seed)
+    return uniformity_p_value(counts, pool, n_draws, null)

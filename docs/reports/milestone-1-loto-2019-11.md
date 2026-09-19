@@ -1,7 +1,7 @@
 # Prediction Lab evaluation report
 
 **Game:** loto/2019-11  
-**Generated:** 2026-09-19T15:13:21+00:00  
+**Generated:** 2026-09-19T15:45:19+00:00  
 **Code version:** 0.1.0  
 **Dataset fingerprint:** `fb978170710001d6…`  
 **Draws in dataset:** 1075  
@@ -22,10 +22,14 @@ Read this before the results. It bounds what any conclusion below can mean.
 
 Descriptive only. Nothing in this section is a claim about future draws.
 
-| Pool | Draws | Expected count | Min | Max | chi2 | Monte-Carlo p | Uniformity rejected |
+| Pool | Draws | Expected | Min | Max | Omnibus p | Numbers flagged (FDR) | Most extreme |
 |---|---|---|---|---|---|---|---|
-| main | 1075 | 109.7 | 86 | 132 | 37.96 | 0.7562 | no |
-| chance | 1075 | 107.5 | 96 | 119 | 3.97 | 0.9091 | no |
+| main | 1075 | 109.7 | 86 | 132 | 0.7528 | none | n°43 (raw p=0.016) |
+| chance | 1075 | 107.5 | 96 | 119 | 0.9134 | none | n°2 (raw p=0.242) |
+
+*Two tests, deliberately. The omnibus column asks whether the pool as a whole looks uniform; the flagged column tests each number separately with false-discovery-rate control. They have different power against a single-number bias, and the detection floor in section 1 describes the per-number one.*
+
+*The "most extreme" number won a contest among all candidates, so its observed rate reflects luck as well as any real departure. Its raw p-value is shown uncorrected and should not be read as a finding on its own.*
 
 ## 3. Forecast — did any model help predict the next draw?
 
