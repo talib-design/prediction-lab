@@ -50,7 +50,8 @@ like.
   (dataset fingerprint, model versions and configs, split, seed, code version).
 - Metrics: log loss, Brier, mass lift, match count, binned calibration error.
 - Uncertainty: moving-block bootstrap, paired block sign-flip permutation,
-  Benjamini-Hochberg FDR control.
+  Benjamini-Yekutieli FDR control (the dependent form — these comparisons are not
+  independent).
 - Power analysis (detection floor, required sample size) and a Monte-Carlo uniformity
   test whose own false-positive rate is verified at 5%.
 - Machine-readable and human-readable reports, power section first.
@@ -82,8 +83,11 @@ like.
 - Scoring is on **marginals only**. A model capturing dependence between numbers while
   keeping the same marginals would score identically here.
 - Log loss is clipped at 1e-6, which caps the penalty for overconfidence.
-- Bootstrap uses the percentile method; BCa would be better for skewed statistics.
-- Block length uses an `n**(1/3)` heuristic, not an estimated optimum.
+- Bootstrap uses the percentile method; BCa would be better for skewed statistics
+  (algorithm in Efron, *Exponential Families*, §5.4-5.6 — a specified task, not a wish).
+- Block length uses an `n**(1/3)` heuristic, not an estimated optimum. Block
+  resampling is the one methodological choice **not** covered by the project's
+  reference texts; see the Sources section of `docs/METHODOLOGY.md`.
 - The FDJ endpoint is undocumented and may change without notice. The parser fails
   loudly rather than silently mis-parsing, which is the intended behaviour.
 - The archives carry no licence statement; raw files are git-ignored and not

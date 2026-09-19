@@ -104,8 +104,10 @@ def summarise(
     if not rows:
         return rows
 
-    # Every model tested against the reference is another chance at a false positive.
-    surviving = benjamini_hochberg(np.array(raw_p), q=0.05)
+    # Every model tested against the reference is another chance at a false positive,
+    # and these chances are not independent: the same reference, the same draws, and
+    # overlapping training windows. Hence the dependent (Benjamini-Yekutieli) form.
+    surviving = benjamini_hochberg(np.array(raw_p), q=0.05, dependent=True)
     return [
         ModelSummary(**{**asdict(row), "survives_fdr": bool(flag)})
         for row, flag in zip(rows, surviving, strict=True)

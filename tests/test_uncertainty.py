@@ -86,3 +86,35 @@ def test_benjamini_hochberg_finds_a_strong_signal() -> None:
 def test_suggested_block_size_grows_with_n() -> None:
     assert suggested_block_size(8) == 2
     assert suggested_block_size(1000) == 10
+
+
+def test_dependent_correction_is_strictly_more_conservative() -> None:
+    """Benjamini-Yekutieli vs Benjamini-Hochberg on the same p-values.
+
+    Wasserman states the BH theorem with a factor C_m that equals 1 only when the
+    p-values are independent. This project's comparisons are not: every model is
+    scored against the same reference on the same draws.
+    """
+    p = np.array([0.001, 0.004, 0.02, 0.03, *[0.6] * 8])
+    independent = benjamini_hochberg(p, q=0.05, dependent=False).sum()
+    dependent = benjamini_hochberg(p, q=0.05, dependent=True).sum()
+    assert dependent < independent
+
+
+def test_dependent_correction_matches_the_harmonic_factor() -> None:
+    m = 12
+    c_m = sum(1.0 / i for i in range(1, m + 1))
+    # A p-value just inside the BY threshold for rank 1 must be rejected...
+    inside = np.full(m, 0.9)
+    inside[0] = 0.05 / (m * c_m) * 0.99
+    assert benjamini_hochberg(inside, q=0.05).sum() == 1
+    # ...and one just outside it must not.
+    outside = np.full(m, 0.9)
+    outside[0] = 0.05 / (m * c_m) * 1.01
+    assert benjamini_hochberg(outside, q=0.05).sum() == 0
+
+
+def test_a_genuinely_strong_signal_survives_the_dependent_correction() -> None:
+    """Being conservative must not mean being blind."""
+    p = np.array([1e-9, 1e-8, *[0.5] * 47])
+    assert benjamini_hochberg(p, q=0.05, dependent=True).sum() == 2

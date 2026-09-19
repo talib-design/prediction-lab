@@ -18,8 +18,9 @@ good on history.
   mechanism is fair.
 - **Test:** paired block sign-flip permutation on per-draw score differences,
   two-sided, 5 000 permutations.
-- **Multiplicity:** Benjamini-Hochberg at q = 0.05 across every model × pool
-  comparison in the run.
+- **Multiplicity:** Benjamini-Yekutieli (the dependent form of the step-up
+  procedure) at q = 0.05 across every model × pool comparison in the run. See
+  *Sources* below for why the independent form would be wrong here.
 - **Intervals:** moving-block percentile bootstrap, 2 000 resamples, block length
   `n**(1/3)`.
 - **Conclusion:** a model counts as a candidate only if it beats the reference *and*
@@ -104,7 +105,67 @@ State this in advance, so that moving the goalposts is visible:
 - Marginal scoring only; dependence between numbers is not modelled or tested.
 - Log loss is clipped at `eps = 1e-6`, which caps how badly an overconfident model can
   be punished and therefore slightly flatters it.
-- The bootstrap uses the percentile method. Efron's BCa would correct for bias and
-  skew and is a known future refinement.
+- The bootstrap uses the percentile method. BCa would correct for bias and skew;
+  the algorithm is spelled out in Efron, *Exponential Families in Theory and
+  Practice*, §5.4-5.6, and porting it is a concrete task rather than a vague wish.
 - The block length heuristic `n**(1/3)` is a documented default, not an optimum.
 - One era, one game. Nothing here has been replicated.
+
+
+## Sources consulted
+
+These are the project's reference texts. Each entry says what was checked and what it
+changed — a citation that changed nothing is noted as such rather than decorating the
+page.
+
+### What it changed
+
+**Wasserman, *All of Statistics*, §10.7 (Multiple Testing).** States the
+Benjamini-Hochberg theorem with a factor `C_m` in the step-up threshold, equal to 1
+**only when the p-values are independent**, and equal to the harmonic number otherwise.
+
+This project's comparisons are plainly not independent: every model is scored against
+the same reference on the same draws, `frequency` / `rolling_100` / `rolling_300` are
+computed from overlapping counts, and the two pools come from the same tirages. The
+first implementation used the independent form, which would have overstated how much
+evidence survives correction — precisely the failure this module exists to prevent.
+`benjamini_hochberg` now defaults to the dependent (Benjamini-Yekutieli) variant.
+
+Effect on the Milestone 1 result: **none**. The corrected form is roughly three times
+stricter at m = 12, and every "worse than uniform" finding still survives it. The
+error would have mattered the moment a model looked good.
+
+**Efron, *Exponential Families in Theory and Practice*, §5.4-5.6.** The BCa interval
+in full: the bias corrector `z0`, the acceleration `a`, Theorem 5.2, and the
+`bcajack` / `bcapar` computational recipe. Table 5.5 shows how far percentile
+intervals can sit from exact ones on a skewed statistic. This turns "BCa would be
+better" from a hedge into a specified task.
+
+### What it confirmed
+
+**Efron, *To Think Like a Statistician*, ch. 8.** The prostate-cancer worked example
+(6 033 genes, Bonferroni admitting 4, BH at 0.1 admitting 28) is the canonical
+illustration of why per-ball testing needs FDR rather than 49 uncorrected tests. It
+confirms the planned treatment of per-number testing; nothing changed.
+
+**Wasserman §10.5 (permutation tests).** Notes that permutation tests are most useful
+for small samples and otherwise agree with large-sample theory. At n = 875 the
+asymptotic test would give a similar answer — so the justification for permuting here
+is **not** small n, it is the block structure needed to respect autocorrelation.
+Worth being precise about, since "we used a permutation test" is often stated as if it
+were self-justifying.
+
+**Wasserman ch. 15 and Efron §5.6 (chi-square goodness of fit).** Both use the
+multinomial null. That is exactly the approximation this project deliberately avoids:
+because exactly `k` numbers come out of each draw, counts are negatively dependent and
+the multinomial variance is too large, making the classical test conservative in the
+direction that hides bias. The Monte-Carlo null stands as a deliberate departure from
+the textbook default, not an oversight.
+
+### What the corpus does not cover
+
+**Block resampling for dependent data.** These texts cover the i.i.d. and parametric
+bootstrap. The moving-block bootstrap and the block sign-flip permutation used here
+come from outside this corpus and have **not** been cross-checked against it. The
+block-length heuristic `n**(1/3)` is likewise unverified. Anyone extending this
+project should treat both as the weakest-supported choices in the methodology.

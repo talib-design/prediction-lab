@@ -160,20 +160,37 @@ def paired_block_permutation_test(
     )
 
 
-def benjamini_hochberg(p_values: np.ndarray, q: float = 0.05) -> np.ndarray:
-    """Benjamini-Hochberg step-up: which hypotheses survive at false discovery rate ``q``.
+def benjamini_hochberg(
+    p_values: np.ndarray, q: float = 0.05, *, dependent: bool = True
+) -> np.ndarray:
+    """Step-up FDR control: which hypotheses survive at false discovery rate ``q``.
 
-    Needed the moment anything is tested per-number: 49 independent tests at 5% yield
-    two or three "significant" balls by construction. Reporting those as findings is
-    the single easiest way to produce a false discovery here.
+    Needed the moment anything is tested repeatedly: 49 independent tests at 5% yield
+    two or three "significant" balls by construction, and reporting those as findings
+    is the easiest way to manufacture a false discovery here.
+
+    ``dependent`` selects the Benjamini-Yekutieli variant, which divides the step-up
+    thresholds by the harmonic number ``C_m = sum_{i=1..m} 1/i``. Wasserman (*All of
+    Statistics*, §10.7) states the BH theorem with exactly this factor: ``C_m = 1``
+    holds **only when the p-values are independent**.
+
+    The default is ``True`` because in this project they are not. Every model is
+    compared to the same reference on the same draws; frequency, rolling-100 and
+    rolling-300 are computed from overlapping counts; and the main and chance pools
+    come from the same tirages. Using the independent form there would quietly
+    overstate how much evidence survives correction -- the exact failure mode this
+    module exists to prevent. ``dependent=False`` is available for genuinely
+    independent families and costs about a factor of ``C_m`` in strictness
+    (``C_m ~ 3.1`` at m = 12, ``~ 4.5`` at m = 49).
     """
     p = np.asarray(p_values, dtype=np.float64)
     m = len(p)
     if m == 0:
         return np.zeros(0, dtype=bool)
+    correction = 1.0 if not dependent else float(np.sum(1.0 / np.arange(1, m + 1)))
     order = np.argsort(p)
     ranked = p[order]
-    thresholds = q * np.arange(1, m + 1) / m
+    thresholds = q * np.arange(1, m + 1) / (m * correction)
     passing = ranked <= thresholds
     rejected = np.zeros(m, dtype=bool)
     if passing.any():
