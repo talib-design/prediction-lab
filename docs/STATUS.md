@@ -20,11 +20,20 @@ merely no better — and significantly so (p = 0.0002, surviving FDR):
 | frequency (all history) | 0.33060 | worse |
 | rolling frequency, 300 | 0.33133 | worse |
 | rolling frequency, 100 | 0.33411 | worse |
+| shrunk_frequency (James-Stein) | 0.32955 | indistinguishable in practice |
 | gap ("due numbers") | 0.38081 | much worse |
 
 That ordering is exactly what noise-fitting looks like: the shorter the window, the
 more noise is fitted, the worse the score. The "due number" heuristic is the worst
 model tested, by a wide margin.
+
+The exception proves the rule. `shrunk_frequency` is the same frequency model with
+James-Stein shrinkage, which estimates from the data how much of the observed spread
+to believe. On this history it estimates *none* — the spread of ball frequencies is
+smaller than binomial noise alone would produce — so the model collapses onto uniform
+and recovers essentially all the loss. Calibration error falls from 0.0105 to 0.0002.
+A model that knows how much to trust its own counts stops paying for the noise it
+fitted. See the audit in `docs/METHODOLOGY.md`.
 
 **The null result is bounded by power, not by evidence of fairness.** With 1 075
 draws, a ball's inclusion probability would have to differ from 5/49 by **38.5%**
@@ -140,11 +149,12 @@ Official FDJ archive, current era only.
 | `random` | A random ticket. Its probabilities are uniform — that is what "at random" means — so its score must equal `uniform`'s. Asserted in the tests as a harness check. |
 | `frequency` | Probability proportional to historical counts, Laplace-smoothed. |
 | `rolling_frequency_{100,300}` | The same over a recent window. |
+| `shrunk_frequency{,_300}` | The same counts, shrunk toward uniform by the James-Stein rule, with the shrinkage estimated from the data instead of a hand-picked smoothing constant. |
 | `gap` | The "due number" folk heuristic, implemented so it can be refuted. |
 
 ## Current test coverage
 
-141 tests, 90% line coverage of `src/predlab`. Ruff and Pyright clean.
+149 tests, 90% line coverage of `src/predlab`. Ruff and Pyright clean.
 
 Measure with `uv run --with pytest-cov pytest --cov=predlab --cov-report=term-missing`.
 

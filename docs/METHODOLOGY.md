@@ -112,60 +112,140 @@ State this in advance, so that moving the goalposts is visible:
 - One era, one game. Nothing here has been replicated.
 
 
-## Sources consulted
 
-These are the project's reference texts. Each entry says what was checked and what it
-changed — a citation that changed nothing is noted as such rather than decorating the
-page.
+## Methodological audit against the reference corpus
 
-### What it changed
+Every choice in this document was re-checked against the project's five reference
+texts. Each row says what was checked and what changed. A source that changed nothing
+is recorded as such rather than cited for decoration.
 
-**Wasserman, *All of Statistics*, §10.7 (Multiple Testing).** States the
-Benjamini-Hochberg theorem with a factor `C_m` in the step-up threshold, equal to 1
-**only when the p-values are independent**, and equal to the harmonic number otherwise.
+| Choice | Source | Outcome |
+|---|---|---|
+| FDR correction | Wasserman §10.7 | **Changed.** Was wrong. |
+| Smoothing constant `alpha` | Wasserman §11.6; Efron, *Think Like a Statistician*, app. A.3 | **Changed.** Replaced by an estimated one. |
+| Frequency estimation | Efron §1.6 + app. A.2; Wasserman §12.7 | **Changed.** New model added. |
+| Bootstrap interval method | Efron, *Exponential Families*, §5.4-5.6 | Confirmed as a known gap; now specified. |
+| Uniformity test | Wasserman ch. 15; Efron §5.6 | Confirmed our departure is deliberate. |
+| Permutation test | Wasserman §10.5 | Confirmed, but our reason was wrong. |
+| Power framing | Efron ch. 8; Wasserman §10.8 | Confirmed, with a sharper wording. |
+| Block resampling | — | **Not covered by the corpus.** |
+| Anomaly reporting | Efron ch. 8 (winner's curse) | New requirement for work not yet built. |
 
-This project's comparisons are plainly not independent: every model is scored against
-the same reference on the same draws, `frequency` / `rolling_100` / `rolling_300` are
-computed from overlapping counts, and the two pools come from the same tirages. The
-first implementation used the independent form, which would have overstated how much
-evidence survives correction — precisely the failure this module exists to prevent.
-`benjamini_hochberg` now defaults to the dependent (Benjamini-Yekutieli) variant.
+### Changed: FDR correction was using the wrong form
 
-Effect on the Milestone 1 result: **none**. The corrected form is roughly three times
-stricter at m = 12, and every "worse than uniform" finding still survives it. The
-error would have mattered the moment a model looked good.
+Wasserman states the Benjamini-Hochberg theorem with a factor `C_m` in the step-up
+threshold, equal to 1 **only when the p-values are independent**, and to the harmonic
+number otherwise.
 
-**Efron, *Exponential Families in Theory and Practice*, §5.4-5.6.** The BCa interval
-in full: the bias corrector `z0`, the acceleration `a`, Theorem 5.2, and the
-`bcajack` / `bcapar` computational recipe. Table 5.5 shows how far percentile
-intervals can sit from exact ones on a skewed statistic. This turns "BCa would be
-better" from a hedge into a specified task.
+Ours are not independent: every model is scored against the same reference on the same
+draws, `frequency` / `rolling_100` / `rolling_300` share overlapping counts, and both
+pools come from the same tirages. The original implementation used the independent
+form and would have overstated surviving evidence — the exact failure this module
+exists to prevent. Now defaults to the dependent (Benjamini-Yekutieli) variant, about
+three times stricter at m = 12.
 
-### What it confirmed
+Effect on the Milestone 1 verdict: none. Every finding survived the stricter form. The
+error would have mattered the first time something looked good.
 
-**Efron, *To Think Like a Statistician*, ch. 8.** The prostate-cancer worked example
-(6 033 genes, Bonferroni admitting 4, BH at 0.1 admitting 28) is the canonical
-illustration of why per-ball testing needs FDR rather than 49 uncorrected tests. It
-confirms the planned treatment of per-number testing; nothing changed.
+### Changed: `alpha = 1` was an arbitrary prior, and arbitrary was avoidable
 
-**Wasserman §10.5 (permutation tests).** Notes that permutation tests are most useful
-for small samples and otherwise agree with large-sample theory. At n = 875 the
-asymptotic test would give a similar answer — so the justification for permuting here
-is **not** small n, it is the block structure needed to respect autocorrelation.
-Worth being precise about, since "we used a permutation test" is often stated as if it
-were self-justifying.
+Laplace smoothing with `alpha = 1` is a flat Beta(1, 1) prior on each number. Fisher's
+objection applies — a flat prior on `p` is not flat on a reparametrisation of `p`, so
+"uninformative" was doing unearned work. Jeffreys' prior for a Bernoulli is
+Beta(1/2, 1/2), i.e. `alpha = 0.5` (Wasserman §11.6).
 
-**Wasserman ch. 15 and Efron §5.6 (chi-square goodness of fit).** Both use the
-multinomial null. That is exactly the approximation this project deliberately avoids:
-because exactly `k` numbers come out of each draw, counts are negatively dependent and
-the multinomial variance is too large, making the classical test conservative in the
-direction that hides bias. The Monte-Carlo null stands as a deliberate departure from
-the textbook default, not an oversight.
+Worse, `alpha` was never chosen on validation, contradicting this document's own rule
+about free parameters. Rather than tune an arbitrary constant, the next finding removes
+the need for one.
 
-### What the corpus does not cover
+### Changed: the frequency model was committing a known, named error
+
+Efron's baseball example (*To Think Like a Statistician*, §1.6, appendix A.2): a set of
+noisy parallel estimates is **more spread out than the truth**, because noise
+exaggerates differences. Wasserman §12.7 gives the decision-theoretic version — for
+k ≥ 3 the raw estimates are inadmissible, and shrinkage strictly improves total
+squared error.
+
+Estimating 49 ball probabilities from a few hundred appearances each is precisely that
+setting, and `FrequencyPredictor` takes the exaggerated spread at face value. Its
+measured behaviour — reliably *worse* than assuming fairness — is what that error looks
+like when scored.
+
+`ShrunkFrequencyPredictor` applies the James-Stein rule, estimating from the data how
+much of the observed spread to keep::
+
+    js[i] = M + [1 - (K - 3) * V / S] * (x[i] - M)
+
+On the real Loto history the raw factor is **negative** for both pools (main: -0.088;
+chance: -0.588): the observed spread of ball frequencies is *smaller* than pure
+binomial noise would produce. Clamped at zero by the positive-part rule, the model
+collapses exactly onto uniform.
+
+Measured effect, main pool, 875 walk-forward draws:
+
+| Model | log loss | Calibration error | vs uniform |
+|---|---|---|---|
+| uniform | 0.32954 | 0.0000 | reference |
+| frequency (`alpha = 1`) | 0.33060 | 0.0105 | worse, p = 0.0002 |
+| shrunk_frequency | 0.32955 | 0.0002 | worse, p = 0.0002 |
+| shrunk_frequency_300 | 0.32956 | 0.0001 | indistinguishable, p = 0.135 |
+
+Shrinkage recovers essentially all of the loss the naive model incurred, and cuts
+calibration error by a factor of 50. The residual gap on the full-history variant is
+the cost of the small positive shrinkage retained in early windows — even a little
+misplaced confidence is still paid for.
+
+This is the single most useful thing the corpus contributed: it named the error, gave
+the correction, and the correction behaved exactly as predicted on real data.
+
+### Confirmed, with a sharper reason: the permutation test
+
+Wasserman §10.5 notes that permutation tests are most useful for **small** samples and
+otherwise agree with large-sample theory. At n = 875 an asymptotic test would give a
+similar answer. So the justification here is **not** sample size — it is the block
+structure needed to respect autocorrelation. Worth stating precisely, because "we used
+a permutation test" is often offered as if it were self-justifying.
+
+### Confirmed: the null result's wording
+
+Wasserman, on goodness-of-fit: failing to reject does not mean the model is correct;
+the test may simply have lacked power. Efron ch. 8 frames power = 0.80 as "an 80%
+chance of finding something interesting, so it was worth running".
+
+That is exactly the argument this project's reports make, and it is reassuring to find
+it stated in the same terms rather than invented here.
+
+### Confirmed: the uniformity test is a deliberate departure
+
+Wasserman ch. 15 and Efron §5.6 both use the multinomial chi-square null. That is the
+approximation this project avoids on purpose: exactly `k` numbers come out per draw, so
+counts are negatively dependent and the multinomial variance is too large, making the
+classical test conservative in the direction that hides bias. Our Monte-Carlo null
+stands.
+
+The empirical evidence sits in the shrinkage numbers above: the observed spread is
+0.881 of what an independent-slot model predicts for the main pool, close to the
+theoretical ratio `(1 - k/N) / (1 - 1/N) = 0.917`.
+
+### New requirement: the winner's curse
+
+Efron ch. 8 (the prostate data) on selection bias: the winner of a "bigness contest"
+among many candidates has a biased-upward estimate, because both merit and luck
+contributed. Tweedie's formula estimates and removes that bias.
+
+This project does not yet report per-ball findings, but as soon as the descriptive
+channel says "number 17 is the most frequent", that frequency is a selection-biased
+estimate and reporting it raw would be the winner's curse in plain sight. Recorded as
+a requirement for the anomaly channel before it is built.
+
+### Not covered by the corpus
 
 **Block resampling for dependent data.** These texts cover the i.i.d. and parametric
-bootstrap. The moving-block bootstrap and the block sign-flip permutation used here
-come from outside this corpus and have **not** been cross-checked against it. The
-block-length heuristic `n**(1/3)` is likewise unverified. Anyone extending this
-project should treat both as the weakest-supported choices in the methodology.
+bootstrap only. The moving-block bootstrap, the block sign-flip permutation, and the
+`n**(1/3)` block-length heuristic all come from outside this corpus and have **not**
+been cross-checked against it. They remain the weakest-supported choices in the
+methodology, and anyone extending this project should treat them as such.
+
+**Proper scoring rules.** Log loss and the Brier score as *decision criteria*, and the
+`eps = 1e-6` clipping that keeps log loss finite, are not addressed by these five
+books. Unverified.

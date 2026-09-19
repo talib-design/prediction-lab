@@ -116,6 +116,16 @@ class FrequencyPredictor:
     Stating the obvious so it is not mistaken for a claim: past frequency is only
     predictive if the mechanism is biased *and* stable. This model assumes both in
     order to test both.
+
+    On ``alpha``: 1.0 is Laplace's flat Beta(1, 1) prior per number. Fisher's objection
+    applies -- a flat prior on ``p`` is not a flat prior on a reparametrisation of
+    ``p``, so "uninformative" is doing unearned work. Jeffreys' prior for a Bernoulli
+    is Beta(1/2, 1/2), i.e. ``alpha = 0.5`` (Wasserman, *All of Statistics*, §11.6).
+
+    More honestly: ``alpha`` is a free parameter that was never chosen on validation,
+    which contradicts this project's own methodology. Rather than tune an arbitrary
+    prior, :class:`ShrunkFrequencyPredictor` estimates the right amount of shrinkage
+    from the data. Treat this class as the naive reference it is.
     """
 
     spec: GameSpec
@@ -144,6 +154,86 @@ class FrequencyPredictor:
             else:
                 scores = view.counts(pool.name).astype(np.float64) + self.alpha
                 probs = normalise_to_k(scores, pool)
+            pools[pool.name] = PoolForecast(pool=pool, inclusion_probs=probs)
+        return Forecast(
+            spec=self.spec,
+            target_date=target_date,
+            pools=pools,
+            n_training_draws=len(view),
+        )
+
+
+@dataclass(slots=True)
+class ShrunkFrequencyPredictor:
+    """Observed frequencies, shrunk toward uniform by the James-Stein rule.
+
+    The motivating fact, from Efron (*To Think Like a Statistician*, §1.6 and appendix
+    A.2) on the 18 baseball players: a set of noisy parallel estimates is **more spread
+    out than the truth**, because noise exaggerates differences. Estimating 49 ball
+    probabilities from a few hundred appearances each is exactly that situation, and
+    :class:`FrequencyPredictor` takes the exaggerated spread at face value. Its measured
+    behaviour -- reliably worse than assuming fairness -- is what that error looks like.
+
+    The James-Stein estimate pulls every number back toward the grand mean by a factor
+    estimated from the data itself::
+
+        js[i] = M + [1 - (K - 3) * V / S] * (x[i] - M)
+
+    where ``M`` is the grand mean, ``V`` the binomial variance of one estimate, and
+    ``S`` the observed spread. When the observed spread is no larger than noise alone
+    would produce, the factor collapses to zero and the model *becomes* the uniform
+    model. That is the point: it knows how much to trust its own counts.
+
+    This replaces an arbitrary smoothing constant with a quantity estimated from the
+    sample, which is the empirical-Bayes answer to "what should alpha be?".
+    """
+
+    spec: GameSpec
+    window: int | None = None
+    name: str = field(init=False, default="shrunk_frequency")
+    version: str = "1"
+
+    def __post_init__(self) -> None:
+        if self.window is not None and self.window < 1:
+            raise ValueError("window must be >= 1 or None")
+        self.name = "shrunk_frequency" if self.window is None else f"shrunk_frequency_{self.window}"
+
+    def config(self) -> dict[str, Any]:
+        return {"game": self.spec.key, "window": self.window, "estimator": "james-stein"}
+
+    def shrinkage_factor(self, view: HistoryView, pool_name: str) -> float:
+        """The bracketed factor: 1 means trust the counts, 0 means fall back to uniform.
+
+        Clamped to [0, 1]. A negative raw factor means the observed spread is *smaller*
+        than pure noise would give -- there is nothing to shrink toward the mean because
+        the estimates are already less dispersed than chance. Clamping at zero is the
+        standard positive-part rule (Wasserman, §12.7).
+        """
+        pool = self.spec.pool(pool_name)
+        n = len(view)
+        if n < 2 or pool.size < 4:
+            return 0.0
+        x = view.counts(pool_name) / n
+        mean = pool.marginal_probability
+        variance = mean * (1.0 - mean) / n
+        spread = float(((x - mean) ** 2).sum())
+        if spread <= 0.0:
+            return 0.0
+        return float(min(1.0, max(0.0, 1.0 - (pool.size - 3) * variance / spread)))
+
+    def forecast(self, history: HistoryView, target_date: date) -> Forecast:
+        view = history if self.window is None else history.tail(self.window)
+        pools: dict[str, PoolForecast] = {}
+        for pool in self.spec.pools:
+            mean = pool.marginal_probability
+            if view.is_empty:
+                probs = np.full(pool.size, mean, dtype=np.float64)
+            else:
+                observed = view.counts(pool.name) / len(view)
+                factor = self.shrinkage_factor(view, pool.name)
+                # Sums to k by construction: sum(observed) == k and sum(mean) == k.
+                shrunk = mean + factor * (observed - mean)
+                probs = normalise_to_k(shrunk, pool)
             pools[pool.name] = PoolForecast(pool=pool, inclusion_probs=probs)
         return Forecast(
             spec=self.spec,
@@ -205,5 +295,7 @@ def default_baselines(spec: GameSpec, *, seed: int = 0) -> list[Any]:
         FrequencyPredictor(spec=spec, window=None),
         FrequencyPredictor(spec=spec, window=100),
         FrequencyPredictor(spec=spec, window=300),
+        ShrunkFrequencyPredictor(spec=spec),
+        ShrunkFrequencyPredictor(spec=spec, window=300),
         GapPredictor(spec=spec),
     ]

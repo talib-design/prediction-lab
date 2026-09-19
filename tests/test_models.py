@@ -14,6 +14,7 @@ from predlab.models.baselines import (
     FrequencyPredictor,
     GapPredictor,
     RandomTicketPredictor,
+    ShrunkFrequencyPredictor,
     UniformPredictor,
     default_baselines,
 )
@@ -180,3 +181,64 @@ def test_any_non_negative_scores_yield_a_valid_forecast(raw: list[float]) -> Non
             normalise_to_k(scores, pool)
         return
     PoolForecast(pool=pool, inclusion_probs=normalise_to_k(scores, pool))
+
+
+# ---------------------------------------------------------------------- shrinkage
+
+
+def test_shrinkage_collapses_to_uniform_when_the_spread_is_only_noise(loto: GameSpec) -> None:
+    """On fair data the James-Stein factor must vanish, and the model become uniform.
+
+    Efron's point on the baseball players: noisy parallel estimates are more spread out
+    than the truth. When there is no true spread, the correct amount to keep is none.
+    """
+    dates, pools = synthetic_draws(loto, 400, seed=30, start=date(2020, 1, 1))
+    h = build_view(loto, dates, pools, as_of=TARGET)
+    model = ShrunkFrequencyPredictor(spec=loto)
+    assert model.shrinkage_factor(h, "main") < 0.35
+    fc = model.forecast(h, TARGET)
+    uniform = UniformPredictor(spec=loto).forecast(h, TARGET)
+    np.testing.assert_allclose(
+        fc.pools["main"].inclusion_probs,
+        uniform.pools["main"].inclusion_probs,
+        atol=0.01,
+    )
+
+
+def test_shrinkage_keeps_a_real_bias(loto: GameSpec) -> None:
+    """Being conservative must not mean being blind: a genuine spread survives."""
+    dates, pools = synthetic_draws(loto, 400, seed=31, start=date(2020, 1, 1))
+    rigged = pools["main"].copy()
+    rigged[:, 0] = 7  # number 7 in every single draw
+    h = build_view(loto, dates, {**pools, "main": rigged}, as_of=TARGET)
+    model = ShrunkFrequencyPredictor(spec=loto)
+    assert model.shrinkage_factor(h, "main") > 0.9
+    fc = model.forecast(h, TARGET)
+    assert fc.pools["main"].probability_of(7) > 0.5
+
+
+def test_shrinkage_factor_is_bounded(loto: GameSpec) -> None:
+    dates, pools = synthetic_draws(loto, 300, seed=32, start=date(2020, 1, 1))
+    h = build_view(loto, dates, pools, as_of=TARGET)
+    model = ShrunkFrequencyPredictor(spec=loto)
+    for pool in loto.pools:
+        assert 0.0 <= model.shrinkage_factor(h, pool.name) <= 1.0
+
+
+def test_shrunk_frequency_never_beats_uniform_by_overshooting(loto: GameSpec) -> None:
+    """Shrunk probabilities stay between the raw estimate and the uniform value."""
+    dates, pools = synthetic_draws(loto, 500, seed=33, start=date(2020, 1, 1))
+    h = build_view(loto, dates, pools, as_of=TARGET)
+    raw = FrequencyPredictor(spec=loto, alpha=1e-9).forecast(h, TARGET)
+    shrunk = ShrunkFrequencyPredictor(spec=loto).forecast(h, TARGET)
+    uniform = 5 / 49
+    for i in range(49):
+        lo, hi = sorted((raw.pools["main"].inclusion_probs[i], uniform))
+        assert lo - 1e-6 <= shrunk.pools["main"].inclusion_probs[i] <= hi + 1e-6
+
+
+def test_shrunk_frequency_on_empty_history_is_uniform(loto: GameSpec) -> None:
+    dates, pools = synthetic_draws(loto, 10, seed=34, start=date(2020, 1, 1))
+    empty = build_view(loto, dates, pools, as_of=date(2019, 1, 1))
+    fc = ShrunkFrequencyPredictor(spec=loto).forecast(empty, TARGET)
+    assert fc.pools["main"].probability_of(1) == pytest.approx(5 / 49)
