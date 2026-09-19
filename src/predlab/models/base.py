@@ -95,8 +95,11 @@ class Forecast:
 class Predictor(Protocol):
     """Anything that can turn a causally-truncated history into a forecast."""
 
-    name: str
-    version: str
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def version(self) -> str: ...
 
     def config(self) -> dict[str, Any]:
         """Everything needed to rebuild this model identically. Goes into the run record."""

@@ -183,11 +183,10 @@ class GapPredictor:
             else:
                 draws = history.pool_draws[pool.name]
                 # gaps[i] = draws since number (low + i) last appeared; n if never.
-                gaps = np.full(pool.size, float(n), dtype=np.float64)
-                for offset, row in enumerate(draws[::-1]):
-                    idx = row - pool.low
-                    fresh = gaps[idx] == n
-                    gaps[idx] = np.where(fresh, float(offset), gaps[idx])
+                last_seen = np.full(pool.size, -1, dtype=np.int64)
+                row_ids = np.repeat(np.arange(n, dtype=np.int64), pool.k)
+                np.maximum.at(last_seen, (draws - pool.low).ravel(), row_ids)
+                gaps = np.where(last_seen >= 0, n - 1 - last_seen, n).astype(np.float64)
                 probs = normalise_to_k(gaps + self.alpha, pool)
             pools[pool.name] = PoolForecast(pool=pool, inclusion_probs=probs)
         return Forecast(
