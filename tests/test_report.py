@@ -25,7 +25,6 @@ from predlab.models.selection import TopKPolicy
 from .conftest import synthetic_draws
 
 START = date(2020, 1, 1)
-FAST = {"n_resamples": 250, "n_permutations": 300, "n_simulations": 150}
 
 
 def biased_draws(
@@ -60,7 +59,10 @@ def evaluate(spec: GameSpec, dates: np.ndarray, pools: dict[str, np.ndarray]) ->
         TopKPolicy(),
         BacktestConfig(min_train_draws=200),
     )
-    return build_report(result, pools, seed=0, **FAST)
+    # Small resample counts: these tests check behaviour, not precision.
+    return build_report(
+        result, pools, seed=0, n_resamples=250, n_permutations=300, n_simulations=150
+    )
 
 
 def test_fair_data_yields_an_explicit_null_result(loto: GameSpec) -> None:

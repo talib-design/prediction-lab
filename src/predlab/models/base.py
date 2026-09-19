@@ -125,17 +125,24 @@ def normalise_to_k(scores: np.ndarray, pool: NumberPool) -> np.ndarray:
     The result is a coherent statement about a draw of ``k`` numbers, whatever the
     scores looked like.
     """
+    scores = np.asarray(scores, dtype=np.float64)
+    if not np.all(np.isfinite(scores)):
+        raise ValueError(f"{pool.name}: scores must be finite")
     if np.any(scores < 0):
         raise ValueError(f"{pool.name}: scores must be non-negative")
-    total = float(scores.sum())
-    if total <= 0:
+
+    largest = float(scores.max(initial=0.0))
+    if largest <= 0:
         raise ValueError(f"{pool.name}: scores are all zero; cannot form a distribution")
 
     floor, ceiling = PROB_EPSILON, 1.0 - PROB_EPSILON
     if not pool.size * floor <= pool.k <= pool.size * ceiling:
         raise ValueError(f"{pool.name}: k={pool.k} is infeasible within [{floor}, {ceiling}]")
 
-    p = np.clip(scores.astype(np.float64) * (pool.k / total), floor, ceiling)
+    # Divide by the largest score before normalising. Scaling by k/sum directly
+    # overflows to infinity when the scores are denormal, which Hypothesis found.
+    relative = scores / largest
+    p = np.clip(relative * (pool.k / float(relative.sum())), floor, ceiling)
 
     tolerance = 1e-12 * max(1.0, float(pool.k))
     for _ in range(64):

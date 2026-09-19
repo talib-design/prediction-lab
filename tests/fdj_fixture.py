@@ -68,3 +68,65 @@ def build_csv(
     for row in rows:
         lines.append(";".join(row.get(col, fill) for col in header))
     return ("\r\n".join(lines) + "\r\n").encode("cp1252")
+
+
+ISO_TO_FRENCH = {
+    1: "LUNDI",
+    2: "MARDI",
+    3: "MERCREDI",
+    4: "JEUDI",
+    5: "VENDREDI",
+    6: "SAMEDI",
+    7: "DIMANCHE",
+}
+
+
+def synthetic_archive_rows(
+    n: int, seed: int = 0, start: str = "2019-11-06"
+) -> list[dict[str, str]]:
+    """``n`` internally consistent rows on real Loto draw days, newest first.
+
+    Built to pass every integrity check the parser applies, so that tests exercise the
+    real pipeline rather than a relaxed version of it.
+    """
+    import datetime as _dt
+    import random as _random
+
+    rng = _random.Random(seed)
+    day = _dt.date.fromisoformat(start)
+    rows: list[dict[str, str]] = []
+    index = 0
+    while len(rows) < n:
+        if day.isoweekday() in (1, 3, 6):
+            main = sorted(rng.sample(range(1, 50), 5))
+            chance = rng.randint(1, 10)
+            rows.append(
+                {
+                    "annee_numero_de_tirage": f"{day.year}{index:04d}",
+                    "jour_de_tirage": ISO_TO_FRENCH[day.isoweekday()]
+                    + ("   " if index % 3 == 0 else ""),
+                    "date_de_tirage": day.strftime("%d/%m/%Y"),
+                    "date_de_forclusion": (day + _dt.timedelta(days=60)).strftime("%d/%m/%Y"),
+                    "boule_1": str(main[2]),
+                    "boule_2": str(main[0]),
+                    "boule_3": str(main[4]),
+                    "boule_4": str(main[1]),
+                    "boule_5": str(main[3]),
+                    "numero_chance": str(chance),
+                    "combinaison_gagnante_en_ordre_croissant": "-".join(map(str, main))
+                    + f"+{chance}",
+                    "devise": "eur",
+                }
+            )
+            index += 1
+        day += _dt.timedelta(days=1)
+    return list(reversed(rows))
+
+
+def build_archive(path, rows: list[dict[str, str]], member: str = "loto_201911.csv"):
+    """Write ``rows`` into a ZIP shaped like the official archive."""
+    import zipfile
+
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(member, build_csv(rows))
+    return path
