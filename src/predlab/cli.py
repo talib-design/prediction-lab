@@ -22,7 +22,7 @@ from predlab.core.gamespec import REGISTRY, get_spec
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError, sha256_file
 from predlab.core.historyview import build_view
 from predlab.core.paths import default_paths
-from predlab.data.sources import fdj_loto, francetravail
+from predlab.data.sources import dares, fdj_loto, francetravail
 from predlab.data.store import ArchiveManifest, DrawStore, SourceMutationError
 from predlab.eval.power import power_report
 from predlab.eval.report import build_report, render_markdown
@@ -30,6 +30,13 @@ from predlab.models.baselines import FrequencyPredictor, default_baselines
 from predlab.models.selection import TopKPolicy
 from predlab.registry.hypotheses import Hypothesis, HypothesisRegistry, Origin, Status
 from predlab.registry.predictions import HindsightError, PredictionLedger
+from predlab.ts.backtest import BacktestError, walk_forward
+from predlab.ts.baselines import default_forecasters
+from predlab.ts.html import render_html
+from predlab.ts.metrics import MetricError
+from predlab.ts.report import build_report as build_ts_report
+from predlab.ts.report import render_markdown as render_ts_markdown
+from predlab.ts.report import to_json
 
 app = typer.Typer(
     help="Prediction Lab — build and honestly evaluate predictive systems.",
@@ -693,6 +700,128 @@ def _describe_window(record: francetravail.OfferCount) -> str:
     if record.window_complete:
         return f"mesuré à J+{record.lag_days}"
     return f"PARTIEL — {record.observed_days}/{record.window_days} j écoulés, mois en cours"
+
+
+# --------------------------------------------------------------------------- forecast
+
+forecast_app = typer.Typer(
+    help="Forecasting of continuous series (cadre job postings).", no_args_is_help=True
+)
+app.add_typer(forecast_app, name="forecast")
+
+DARES_CSV = "data/raw/dares/offres_collectees_cadres_france_metro.csv"
+
+
+@forecast_app.command("fetch")
+def forecast_fetch(
+    output: Annotated[
+        str, typer.Option("--output", help="Where to write the canonical CSV.")
+    ] = DARES_CSV,
+) -> None:
+    """Download the DARES cadre series and store it in canonical form."""
+    try:
+        series = dares.fetch()
+    except dares.SourceFormatError as exc:
+        _fail(str(exc))
+        return
+    path = dares.write_csv(series, Path(output))
+    typer.secho(
+        f"{len(series)} mois, {series.start} → {series.end}, écrits dans {path}",
+        fg=typer.colors.GREEN,
+    )
+    typer.echo(f"source : {dares.ATTRIBUTION} — {dares.LICENCE}")
+
+
+@forecast_app.command("backtest")
+def forecast_backtest(
+    series_path: Annotated[
+        str, typer.Option("--series", help="Canonical CSV to evaluate.")
+    ] = DARES_CSV,
+    train_end: Annotated[
+        str, typer.Option("--train-end", help="Last period never evaluated (YYYY-MM).")
+    ] = "2014-12",
+    horizons: Annotated[
+        str, typer.Option("--horizons", help="Comma-separated months ahead.")
+    ] = "1,3,6,12",
+    html: Annotated[
+        bool, typer.Option("--html/--no-html", help="Also write a readable HTML report.")
+    ] = True,
+) -> None:
+    """Evaluate every baseline chronologically and write a report.
+
+    ``--train-end`` is the last period that is never evaluated: every forecast origin
+    lies strictly after it, so the MASE scale comes from data no forecast is scored
+    against.
+    """
+    path = Path(series_path)
+    if not path.exists():
+        _fail(f"no series at {path}; run `predlab forecast fetch` first.")
+        return
+    try:
+        series = dares.read_csv(path)
+    except (dares.SourceFormatError, dares.SeriesIntegrityError) as exc:
+        _fail(str(exc))
+        return
+
+    try:
+        wanted = tuple(sorted({int(p) for p in horizons.split(",") if p.strip()}))
+    except ValueError:
+        _fail(f"--horizons must be comma-separated whole numbers, got {horizons!r}")
+        return
+
+    try:
+        result = walk_forward(series, default_forecasters(), train_end=train_end, horizons=wanted)
+    except (BacktestError, MetricError) as exc:
+        _fail(str(exc))
+        return
+
+    report = build_ts_report(result, series)
+    paths = default_paths().ensure()
+    run_id = f"cadres_{datetime.now(UTC):%Y%m%dT%H%M%SZ}"
+    run_dir = paths.runs / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "report.json").write_text(to_json(report), encoding="utf-8")
+    markdown = render_ts_markdown(report)
+    (run_dir / "report.md").write_text(markdown, encoding="utf-8")
+    if html:
+        (run_dir / "report.html").write_text(render_html(report), encoding="utf-8")
+    (paths.runs / "LATEST_TS").write_text(run_id, encoding="utf-8")
+
+    typer.echo(markdown)
+    typer.echo(f"\nécrit dans {run_dir}")
+    if html:
+        typer.secho(f"interface : open {run_dir / 'report.html'}", fg=typer.colors.GREEN)
+
+
+@forecast_app.command("report")
+def forecast_report(
+    run_id: Annotated[
+        str | None, typer.Option("--run-id", help="Defaults to the most recent run.")
+    ] = None,
+    open_html: Annotated[
+        bool, typer.Option("--html", help="Print the path of the HTML interface.")
+    ] = False,
+) -> None:
+    """Print a stored forecasting report."""
+    paths = default_paths()
+    if run_id is None:
+        latest = paths.runs / "LATEST_TS"
+        if not latest.exists():
+            _fail("no run yet; run `predlab forecast backtest` first.")
+            return
+        run_id = latest.read_text(encoding="utf-8").strip()
+    if open_html:
+        path = paths.runs / run_id / "report.html"
+        if not path.exists():
+            _fail(f"no HTML report at {path}")
+            return
+        typer.echo(str(path.resolve()))
+        return
+    path = paths.runs / run_id / "report.md"
+    if not path.exists():
+        _fail(f"no report at {path}")
+        return
+    typer.echo(path.read_text(encoding="utf-8"))
 
 
 @app.command("version")

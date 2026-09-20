@@ -1,4 +1,4 @@
-# Status — Milestone 1
+# Status — Milestone 1 (Loto)
 
 Last updated: 2026-09-19.
 
@@ -207,3 +207,68 @@ Secondary, cheap, and worth doing alongside: verify whether the 2026-05-04 rule 
 touched draw mechanics, and ingest the second-tirage block as a separate game — it
 would roughly double the sample available for uniformity testing, at no cost beyond a
 parser change.
+
+
+---
+
+# Status — prévision de l'emploi cadre
+
+Dernière mise à jour : 2026-09-20.
+
+## Où en est ce volet
+
+Le moteur Loto répond « quels numéros ». Celui-ci répond « combien, et avec quelle
+certitude ». Ils partagent la discipline — troncature causale, évaluation
+chronologique, règles de score propres, baselines d'abord — et aucun code.
+
+### Ce qui fonctionne
+
+- **Collecte live** des offres cadre France Travail, quotidienne, via GitHub Actions.
+  Fenêtres journalières à lag fixe (`--lags 1,7,30,90`) : le lag est choisi par
+  construction, pas subi. Ledger chaîné, vérifié avant chaque ajout.
+- **Série DARES** ingérée : 367 mois, 1996-01 → 2026-07, sans trou, Licence Ouverte
+  v2.0. Parser strict qui refuse un résultat vide, un mois manquant, un doublon, une
+  valeur nulle ou négative, un en-tête modifié à la main.
+- **Vue causale** (`SeriesView`) : le modèle reçoit une série déjà tronquée avant la
+  période à prévoir. Invariant property-testé sur des coupures arbitraires, plus un
+  modèle qui tente activement de tricher.
+- **Prévision probabiliste** : cinq baselines, chacune produisant des quantiles issus
+  de ses propres erreurs relatives passées au même horizon, sur l'historique visible
+  uniquement.
+- **Métriques** : MASE (1,0 = aussi bon que le calendrier), pinball loss, couverture
+  des intervalles avec largeur moyenne. MAPE reporté pour la traduction, pas pour le
+  jugement.
+- **Backtest walk-forward** par horizon, jamais mutualisé.
+- **Rapport** en JSON, Markdown et HTML. `predlab forecast fetch | backtest | report`.
+
+### Résultat mesuré (2026-09-20)
+
+139 prévisions évaluées, entraînement ≤ 2014-12.
+
+| horizon 1 mois | MASE | MAPE | couv. 80 % |
+|---|---:|---:|---:|
+| `seasonal_naive_drift` | 1,643 | 14,3 % | 77,0 % — calibré |
+| `naive` | 1,776 | 15,1 % | 84,2 % — calibré |
+| `seasonal_naive` (réf) | 2,518 | 21,7 % | 63,3 % — trop confiant |
+
+À l'horizon 12, aucun modèle ne se distingue : tout converge vers MASE ≈ 2,66.
+
+### Deux corrections que la mesure a imposées
+
+1. **Les intervalles étaient tous faux.** Construits sur des résidus absolus, alors
+   que le niveau de la série varie d'un facteur 5. Passage aux résidus relatifs : les
+   trois meilleurs passent de « trop confiant » à calibré.
+2. **Le naïf saisonnier n'est pas la référence à battre.** Ce document l'affirmait à
+   partir de l'amplitude saisonnière. Le naïf simple le bat à tous les horizons :
+   atteindre le même mois l'an dernier coûte douze mois de dérive de niveau.
+
+### Ce qui ne fonctionne pas encore
+
+- **Aucun modèle au-delà des baselines.** C'est volontaire : tant que l'instrument
+  n'est pas caractérisé, un résultat de modèle n'est pas interprétable.
+- **Le lien entre la série DARES et les volumes internes Apec n'est pas mesuré.**
+  C'est le risque numéro un de ce volet et il n'est pas traité.
+- **Le collecteur live n'est pas encore confronté à la série DARES.** C'est le test
+  qui dira s'il mesure le marché ou un artefact de plateforme.
+- Pas de prévision forward enregistrée ni scorée à maturité pour cette série.
+- Pas d'intervalle corrigé de la quantification (arrondi à la centaine, 1,18 %).
