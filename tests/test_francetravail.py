@@ -9,6 +9,7 @@ suite so that `pytest` stays runnable by anyone who clones this.
 from __future__ import annotations
 
 from datetime import UTC, date, datetime
+from typing import ClassVar
 
 import pytest
 
@@ -124,11 +125,14 @@ def test_offer_count_records_when_it_was_taken() -> None:
         region=None,
         count=18_432,
         lag_days=20,
+        observed_days=31,
+        window_days=31,
     )
     payload = record.payload()
     assert payload["captured_at"] and payload["window_end"]
     assert payload["lag_days"] == 20
     assert payload["collector_version"]
+    assert payload["window_complete"] is True
 
 
 def test_lag_is_what_makes_two_counts_comparable() -> None:
@@ -147,6 +151,8 @@ def test_lag_is_what_makes_two_counts_comparable() -> None:
         None,
         18_432,
         lag_days=2,
+        observed_days=31,
+        window_days=31,
     )
     late = OfferCount(
         "2026-10-15T00:00:00+00:00",
@@ -157,6 +163,8 @@ def test_lag_is_what_makes_two_counts_comparable() -> None:
         None,
         11_907,
         lag_days=45,
+        observed_days=31,
+        window_days=31,
     )
     assert early.window_start == late.window_start
     assert early.lag_days != late.lag_days
@@ -181,3 +189,81 @@ def test_network_failures_surface_as_a_message_not_a_traceback() -> None:
     client = OffersClient(DeadNetwork(Credentials.from_env(ENV)))
     with pytest.raises((ApiError, urllib.error.URLError)):
         client.count(date(2026, 8, 1), date(2026, 8, 31))
+
+
+def test_a_month_still_running_is_marked_incomplete() -> None:
+    """The defect this guards against: a partial count on the monthly axis.
+
+    Asking on the 20th for offers created up to the 30th does not return a count
+    measured "early" -- it returns a sum over twenty days. Nothing about the lag makes
+    it comparable to a closed month, so the record has to say so itself.
+    """
+    partial = OfferCount(
+        captured_at="2026-09-20T02:00:00+00:00",
+        window_start="2026-09-01",
+        window_end="2026-09-30",
+        qualification=QUALIFICATION_CADRE,
+        secteur_activite=None,
+        region=None,
+        count=13_676,
+        lag_days=-10,
+        observed_days=19,
+        window_days=30,
+    )
+    assert partial.window_complete is False
+    assert partial.payload()["window_complete"] is False
+    assert partial.lag_days < 0, "a signed lag is how an open window shows up"
+
+
+def test_the_client_itself_marks_an_open_window(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise the real code path, not a copy of its arithmetic.
+
+    The boundary that matters is the first day after the window closes: before it the
+    count is a partial sum, from it on the window is closed and only the expiry lag
+    separates one measurement from another.
+    """
+    import urllib.request
+
+    from predlab.data.sources.francetravail import OffersClient, month_window
+
+    class FakeResponse:
+        status: ClassVar[int] = 206
+        headers: ClassVar[dict[str, str]] = {"Content-Range": "offres 0-0/13676"}
+
+        def read(self) -> bytes:
+            return b"[]"
+
+        def __enter__(self) -> FakeResponse:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+    monkeypatch.setattr(urllib.request, "urlopen", lambda *a, **k: FakeResponse())
+
+    class FakeTokens(TokenProvider):
+        def token(self, now: datetime | None = None) -> str:
+            return "token"
+
+    client = OffersClient(FakeTokens(Credentials("id", "secret")))
+    start, end = month_window(2026, 9)  # 30 days
+
+    for day, observed, complete in (
+        (date(2026, 9, 1), 0, False),
+        (date(2026, 9, 20), 19, False),
+        (date(2026, 9, 30), 29, False),
+        (date(2026, 10, 1), 30, True),
+        (date(2026, 11, 15), 30, True),
+    ):
+        record = client.count(start, end, now=datetime(day.year, day.month, day.day, tzinfo=UTC))
+        assert record.count == 13_676
+        assert record.window_days == 30
+        assert record.observed_days == observed, day
+        assert record.window_complete is complete, day
+
+    # And the lag stays the literal signed difference, so an open window is visible
+    # even to code that only reads lag_days.
+    open_window = client.count(start, end, now=datetime(2026, 9, 20, tzinfo=UTC))
+    assert open_window.lag_days == -10

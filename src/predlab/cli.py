@@ -462,8 +462,15 @@ def hypothesis_update(
 @collect_app.command("offers")
 def collect_offers(
     months: Annotated[
-        int, typer.Option("--months", help="How many complete months back to capture.")
+        int, typer.Option("--months", help="How many closed months back to capture.")
     ] = 6,
+    skip_current: Annotated[
+        bool,
+        typer.Option(
+            "--skip-current",
+            help="Do not capture the month in progress (its count is partial).",
+        ),
+    ] = False,
     qualification: Annotated[
         str, typer.Option("--qualification", help="cadre | non-cadre")
     ] = "cadre",
@@ -477,6 +484,10 @@ def collect_offers(
     Run this on a schedule. The API only exposes offers that are still active, so the
     history cannot be rebuilt later: a month not captured now is captured at a longer
     lag forever after, and lags are not comparable.
+
+    The month in progress is captured too, and marked ``window_complete: false``: its
+    count covers only the days already elapsed, so it belongs to a nowcast series, not
+    to the monthly one. ``--skip-current`` leaves it out entirely.
     """
     paths = default_paths().ensure()
     # Read .env before looking for credentials. Anything already exported wins.
@@ -499,6 +510,8 @@ def collect_offers(
     today = datetime.now(UTC).date()
     windows = []
     year, month = today.year, today.month
+    if skip_current:
+        year, month = (year - 1, 12) if month == 1 else (year, month - 1)
     for _ in range(1 if dry_run else months + 1):
         windows.append(francetravail.month_window(year, month))
         year, month = (year - 1, 12) if month == 1 else (year, month - 1)
@@ -509,7 +522,7 @@ def collect_offers(
             record = client.count(start, end, qualification=code)
             typer.echo(
                 f"{record.window_start[:7]}  {record.count:>8,} offres {qualification}"
-                f"  (mesuré à J+{record.lag_days})"
+                f"  ({_describe_window(record)})"
             )
             if not dry_run:
                 ledger.append(record.payload())
@@ -526,6 +539,18 @@ def collect_offers(
             "aujourd'hui ne sera plus jamais mesurable au même délai.",
             fg=typer.colors.YELLOW,
         )
+
+
+def _describe_window(record: francetravail.OfferCount) -> str:
+    """How the measurement should be read, in one phrase.
+
+    A closed window is described by its lag, which is what makes two months
+    comparable. An open one is described by how much of it has elapsed, because its
+    count is a partial sum and no lag makes it comparable to anything.
+    """
+    if record.window_complete:
+        return f"mesuré à J+{record.lag_days}"
+    return f"PARTIEL — {record.observed_days}/{record.window_days} j écoulés, mois en cours"
 
 
 @app.command("version")

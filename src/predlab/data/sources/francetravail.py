@@ -37,6 +37,16 @@ Two consequences, and ignoring either would poison the series:
    labour market. The analysis layer must select a constant lag; this module records
    what it needs to make that possible and refuses to pretend otherwise.
 
+3. **A window that has not closed yet is incomplete, not merely early.** Counting the
+   current month on the 20th asks the API for offers created up to the 30th; the ones
+   created on the 21st do not exist yet. The count is a partial sum over the elapsed
+   part of the window, and putting it on the same axis as a completed month is not a
+   lag artefact but an arithmetic error. Such a record carries ``window_complete =
+   False`` and ``observed_days`` (how much of the window had elapsed at capture), so
+   the analysis layer can either drop it or scale it deliberately. ``lag_days`` is
+   signed and stays the literal ``captured_at - window_end``: negative means the
+   window was still open.
+
 This is also why the collector must start running now: the history cannot be rebuilt
 afterwards, at any lag.
 """
@@ -56,7 +66,7 @@ TOKEN_URL = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?r
 API_BASE = "https://api.francetravail.io/partenaire/offresdemploi"
 SEARCH_PATH = "/v2/offres/search"
 DEFAULT_SCOPE = "api_offresdemploiv2 o2dsoffre"
-COLLECTOR_VERSION = "ft-offres-1"
+COLLECTOR_VERSION = "ft-offres-2"
 
 QUALIFICATION_CADRE = "9"
 QUALIFICATION_NON_CADRE = "0"
@@ -153,7 +163,18 @@ class OfferCount:
     region: str | None
     count: int
     lag_days: int
+    observed_days: int
+    window_days: int
     collector_version: str = COLLECTOR_VERSION
+
+    @property
+    def window_complete(self) -> bool:
+        """Had the whole window elapsed when the count was taken?
+
+        False means the count is a partial sum: offers that will be created later in
+        the window are missing from it by construction, not by expiry.
+        """
+        return self.observed_days >= self.window_days
 
     def payload(self) -> dict[str, object]:
         return {
@@ -165,6 +186,9 @@ class OfferCount:
             "region": self.region,
             "count": self.count,
             "lag_days": self.lag_days,
+            "observed_days": self.observed_days,
+            "window_days": self.window_days,
+            "window_complete": self.window_complete,
             "collector_version": self.collector_version,
         }
 
@@ -284,6 +308,11 @@ class OffersClient:
 
         total = 0 if (status == 204 and not header) else parse_content_range(header)
         moment = now or datetime.now(UTC)
+        window_days = (window_end - window_start).days + 1
+        # Days of the window already over at capture time. The capture day itself does
+        # not count: offers can still be created during it.
+        observed = (moment.date() - window_start).days
+        observed_days = max(0, min(window_days, observed))
         return OfferCount(
             captured_at=moment.isoformat(timespec="seconds"),
             window_start=window_start.isoformat(),
@@ -293,4 +322,6 @@ class OffersClient:
             region=region,
             count=total,
             lag_days=(moment.date() - window_end).days,
+            observed_days=observed_days,
+            window_days=window_days,
         )

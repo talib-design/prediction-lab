@@ -114,3 +114,73 @@ FDJ announced a change of player return rate (TRJ 54.85% → 54.35%) effective
 **2026-05-04**. Whether this touched the draw mechanics or only the prize structure
 has **not** been verified. It is flagged as a candidate regime boundary and should be
 checked before treating the era as homogeneous.
+
+---
+
+## Cadre job postings — France Travail API
+
+Verified against the official OpenAPI specification on 2026-09-20.
+
+| | |
+|---|---|
+| token | `https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire` |
+| base | `https://api.francetravail.io/partenaire/offresdemploi` |
+| search | `GET /v2/offres/search` |
+| scopes | `api_offresdemploiv2 o2dsoffre` (both mandatory) |
+| counting | `range=0-0`, then read the `Content-Range` header — one request per count |
+| cadre filter | `qualification=9` (`0` = non-cadre), from the spec |
+
+Credentials live in a git-ignored `.env` (`FRANCETRAVAIL_CLIENT_ID`,
+`FRANCETRAVAIL_CLIENT_SECRET`). Anything already exported in the environment wins over
+the file. They are never logged, never stored in a record, and `__repr__` hides the
+secret.
+
+**Offers are counted, never downloaded.** The licence governs redistribution of the
+offers themselves; a count is all the indicator needs, and keeping the offers out is a
+design decision rather than an omission.
+
+### The two measurement rules that govern every use of this data
+
+The API returns offers that are **active right now**. Expired offers are gone. So:
+
+1. **A count means nothing without `captured_at`.** "Offers created in August" counted
+   in September is smaller than the same count taken in August — not because fewer
+   were created, but because some have expired. The datum is the triple
+   `(window, captured_at, lag_days)`.
+
+2. **Only counts taken at the same lag are comparable.** Comparing "August at J+30"
+   with "September at J+3" measures the expiry curve, not the labour market. The
+   analysis layer must select a constant lag.
+
+### A window still open is incomplete, not merely early
+
+Counting the current month on the 20th asks the API for offers created up to the 30th;
+the ones created on the 21st do not exist yet. The result is a **partial sum over the
+elapsed part of the window** — an arithmetic error if placed on the monthly axis, not a
+lag artefact that a lag correction could absorb.
+
+Every record therefore carries:
+
+| field | meaning |
+|---|---|
+| `lag_days` | signed `captured_at − window_end`. **Negative ⇒ the window was still open.** |
+| `observed_days` | days of the window already over at capture (the capture day itself excluded — offers can still be created during it) |
+| `window_days` | length of the window |
+| `window_complete` | `observed_days >= window_days` |
+
+`predlab collect offers` captures the month in progress by default and labels it
+`PARTIEL — n/N j écoulés`; re-measured daily it gives the intra-month accumulation
+curve a nowcast needs. `--skip-current` leaves it out. **Records with
+`window_complete: false` must never be mixed into the monthly series.**
+
+`collector_version` is `ft-offres-2` (v1 recorded no completeness information).
+
+### Known limitations
+
+- **History cannot be rebuilt.** Only active offers are exposed, so a month not
+  captured today is captured at a longer lag forever after. The collector has to run
+  on a schedule from now on.
+- Counts are of France Travail postings, not of the whole cadre market. They are a
+  leading indicator to be validated against an external series, not a census.
+- The relationship between these counts and any Apec-internal volume is **unmeasured**
+  and must be established before it is claimed.
