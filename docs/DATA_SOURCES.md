@@ -175,6 +175,46 @@ curve a nowcast needs. `--skip-current` leaves it out. **Records with
 
 `collector_version` is `ft-offres-2` (v1 recorded no completeness information).
 
+### La forme de fenêtre : journée à lag fixe
+
+C'est la décision qui conditionne tout le reste, et la mesure d'expiration ci-dessous
+l'a imposée.
+
+Mesurer un **mois calendaire** place le lag là où le calendrier le met : le 20
+septembre, août est à J+20 et mars à J+173. Comme la survie d'une annonce est
+exponentielle de demi-vie ~24 jours, deux mois mesurés le même jour ne sont pas sur la
+même échelle — facteur 86 entre les deux extrêmes de la première collecte. Ramener ces
+mesures sur une échelle commune suppose de connaître la courbe d'expiration, qu'on ne
+connaît pas encore, et dont l'erreur d'estimation contaminerait chaque point.
+
+Mesurer **la journée qui a exactement L jours** place le lag à L, par construction, à
+chaque exécution, sans arithmétique et sans correction. Deux mesures consécutives sont
+comparables parce qu'elles ont le même âge, pas parce qu'on les a corrigées.
+
+| | mois calendaire | journée à lag fixe |
+|---|---|---|
+| lag | subi | choisi |
+| comparabilité | après correction estimée | par construction |
+| points par semaine | 0,23 | 7 |
+| premier point exploitable | à la clôture du mois suivant | le lendemain |
+| agrégation | indécomposable | jours → semaines → mois |
+
+Le sens de l'agrégation est décisif : une série quotidienne se replie en semaines ou en
+mois après coup, une série hebdomadaire ne se déplie jamais.
+
+**Plusieurs lags par passage** (`--lags 1,7,30,90`) n'est pas de la redondance. Chaque
+journée calendaire est remesurée à 1, 7, 30 puis 90 jours d'âge, ce qui trace **sa
+propre** courbe de survie. La série à lag 1 est exploitable immédiatement ; les mesures
+plus tardives sont ce qui permettra plus tard de ramener une série à lag long sur la
+même échelle, avec une courbe estimée sur les données et non supposée.
+
+Lag 0 est refusé : ce serait la journée en cours, donc une somme partielle — exactement
+la mesure que cette commande existe pour éviter.
+
+Les deux formes partagent le même ledger. Un enregistrement journalier se reconnaît à
+`window_start == window_end`, sans champ redondant qui pourrait contredire les dates
+qu'il duplique.
+
 ### Collecte automatique
 
 `.github/workflows/collect-offers.yml` capture tous les jours à 04:10 UTC et commite
@@ -192,6 +232,10 @@ est un trou définitif : un Mac endormi produit exactement ça, un cron héberg�
   silencieusement tous les lags.
 - Les mois clos sont re-mesurés à chaque passage. Ce n'est pas de la redondance :
   mesurer la même fenêtre à des lags croissants trace la courbe d'expiration.
+- Deux passes par jour d'exécution : `collect daily --lags 1,7,30,90` (la série qui
+  sera modélisée) puis `collect offers --months 6` (la courbe d'expiration mensuelle,
+  et le seul chiffre comparable à ce qu'un tiers citerait pour un mois). La seconde
+  tourne en `if: always()` : elle ne doit pas être annulée par l'échec de la première.
 - `predlab collect offers` sort en code non-zéro si aucune mesure n'a été enregistrée,
   et l'étape de commit tourne malgré l'échec : une passe interrompue à mi-parcours a
   quand même capturé des mesures qu'on ne pourra plus jamais reprendre à ce lag.

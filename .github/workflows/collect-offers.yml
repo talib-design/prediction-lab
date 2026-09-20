@@ -61,8 +61,20 @@ jobs:
       - name: Verify the ledger before appending to it
         run: uv run predlab collect verify
 
-      - name: Collect
-        id: collect
+      # The series that will actually be modelled. Each window is one past day,
+      # measured at a lag fixed by construction, so two measurements are comparable
+      # without any correction. This is the step that must not be missed.
+      - name: Collect the fixed-lag daily windows
+        env:
+          FRANCETRAVAIL_CLIENT_ID: ${{ secrets.FRANCETRAVAIL_CLIENT_ID }}
+          FRANCETRAVAIL_CLIENT_SECRET: ${{ secrets.FRANCETRAVAIL_CLIENT_SECRET }}
+        run: uv run predlab collect daily --lags 1,7,30,90
+
+      # Kept alongside, cheaply, for two reasons: it extends the expiry curve at the
+      # monthly scale, and it is the only thing comparable with a figure anyone else
+      # would quote for a month. It is not the modelling series.
+      - name: Collect the calendar months
+        if: always()
         env:
           FRANCETRAVAIL_CLIENT_ID: ${{ secrets.FRANCETRAVAIL_CLIENT_ID }}
           FRANCETRAVAIL_CLIENT_SECRET: ${{ secrets.FRANCETRAVAIL_CLIENT_SECRET }}

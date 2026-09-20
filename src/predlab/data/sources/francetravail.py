@@ -146,6 +146,17 @@ def month_window(year: int, month: int) -> tuple[date, date]:
     return first, following - timedelta(days=1)
 
 
+def day_window(day: date) -> tuple[date, date]:
+    """A single calendar day as a window.
+
+    This is the window shape that makes a usable series. Measuring the day ``L`` days
+    ago puts the lag at exactly ``L``, every single time, with no arithmetic and no
+    correction -- which is the one property calendar months cannot have, since a month
+    measured today is measured at whatever lag the calendar happens to give it.
+    """
+    return day, day
+
+
 def _as_api_datetime(day: date, end_of_day: bool) -> str:
     suffix = "T23:59:59Z" if end_of_day else "T00:00:00Z"
     return day.isoformat() + suffix

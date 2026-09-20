@@ -246,3 +246,108 @@ def test_collect_keeps_what_it_captured_before_a_failure(
     ledger = (workspace / "data" / "offers.jsonl").read_text().strip().splitlines()
     assert len(ledger) == 2, "the two successful measurements must survive"
     assert json.loads(ledger[0])["count"] == 1001
+
+
+def _fake_offers_api(monkeypatch: pytest.MonkeyPatch, seen: list[tuple[date, date]]) -> None:
+    """Stub the API so a test can watch which windows the CLI asks for."""
+    from datetime import UTC, datetime
+
+    from predlab.data.sources import francetravail
+
+    monkeypatch.setenv("FRANCETRAVAIL_CLIENT_ID", "id")
+    monkeypatch.setenv("FRANCETRAVAIL_CLIENT_SECRET", "secret")
+
+    def count(
+        self: object,
+        window_start: date,
+        window_end: date,
+        *,
+        now: datetime | None = None,
+        **kwargs: object,
+    ) -> francetravail.OfferCount:
+        seen.append((window_start, window_end))
+        moment = now or datetime.now(UTC)
+        window_days = (window_end - window_start).days + 1
+        observed = max(0, min(window_days, (moment.date() - window_start).days))
+        return francetravail.OfferCount(
+            captured_at=moment.isoformat(timespec="seconds"),
+            window_start=window_start.isoformat(),
+            window_end=window_end.isoformat(),
+            qualification=francetravail.QUALIFICATION_CADRE,
+            secteur_activite=None,
+            region=None,
+            count=100 * len(seen),
+            lag_days=(moment.date() - window_end).days,
+            observed_days=observed,
+            window_days=window_days,
+        )
+
+    monkeypatch.setattr(francetravail.OffersClient, "count", count)
+
+
+def test_daily_collection_pins_the_lag_by_construction(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The whole point of the daily window: the lag is chosen, not observed.
+
+    A calendar month measured today lands at whatever lag the calendar gives it, and
+    the first real collection showed six months spanning a factor of 86 from expiry
+    alone. Measuring the day that is L days old puts the lag at exactly L, on every
+    run, forever -- which is what makes two measurements comparable at all.
+    """
+    from datetime import UTC, datetime
+
+    seen: list[tuple[date, date]] = []
+    _fake_offers_api(monkeypatch, seen)
+
+    run("collect", "daily", "--lags", "1,7,30")
+
+    today = datetime.now(UTC).date()
+    assert [s for s, _ in seen] == [today - timedelta(days=lag) for lag in (1, 7, 30)]
+    assert all(start == end for start, end in seen), "each window is one single day"
+
+    records = [
+        json.loads(line) for line in (workspace / "data" / "offers.jsonl").read_text().splitlines()
+    ]
+    assert [r["lag_days"] for r in records] == [1, 7, 30]
+    assert all(r["window_complete"] for r in records), "a past day is always closed"
+    assert all(r["window_days"] == 1 for r in records)
+
+
+def test_daily_collection_refuses_a_zero_lag(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Lag 0 is today: a window still running, hence a partial sum.
+
+    That is exactly the measurement this command exists to avoid, so it is refused
+    rather than silently recorded as incomplete.
+    """
+    seen: list[tuple[date, date]] = []
+    _fake_offers_api(monkeypatch, seen)
+
+    result = runner.invoke(app, ["collect", "daily", "--lags", "0,7"])
+    assert result.exit_code != 0
+    assert seen == [], "nothing should have been requested"
+
+
+def test_daily_and_monthly_records_stay_distinguishable(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Both shapes share one ledger, so a reader must be able to tell them apart.
+
+    ``window_start == window_end`` identifies a daily record without a redundant field
+    that could disagree with the dates it duplicates.
+    """
+    seen: list[tuple[date, date]] = []
+    _fake_offers_api(monkeypatch, seen)
+
+    run("collect", "daily", "--lags", "1")
+    run("collect", "offers", "--months", "1")
+
+    records = [
+        json.loads(line) for line in (workspace / "data" / "offers.jsonl").read_text().splitlines()
+    ]
+    daily = [r for r in records if r["window_start"] == r["window_end"]]
+    monthly = [r for r in records if r["window_start"] != r["window_end"]]
+    assert len(daily) == 1
+    assert len(monthly) == 2, "the month in progress plus the one closed month"

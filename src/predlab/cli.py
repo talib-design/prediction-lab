@@ -7,7 +7,7 @@ data directory or prints something a person has to read and judge.
 from __future__ import annotations
 
 import json
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Annotated
 
@@ -561,6 +561,102 @@ def collect_offers(
         "aujourd'hui ne sera plus jamais mesurable au même délai.",
         fg=typer.colors.YELLOW,
     )
+
+
+@collect_app.command("daily")
+def collect_daily(
+    lags: Annotated[
+        str,
+        typer.Option(
+            "--lags",
+            help="Ages, in days, at which to measure a single past day. E.g. 1,7,30.",
+        ),
+    ] = "1,7,30",
+    qualification: Annotated[
+        str, typer.Option("--qualification", help="cadre | non-cadre")
+    ] = "cadre",
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Check credentials with one call, store nothing."),
+    ] = False,
+) -> None:
+    """Measure single past days, each at a fixed age. This is the usable series.
+
+    A calendar month measured today is measured at whatever lag the calendar gives it,
+    and counts at different lags are not comparable -- the first collection showed six
+    months spanning a factor of 86 purely from expiry. Measuring instead *the day that
+    is L days old* pins the lag to L by construction, every run, forever.
+
+    Several lags per run are not redundancy. The same calendar day is measured again at
+    each larger lag, which traces its own survival curve: the lag-1 series is usable
+    immediately, and the later measurements are what will later let a longer-lag series
+    be corrected onto the same scale.
+
+    Days, not weeks: a daily series can be aggregated into weeks afterwards, while a
+    weekly one can never be taken apart.
+    """
+    paths = default_paths().ensure()
+    load_dotenv()
+    try:
+        credentials = francetravail.Credentials.from_env()
+    except francetravail.MissingCredentialsError as exc:
+        _fail(str(exc))
+        return
+
+    code = {
+        "cadre": francetravail.QUALIFICATION_CADRE,
+        "non-cadre": francetravail.QUALIFICATION_NON_CADRE,
+    }.get(qualification)
+    if code is None:
+        _fail("--qualification must be 'cadre' or 'non-cadre'")
+        return
+
+    try:
+        wanted = sorted({int(part) for part in lags.split(",") if part.strip()})
+    except ValueError:
+        _fail(f"--lags must be a comma-separated list of whole numbers, got {lags!r}")
+        return
+    # A lag of 0 would measure today, which is still running: a partial sum, and the
+    # one thing this command exists to avoid.
+    if not wanted or wanted[0] < 1:
+        _fail("--lags must contain only values >= 1 (0 would measure the day in progress)")
+        return
+
+    client = francetravail.OffersClient(francetravail.TokenProvider(credentials))
+    today = datetime.now(UTC).date()
+    ledger = AppendOnlyLedger(paths.offers)
+    written = 0
+    failure: str | None = None
+
+    for lag in wanted[:1] if dry_run else wanted:
+        day = today - timedelta(days=lag)
+        start, end = francetravail.day_window(day)
+        try:
+            record = client.count(start, end, qualification=code)
+        except francetravail.ApiError as exc:
+            failure = str(exc)
+            break
+        typer.echo(
+            f"{record.window_start}  {record.count:>7,} offres {qualification}"
+            f"  (J+{record.lag_days})"
+        )
+        if not dry_run:
+            ledger.append(record.payload())
+            written += 1
+
+    if dry_run:
+        if failure:
+            _fail(failure)
+        typer.secho("identifiants valides — rien n'a été enregistré", fg=typer.colors.GREEN)
+        return
+
+    if written:
+        ledger.verify()
+        typer.echo(f"\nenregistré dans {paths.offers} ({len(ledger)} mesures au total)")
+    if failure:
+        _fail(f"{failure}\n{written} mesure(s) tout de même enregistrée(s).")
+    if written == 0:
+        _fail("aucune mesure enregistrée — la collecte n'a rien capturé")
 
 
 @collect_app.command("verify")
