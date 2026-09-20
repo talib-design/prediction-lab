@@ -334,12 +334,23 @@ un test le vérifie plutôt qu'une note de bas de page.
 | juin | 1,056 | | décembre | 0,879 |
 
 Amplitude saisonnière **33,1 %** du niveau annuel, contre une variation annuelle
-médiane de **11,8 %**. Autrement dit : **le calendrier pèse près de trois fois plus que
-la conjoncture**. Un modèle qui ignore la saisonnalité sera battu par un modèle qui ne
-connaît que le mois, et un modèle qui l'exploite paraîtra brillant sans rien savoir du
-marché. C'est précisément pourquoi la baseline de référence doit être le *naïf
-saisonnier* et non le naïf simple : battre le naïf simple sur cette série ne démontre
-rien du tout.
+médiane de **11,8 %**.
+
+> **Correction apportée par le backtest.** De ces deux chiffres, ce document concluait
+> que la baseline de référence devait être le *naïf saisonnier*. La mesure dit le
+> contraire : à tous les horizons testés, le naïf simple le bat (MASE 1,78 contre 2,52
+> à un mois). Le raisonnement sautait une étape — une saisonnalité forte ne rend pas
+> « le même mois l'an dernier » bon, parce qu'y accéder coûte douze mois de dérive de
+> niveau, et ce niveau passe de 4 000 à 19 000 puis à 12 000. La forme saisonnière est
+> réelle ; payer un an de dérive pour l'atteindre ne l'est pas.
+>
+> Ce qui gagne à un mois est `seasonal_naive_drift` — le même mois l'an dernier,
+> corrigé de l'évolution récente du niveau. La conclusion survit donc sous une forme
+> affaiblie : la saisonnalité aide, mais seulement une fois le niveau corrigé.
+>
+> Détail d'arithmétique utile à la lecture des tableaux : à l'horizon 12, le naïf
+> saisonnier **est** le naïf (le même mois l'an dernier, douze mois à l'avance, c'est
+> la dernière observation). Leurs scores y coïncident par construction.
 
 **Rupture COVID.** 2020-03 → 2020-05 : 7 300 → 4 600 → 4 700, contre ~11 000 en début
 d'année. C'est le point aberrant le plus violent de trente ans d'historique et il
