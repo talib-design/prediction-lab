@@ -275,3 +275,83 @@ mais elle ne doit jamais servir de niveau de marché.
   leading indicator to be validated against an external series, not a census.
 - The relationship between these counts and any Apec-internal volume is **unmeasured**
   and must be established before it is claimed.
+
+
+---
+
+## Offres cadre collectées — série DARES
+
+Vérifiée sur l'API Opendatasoft le 2026-09-20.
+
+| | |
+|---|---|
+| jeu | `dares_offres_collectees_satisfaites_france_travail_brutes_mens` |
+| base | `https://data.dares.travail-emploi.gouv.fr/api/explore/v2.1/catalog/datasets` |
+| catalogue | <https://www.data.gouv.fr/datasets/offres-collectees-et-satisfaites-par-france-travail-brutes-mensuelles> |
+| licence | **Licence Ouverte v2.0** — redistribution autorisée avec attribution |
+| filtre | `qualification="Cadres" and type_d_emploi="Total" and type_d_offre_d_emploi="Offres d'emploi collectées"` |
+| couverture | 1996-01 → 2026-07, mensuel, **367 points, aucun trou** |
+| champ | France métropolitaine, données **brutes** (non CVS) |
+
+Attribution requise : *DARES, offres collectées et satisfaites par France Travail
+(brutes, mensuelles)*.
+
+### Pourquoi cette série change le projet
+
+C'est **le même concept que le collecteur live** — offres collectées par France
+Travail — publié par le service statistique du ministère et ventilé par qualification,
+donc `Cadres` est disponible directement et non par proxy. Trois conséquences :
+
+1. **Une cible qui existe aujourd'hui.** 367 observations mensuelles réelles, sur
+   lesquelles un moteur de prévision se construit et se backteste maintenant, au lieu
+   d'attendre que la série live mûrisse.
+2. **Un contrôle externe du collecteur.** Si les comptages API, corrigés de
+   l'expiration, ne suivent pas cette série, le collecteur mesure un artefact de
+   plateforme et non le marché du travail. C'est une affirmation réfutable, et c'est
+   cette série qui la rend réfutable.
+3. **Un problème de prévision avec un usage réel.** La DARES publie avec ~2 mois de
+   retard (2026-07 était le dernier chiffre au 2026-09-20). Prévoir le chiffre avant
+   sa publication est un *nowcast d'une statistique officielle* — quelque chose de
+   défendable, contrairement à « prédire le marché de l'emploi » dans l'abstrait.
+
+### Ce qui borne toute affirmation d'exactitude
+
+**Les valeurs sont arrondies à la centaine.** Toutes, sans exception. Sur cette série
+la moyenne est de 8 461, donc le pas d'arrondi vaut **1,18 % du niveau moyen**. Une
+erreur de prévision inférieure à ~1,2 % n'est pas de la compétence : elle est sous la
+résolution de la donnée. Toute exactitude annoncée doit être lue contre ce plancher, et
+un test le vérifie plutôt qu'une note de bas de page.
+
+**La série est brute, non désaisonnalisée.** La saisonnalité est massive :
+
+| mois | indice | | mois | indice |
+|---|---:|---|---|---:|
+| janvier | 1,066 | | juillet | 1,033 |
+| février | 1,017 | | **août** | **0,765** |
+| mars | 1,096 | | septembre | 1,093 |
+| avril | 1,001 | | octobre | 1,079 |
+| mai | 0,952 | | novembre | 0,963 |
+| juin | 1,056 | | décembre | 0,879 |
+
+Amplitude saisonnière **33,1 %** du niveau annuel, contre une variation annuelle
+médiane de **11,8 %**. Autrement dit : **le calendrier pèse près de trois fois plus que
+la conjoncture**. Un modèle qui ignore la saisonnalité sera battu par un modèle qui ne
+connaît que le mois, et un modèle qui l'exploite paraîtra brillant sans rien savoir du
+marché. C'est précisément pourquoi la baseline de référence doit être le *naïf
+saisonnier* et non le naïf simple : battre le naïf simple sur cette série ne démontre
+rien du tout.
+
+**Rupture COVID.** 2020-03 → 2020-05 : 7 300 → 4 600 → 4 700, contre ~11 000 en début
+d'année. C'est le point aberrant le plus violent de trente ans d'historique et il
+dominera n'importe quelle métrique d'erreur moyenne. À traiter explicitement — jamais à
+supprimer en silence.
+
+### Limites connues
+
+- Offres **collectées par France Travail**, pas le marché cadre entier. Beaucoup
+  d'offres cadre ne passent jamais par France Travail. C'est un indicateur, pas un
+  recensement.
+- La série des offres *satisfaites* est suspendue depuis une rupture méthodologique en
+  juillet 2013 ; seules les offres collectées sont utilisées ici.
+- Le lien entre cette série et les volumes internes Apec est **non mesuré** et ne doit
+  pas être affirmé.
