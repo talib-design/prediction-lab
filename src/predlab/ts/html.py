@@ -120,7 +120,7 @@ thead th{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:v
   font-weight:600; border-bottom:1px solid var(--rule);}
 tbody tr:last-child td{border-bottom:0;}
 tr.best td{background:color-mix(in srgb, var(--observed) 6%, transparent);}
-tr.ref td:first-child::after{content:" réf"; color:var(--muted); font-size:11px; font-weight:600;}
+
 code{font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink);}
 
 .gauge{width:132px; height:9px; border-radius:999px; background:var(--grid);
@@ -128,6 +128,27 @@ code{font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink);}
 .gauge .target{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--muted);}
 .gauge .fill{position:absolute; top:0; bottom:0; left:0; border-radius:999px;}
 
+.headline{margin:0 0 6px; font-size:15px; line-height:1.5; max-width:72ch;}
+.headline strong{font-weight:600;}
+.promise-line{margin:0 0 18px; font-size:13.5px; color:var(--ink-2); max-width:72ch;}
+.promise-line b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums;}
+.chart-note{margin:10px 0 0; font-size:12.5px; color:var(--muted);}
+.key.dashed{background:repeating-linear-gradient(90deg,var(--forecast) 0 5px,transparent 5px 9px)!important;}
+details{margin-top:18px; border-top:1px solid var(--grid); padding-top:6px;}
+summary{cursor:pointer; font-size:13px; color:var(--ink-2); padding:8px 0; font-weight:500;}
+summary:hover{color:var(--ink);}
+summary:focus-visible{outline:2px solid var(--observed); outline-offset:3px; border-radius:4px;}
+table{min-width:520px;}
+td{vertical-align:top;}
+.m-name{font-weight:600; font-size:13.5px;}
+.m-explain{font-size:12px; color:var(--muted); margin-top:4px; max-width:40ch; white-space:normal;}
+.m-sub{font-size:11.5px; color:var(--muted); margin-top:4px; font-variant-numeric:normal;}
+.num{font-size:15px; font-weight:600; white-space:nowrap;}
+.unit{font-size:11.5px; font-weight:400; color:var(--muted);}
+.promise{font-size:15px; font-weight:600; margin-bottom:5px;}
+.tag{font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--muted); border:1px solid var(--ring); border-radius:4px; padding:1px 5px;
+  margin-left:6px; vertical-align:1px;}
 ul.caveats{margin:0; padding:0; list-style:none; display:grid; gap:12px;}
 ul.caveats li{padding-left:20px; position:relative; color:var(--ink-2); max-width:78ch;}
 ul.caveats li::before{content:""; position:absolute; left:0; top:8px; width:9px; height:2px;
@@ -245,54 +266,155 @@ def _gauge(empirical: float, nominal: float) -> str:
     )
 
 
+def _trace_chart(trace: dict[str, Any], months: int = 36) -> str:
+    """The model at work: what it predicted, what happened, and the range it promised.
+
+    A score tells a reader whether a method is good. This tells them what it *does* --
+    and it is the only place in the report where the uncertainty band is visible as a
+    shape rather than as a coverage percentage. Limited to the recent span, because
+    139 points of band is a smear, not a picture.
+    """
+    periods = trace["periods"][-months:]
+    actual = trace["actuals"][-months:]
+    fc = trace["forecast"][-months:]
+    low = trace["low"][-months:]
+    high = trace["high"][-months:]
+    if not periods:
+        return ""
+
+    w, h = 1000, 280
+    left, right, top, bottom = 56, 14, 14, 32
+    iw, ih = w - left - right, h - top - bottom
+    n = len(periods)
+    vmax = max(max(high), max(actual))
+    step = 5000
+    top_v = ((int(vmax) // step) + 1) * step
+
+    def x(i: int) -> float:
+        return left + (i / max(1, n - 1)) * iw
+
+    def y(v: float) -> float:
+        return top + ih - (v / top_v) * ih
+
+    grid, ticks = [], []
+    for v in range(0, top_v + 1, step):
+        gy = y(v)
+        grid.append(
+            f'<line x1="{left}" y1="{gy:.1f}" x2="{w - right}" y2="{gy:.1f}" '
+            f'stroke="var(--grid)" stroke-width="1"/>'
+        )
+        ticks.append(
+            f'<text class="tick" x="{left - 9}" y="{gy + 4:.1f}" text-anchor="end">'
+            f"{v // 1000}k</text>"
+        )
+    xticks = [
+        f'<text class="tick" x="{x(i):.1f}" y="{h - 11}" text-anchor="middle">'
+        f"{_esc(p[:4] if p.endswith('-01') else p[5:7])}</text>"
+        for i, p in enumerate(periods)
+        if p.endswith(("-01", "-07"))
+    ]
+
+    band = (
+        "M"
+        + " L".join(f"{x(i):.1f},{y(v):.1f}" for i, v in enumerate(high))
+        + " L"
+        + " L".join(f"{x(i):.1f},{y(v):.1f}" for i, v in reversed(list(enumerate(low))))
+        + " Z"
+    )
+    line_a = " ".join(
+        f"{'M' if i == 0 else 'L'}{x(i):.1f},{y(v):.1f}" for i, v in enumerate(actual)
+    )
+    line_f = " ".join(f"{'M' if i == 0 else 'L'}{x(i):.1f},{y(v):.1f}" for i, v in enumerate(fc))
+    return f"""<svg viewBox="0 0 {w} {h}" role="img"
+  aria-label="Prévision contre réalité sur les {n} derniers mois, avec la fourchette annoncée.">
+  {"".join(grid)}
+  <path d="{band}" fill="var(--forecast)" fill-opacity="0.13"/>
+  <line x1="{left}" y1="{y(0):.1f}" x2="{w - right}" y2="{y(0):.1f}" stroke="var(--rule)" stroke-width="1"/>
+  {"".join(ticks)}{"".join(xticks)}
+  <path d="{line_f}" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <path d="{line_a}" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+</svg>"""
+
+
 def _horizon_card(block: dict[str, Any]) -> str:
-    if block["beats_reference"]:
-        verdict = (
-            f"<code>{_esc(block['best'])}</code> bat la référence de "
-            f"{_fmt_num(block['margin_vs_reference'])} MASE"
+    best = block["models"][0]
+    ref = next((m for m in block["models"] if m["is_reference"]), None)
+
+    if block["beats_reference"] and ref is not None:
+        gain = ref["mae"] - best["mae"]
+        headline = (
+            f"<strong>{_esc(best['label'])}</strong> est la meilleure méthode&nbsp;: elle se "
+            f"trompe de {_fmt_int(best['mae'])} offres en moyenne, contre "
+            f"{_fmt_int(ref['mae'])} pour la méthode de référence — "
+            f"{_fmt_int(gain)} offres d'écart."
         )
     else:
-        verdict = f"aucun modèle ne bat la référence <code>{_esc(block['reference'])}</code>"
-    calib = block["calibrated_80"]
-    pill = (
-        '<span class="pill ok"><span class="dot"></span>intervalles calibrés</span>'
-        if calib
-        else '<span class="pill bad"><span class="dot"></span>intervalles mal calibrés</span>'
-    )
+        headline = (
+            "Aucune méthode ne fait mieux que la référence. À cet horizon, la série "
+            "ne contient rien d'exploitable que le calendrier ne donne déjà."
+        )
+
+    promise = best["kept_promise"]
+    if block["calibrated_80"]:
+        pill = '<span class="pill ok"><span class="dot"></span>fourchette honnête</span>'
+        promise_line = (
+            f"Elle annonce une fourchette censée contenir la réalité <b>8&nbsp;fois sur "
+            f"10</b>. Sur {block['n']} mois testés, elle y arrive "
+            f"<b>{_fmt_num(promise, 1)}&nbsp;fois sur&nbsp;10</b>."
+        )
+    else:
+        pill = '<span class="pill bad"><span class="dot"></span>fourchette trompeuse</span>'
+        promise_line = (
+            f"Elle annonce une fourchette censée contenir la réalité <b>8&nbsp;fois sur "
+            f"10</b>. Sur {block['n']} mois testés, elle n'y arrive que "
+            f"<b>{_fmt_num(promise, 1)}&nbsp;fois sur&nbsp;10</b> — elle se dit plus "
+            "précise qu'elle ne l'est."
+        )
 
     rows = []
     for i, row in enumerate(block["models"]):
-        classes = []
-        if i == 0:
-            classes.append("best")
-        if row["model"] == block["reference"]:
-            classes.append("ref")
         ok = row["coverage_80_verdict"] == "calibré"
+        tag = ' <span class="tag">référence</span>' if row["is_reference"] else ""
         rows.append(
-            f'<tr class="{" ".join(classes)}">'
-            f"<td><code>{_esc(row['model'])}</code></td>"
-            f'<td class="tabular">{_fmt_num(row["mase"])}</td>'
-            f'<td class="tabular">{_fmt_pct(row["mape"])}</td>'
-            f'<td class="tabular">{_fmt_pct(row["coverage_80"])}</td>'
-            f"<td>{_gauge(row['coverage_80'], 0.80)}</td>"
-            f'<td><span class="pill {"ok" if ok else "bad"}"><span class="dot"></span>'
-            f"{_esc(row['coverage_80_verdict'])}</span></td>"
-            f'<td class="tabular">{_fmt_int(row["coverage_80_width"])}</td></tr>'
+            f'<tr class="{"best" if i == 0 else ""}">'
+            f'<td><div class="m-name">{_esc(row["label"])}{tag}</div>'
+            f'<div class="m-explain">{_esc(row["explain"])}</div></td>'
+            f'<td class="tabular num">± {_fmt_int(row["mae"])}<span class="unit"> offres</span>'
+            f'<div class="m-sub">soit {_fmt_pct(row["mape"])} d\'écart</div></td>'
+            f'<td><div class="promise tabular">{_fmt_num(row["kept_promise"], 1)}'
+            f'<span class="unit"> / 10</span></div>{_gauge(row["coverage_80"], 0.80)}'
+            f'<div class="m-sub">{"tient sa promesse" if ok else "se surestime"}</div></td>'
+            "</tr>"
         )
 
+    chart = _trace_chart(block["trace"])
     return f"""<article class="hcard">
   <header>
-    <h3>Horizon {block["horizon"]} mois</h3>
-    <span class="verdict">{block["n"]} prévisions évaluées · {verdict}</span>
+    <h3>{_esc(block["label"])}</h3>
     {pill}
   </header>
-  <div class="table-scroll"><table>
-    <thead><tr>
-      <th>modèle</th><th>MASE</th><th>MAPE</th><th>couv. 80 %</th>
-      <th>vs&nbsp;nominal</th><th>verdict</th><th>largeur</th>
-    </tr></thead>
-    <tbody>{"".join(rows)}</tbody>
-  </table></div>
+  <p class="headline">{headline}</p>
+  <p class="promise-line">{promise_line}</p>
+  <div class="legend">
+    <span><i class="key" style="background:var(--observed)"></i>offres réellement collectées</span>
+    <span><i class="key dashed" style="background:var(--forecast)"></i>prévision de la méthode</span>
+    <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 20%,transparent);
+      border:1px solid var(--rule)"></i>fourchette annoncée</span>
+  </div>
+  {chart}
+  <p class="chart-note">Les 36 derniers mois du test. Le modèle n'a jamais vu le mois
+  qu'il prédit.</p>
+  <details>
+    <summary>Comparer les cinq méthodes</summary>
+    <div class="table-scroll"><table>
+      <thead><tr>
+        <th>Méthode</th><th>Erreur moyenne</th><th>Fourchette tenue</th>
+      </tr></thead>
+      <tbody>{"".join(rows)}</tbody>
+    </table></div>
+  </details>
 </article>"""
 
 
@@ -300,21 +422,23 @@ def _body(report: dict[str, Any]) -> str:
     series = report["series"]
     first = report["horizons"][0]
     best = first["models"][0]
-    floor = series["quantisation_floor"]
 
+    last_value = series["values"][-1]
     tiles = f"""<div class="tiles">
-  <div class="tile"><div class="label">Meilleur modèle à 1 mois</div>
-    <div class="value"><code style="font-size:19px">{_esc(first["best"])}</code></div>
-    <div class="note">MASE {_fmt_num(first["best_mase"])} · référence {_fmt_num(first["reference_mase"])}</div></div>
-  <div class="tile"><div class="label">Erreur moyenne à 1 mois</div>
-    <div class="value tabular">{_fmt_pct(first["best_mape"])}</div>
-    <div class="note">plancher de la donnée : {_fmt_pct(floor, 2)}</div></div>
-  <div class="tile"><div class="label">Couverture observée</div>
-    <div class="value tabular">{_fmt_pct(best["coverage_80"])}</div>
-    <div class="note">pour un intervalle annoncé à 80 %</div></div>
-  <div class="tile"><div class="label">Retard de publication</div>
+  <div class="tile"><div class="label">Dernier chiffre publié</div>
+    <div class="value tabular">{_fmt_int(last_value)}</div>
+    <div class="note">offres cadre en {_esc(series["end"])}</div></div>
+  <div class="tile"><div class="label">Le mois prochain, on se trompe de</div>
+    <div class="value tabular">± {_fmt_int(first["best_mae"])}</div>
+    <div class="note">offres en moyenne, soit {_fmt_pct(first["best_mape"])}</div></div>
+  <div class="tile"><div class="label">La fourchette annoncée est tenue</div>
+    <div class="value tabular">{_fmt_num(best["kept_promise"], 1)}<span
+      style="font-size:17px;color:var(--ink-2)"> fois sur 10</span></div>
+    <div class="note">la méthode en promet 8 sur 10</div></div>
+  <div class="tile"><div class="label">Ce chiffre sort avec</div>
     <div class="value tabular">{series["publication_lag_months"]} mois</div>
-    <div class="note">premier mois non publié : {_esc(series["first_unpublished_period"])}</div></div>
+    <div class="note">de retard — {_esc(series["first_unpublished_period"])} n'est pas
+      encore publié</div></div>
 </div>"""
 
     caveats = "".join(f"<li>{_esc(c)}</li>" for c in report["caveats"])
@@ -323,10 +447,12 @@ def _body(report: dict[str, Any]) -> str:
     return f"""<div class="wrap">
 <header>
   <div class="eyebrow">Prediction Lab · backtest</div>
-  <h1>Offres cadre collectées&nbsp;: ce que la prévision vaut</h1>
-  <p class="sub">Évaluation chronologique de cinq méthodes de référence sur la série
-  mensuelle de la DARES. Chaque prévision est faite sans que le modèle ait jamais vu
-  le mois qu'il prédit, et chacune annonce son incertitude&nbsp;— que ce tableau vérifie.</p>
+  <h1>Peut-on prévoir le volume d'offres cadre&nbsp;?</h1>
+  <p class="sub">Chaque mois, France Travail collecte des offres d'emploi cadre et la
+  DARES en publie le compte&nbsp;— avec deux mois de retard. Cette page teste cinq
+  façons simples de deviner ce chiffre avant sa publication, et mesure deux choses&nbsp;:
+  de combien elles se trompent, et si elles sont honnêtes sur leur propre marge
+  d'erreur.</p>
   <div class="meta">
     <span><b>{series["n"]}</b> mois · {_esc(series["start"])} → {_esc(series["end"])}</span>
     <span>entraînement ≤ <b>{_esc(report["backtest"]["train_end"])}</b></span>
@@ -336,36 +462,38 @@ def _body(report: dict[str, Any]) -> str:
 </header>
 
 <section>
-  <div class="section-head"><h2>Le verdict</h2>
-    <p>Ce qu'il faut lire d'abord, y compris quand la réponse est «&nbsp;pas mieux que
-    l'évidence&nbsp;».</p></div>
+  <div class="section-head"><h2>En bref</h2>
+    <p>Les quatre chiffres qui résument le reste de la page.</p></div>
   {tiles}
 </section>
 
 <section>
-  <div class="section-head"><h2>La série</h2>
-    <p>Trente ans d'offres cadre collectées. La zone teintée n'a jamais servi à
-    l'entraînement.</p></div>
+  <div class="section-head"><h2>Ce qu'on cherche à prévoir</h2>
+    <p>Le nombre d'offres cadre collectées chaque mois depuis 1996. Sur la zone
+    teintée, les méthodes ont été mises à l'épreuve&nbsp;: elles n'avaient accès à
+    aucune de ces données.</p></div>
   <figure class="chart-card" style="margin:0">
     <div class="legend">
-      <span><i class="key" style="background:var(--observed)"></i>offres collectées (mensuel, brut)</span>
-      <span><i class="key sq" style="background:var(--band);border:1px solid var(--rule)"></i>période évaluée</span>
+      <span><i class="key" style="background:var(--observed)"></i>offres cadre collectées, par mois</span>
+      <span><i class="key sq" style="background:var(--band);border:1px solid var(--rule)"></i>période de test</span>
     </div>
     {_series_chart(series["periods"], series["values"], report["backtest"]["train_end"])}
-    <figcaption>Valeurs publiées arrondies à la centaine. La chute de mars-mai 2020 est
-    une rupture de régime, conservée dans l'évaluation.</figcaption>
+    <figcaption>La chute de mars-mai 2020 (11&nbsp;400 → 4&nbsp;600 offres) est le
+    confinement. Elle est conservée dans l'évaluation&nbsp;: une méthode doit être jugée
+    sur les mois difficiles aussi.</figcaption>
   </figure>
 </section>
 
 <section>
-  <div class="section-head"><h2>Par horizon</h2>
-    <p>Chaque horizon est un problème distinct&nbsp;: les moyenner produirait un chiffre
-    qui ne décrit aucun des deux.</p></div>
+  <div class="section-head"><h2>À quelle échéance&nbsp;?</h2>
+    <p>Prévoir le mois prochain et prévoir dans un an sont deux problèmes différents.
+    Chacun est évalué séparément&nbsp;: en faire une moyenne donnerait un chiffre qui ne
+    décrit ni l'un ni l'autre.</p></div>
   {cards}
 </section>
 
 <section>
-  <div class="section-head"><h2>Ce qui limite ces chiffres</h2>
+  <div class="section-head"><h2>Ce que ces chiffres ne disent pas</h2>
     <p>Écrit pendant que le résultat est bon, parce que c'est le seul moment où on
     l'écrit.</p></div>
   <ul class="caveats">{caveats}</ul>
@@ -374,7 +502,8 @@ def _body(report: dict[str, Any]) -> str:
 <footer>
   <span>predlab {_esc(report["code_version"])}</span>
   <span>généré le {_esc(report["generated_at"])}</span>
-  <span>MASE&nbsp;1,0 = aussi bon que le naïf saisonnier sur l'entraînement</span>
+  <span>«&nbsp;Erreur moyenne&nbsp;» = écart absolu moyen entre la prévision et le
+    chiffre réellement publié</span>
 </footer>
 </div>"""
 

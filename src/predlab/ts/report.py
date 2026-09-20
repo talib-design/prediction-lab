@@ -35,6 +35,38 @@ from predlab.ts.backtest import BacktestResult
 
 REFERENCE_MODEL = "seasonal_naive"
 
+# What each method actually does, in the words someone would use to describe it out
+# loud. The identifiers are for the code; a reader should never have to decode
+# `seasonal_naive_drift` to find out that it means "last year's same month, adjusted
+# for how much the level has moved since".
+METHOD_LABELS = {
+    "naive": "Le mois dernier",
+    "seasonal_naive": "Le même mois, l'an dernier",
+    "drift": "La tendance longue",
+    "seasonal_mean_3": "Ce mois-ci, moyenne des 3 dernières années",
+    "seasonal_naive_drift": "L'an dernier, corrigé de la tendance récente",
+}
+METHOD_EXPLAINS = {
+    "naive": "Recopie la dernière valeur connue. Le minimum syndical : toute méthode "
+    "qui ne bat pas ça ne sert à rien.",
+    "seasonal_naive": "Recopie le même mois de l'année précédente. Connaît le "
+    "calendrier, ignore tout du niveau actuel.",
+    "drift": "Prolonge la droite qui relie le premier et le dernier point.",
+    "seasonal_mean_3": "Moyenne le même mois sur trois ans, pour lisser le bruit "
+    "d'une seule année.",
+    "seasonal_naive_drift": "Part du même mois l'an dernier, puis corrige de "
+    "l'évolution récente du niveau. Calendrier et conjoncture ensemble.",
+}
+
+
+def label_of(model: str) -> str:
+    """Human name for a method identifier, falling back to the identifier itself."""
+    return METHOD_LABELS.get(model, model)
+
+
+def explain_of(model: str) -> str:
+    return METHOD_EXPLAINS.get(model, "")
+
 
 def build_report(
     result: BacktestResult,
@@ -54,10 +86,14 @@ def build_report(
         # "Better than the reference" is only worth saying with the margin attached,
         # and only worth believing if it also exceeds the data's own resolution.
         margin = None if reference is None else reference.mase - best.mase
+        # A share out of ten, not a percentage. "The model promises its range will
+        # contain reality 8 times out of 10; it managed 7.7" is a sentence anyone can
+        # check. "80% nominal coverage, 77% empirical" is one only a statistician can.
         horizons.append(
             {
                 "horizon": h,
                 "n": best.n,
+                "label": _horizon_label(h),
                 "reference": REFERENCE_MODEL,
                 "reference_mase": None if reference is None else round(reference.mase, 4),
                 "best": best.model,
@@ -67,7 +103,28 @@ def build_report(
                 "beats_reference": bool(margin is not None and margin > 0),
                 "mape_above_quantisation_floor": bool(best.mape > floor),
                 "calibrated_80": best.coverage_80.verdict() == "calibré",
-                "models": [row.summary() for row in ranked],
+                "best_mae": round(best.mae, 0),
+                "best_band_low": round(min(best.lows), 0) if best.lows else None,
+                "models": [
+                    {
+                        **row.summary(),
+                        "label": label_of(row.model),
+                        "explain": explain_of(row.model),
+                        "mae": round(row.mae, 0),
+                        "kept_promise": round(row.coverage_80.empirical * 10, 1),
+                        "is_reference": row.model == REFERENCE_MODEL,
+                    }
+                    for row in ranked
+                ],
+                "trace": {
+                    "model": best.model,
+                    "label": label_of(best.model),
+                    "periods": list(best.periods),
+                    "actuals": [round(v) for v in best.actuals],
+                    "forecast": [round(v) for v in best.medians],
+                    "low": [round(v) for v in best.lows],
+                    "high": [round(v) for v in best.highs],
+                },
             }
         )
 
@@ -95,6 +152,17 @@ def build_report(
         "horizons": horizons,
         "caveats": _caveats(result, floor),
     }
+
+
+def _horizon_label(h: int) -> str:
+    """The horizon as a person would say it, not as a parameter."""
+    if h == 1:
+        return "Le mois prochain"
+    if h < 12:
+        return f"Dans {h} mois"
+    if h == 12:
+        return "Dans un an"
+    return f"Dans {h} mois"
 
 
 def _caveats(result: BacktestResult, floor: float) -> list[str]:

@@ -44,12 +44,18 @@ class HorizonResult:
     n: int
     mase: float
     mape: float
+    mae: float
     pinball: float
     coverage_80: CoverageResult
     coverage_90: CoverageResult
     periods: tuple[str, ...] = field(repr=False, default=())
     actuals: tuple[float, ...] = field(repr=False, default=())
     medians: tuple[float, ...] = field(repr=False, default=())
+    # The 80% interval, kept so a reader can see the model at work rather than only
+    # its score. A forecast chart without its band shows a line that is always wrong
+    # by some amount and never says by how much it expected to be.
+    lows: tuple[float, ...] = field(repr=False, default=())
+    highs: tuple[float, ...] = field(repr=False, default=())
 
     def summary(self) -> dict[str, object]:
         return {
@@ -58,6 +64,7 @@ class HorizonResult:
             "n": self.n,
             "mase": round(self.mase, 4),
             "mape": round(self.mape, 4),
+            "mae": round(self.mae, 1),
             "pinball": round(self.pinball, 2),
             "coverage_80": round(self.coverage_80.empirical, 3),
             "coverage_80_verdict": self.coverage_80.verdict(),
@@ -161,6 +168,7 @@ def walk_forward(
                     n=len(actuals),
                     mase=mase(actual_arr, median_arr, scale),
                     mape=mape(actual_arr, median_arr),
+                    mae=float(np.mean(np.abs(actual_arr - median_arr))),
                     pinball=float(
                         np.mean(
                             [pinball_loss(a, f) for a, f in zip(actuals, forecasts, strict=True)]
@@ -171,6 +179,8 @@ def walk_forward(
                     periods=tuple(periods),
                     actuals=tuple(actuals),
                     medians=tuple(float(m) for m in median_arr),
+                    lows=tuple(f.interval(0.80)[0] for f in forecasts),
+                    highs=tuple(f.interval(0.80)[1] for f in forecasts),
                 )
             )
 
