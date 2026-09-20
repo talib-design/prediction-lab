@@ -8,7 +8,7 @@ suite so that `pytest` stays runnable by anyone who clones this.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 import pytest
 
@@ -166,3 +166,18 @@ def test_lag_is_what_makes_two_counts_comparable() -> None:
 def test_qualification_nine_is_cadre() -> None:
     """From the official spec: 0 - non-cadre, 9 - cadre."""
     assert QUALIFICATION_CADRE == "9"
+
+
+def test_network_failures_surface_as_a_message_not_a_traceback() -> None:
+    """A tool someone will demo must not answer a flaky network with a stack trace."""
+    import urllib.error
+
+    from predlab.data.sources.francetravail import OffersClient
+
+    class DeadNetwork(TokenProvider):
+        def token(self, now: datetime | None = None) -> str:
+            raise urllib.error.URLError("Tunnel connection failed: 403 Forbidden")
+
+    client = OffersClient(DeadNetwork(Credentials.from_env(ENV)))
+    with pytest.raises((ApiError, urllib.error.URLError)):
+        client.count(date(2026, 8, 1), date(2026, 8, 31))

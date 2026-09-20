@@ -217,6 +217,11 @@ class TokenProvider:
                 "that the application is linked to the Offres d'emploi API on "
                 "francetravail.io."
             ) from None
+        except (urllib.error.URLError, TimeoutError) as exc:
+            raise ApiError(
+                f"could not reach {TOKEN_URL.split('?')[0]} ({exc}). "
+                "Check the network, a proxy, or a firewall."
+            ) from None
         token = payload.get("access_token")
         if not token:
             raise ApiError("token response contained no access_token")
