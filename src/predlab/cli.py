@@ -517,28 +517,74 @@ def collect_offers(
         year, month = (year - 1, 12) if month == 1 else (year, month - 1)
 
     ledger = AppendOnlyLedger(paths.offers)
-    try:
-        for start, end in reversed(windows):
+    written = 0
+    failure: str | None = None
+    # A window that fails mid-sweep does not invalidate the ones already captured:
+    # each record stands alone. So the loop records what it can, and the failure is
+    # reported afterwards -- exit code included -- rather than discarding the rest.
+    for start, end in reversed(windows):
+        try:
             record = client.count(start, end, qualification=code)
-            typer.echo(
-                f"{record.window_start[:7]}  {record.count:>8,} offres {qualification}"
-                f"  ({_describe_window(record)})"
-            )
-            if not dry_run:
-                ledger.append(record.payload())
-    except francetravail.ApiError as exc:
-        _fail(str(exc))
-        return
+        except francetravail.ApiError as exc:
+            failure = str(exc)
+            break
+        typer.echo(
+            f"{record.window_start[:7]}  {record.count:>8,} offres {qualification}"
+            f"  ({_describe_window(record)})"
+        )
+        if not dry_run:
+            ledger.append(record.payload())
+            written += 1
 
     if dry_run:
+        if failure:
+            _fail(failure)
         typer.secho("identifiants valides — rien n'a été enregistré", fg=typer.colors.GREEN)
-    else:
+        return
+
+    if written:
+        # The chain is what makes the series tamper-evident. A ledger that no longer
+        # verifies must stop the job rather than be published.
+        ledger.verify()
         typer.echo(f"\nenregistré dans {paths.offers} ({len(ledger)} mesures au total)")
-        typer.secho(
-            "Relancez cette commande régulièrement : la fenêtre d'un mois non capturé "
-            "aujourd'hui ne sera plus jamais mesurable au même délai.",
-            fg=typer.colors.YELLOW,
-        )
+
+    if failure:
+        _fail(f"{failure}\n{written} mesure(s) tout de même enregistrée(s).")
+
+    # Run unattended, a collector that captures nothing and exits 0 leaves a hole
+    # nobody notices until the series is analysed months later. Fail loudly.
+    if written == 0:
+        _fail("aucune mesure enregistrée — la collecte n'a rien capturé")
+
+    typer.secho(
+        "Relancez cette commande régulièrement : la fenêtre d'un mois non capturé "
+        "aujourd'hui ne sera plus jamais mesurable au même délai.",
+        fg=typer.colors.YELLOW,
+    )
+
+
+@collect_app.command("verify")
+def collect_verify() -> None:
+    """Check that the offers ledger's hash chain is intact.
+
+    Run before appending, not only after: writing onto a ledger whose chain is
+    already broken buries the breakage under a valid-looking tail. An absent ledger
+    is not a failure -- it is the state before the first collection.
+    """
+    paths = default_paths()
+    if not paths.offers.exists():
+        typer.echo("aucun relevé pour l'instant — rien à vérifier")
+        return
+    ledger = AppendOnlyLedger(paths.offers)
+    try:
+        ledger.verify()
+    except LedgerCorruptionError as exc:
+        _fail(str(exc))
+        return
+    typer.secho(
+        f"chaîne intacte — {len(ledger)} mesures, head {ledger.head_hash()[:12]}",
+        fg=typer.colors.GREEN,
+    )
 
 
 def _describe_window(record: francetravail.OfferCount) -> str:

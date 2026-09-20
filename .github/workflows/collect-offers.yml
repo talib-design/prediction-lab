@@ -1,0 +1,100 @@
+# Daily capture of cadre job-posting volumes from the France Travail API.
+#
+# WHY THIS RUNS IN CI AND NOT ON A LAPTOP
+# ---------------------------------------
+# The API exposes only offers that are still active. A month not measured today is
+# measured at a longer lag forever after, and lags are not comparable, so the series
+# cannot be rebuilt: a missed day is a permanent hole. A laptop that is asleep, on a
+# train, or simply closed produces exactly that. A hosted cron does not.
+#
+# It also re-measures the closed months on every run, on purpose. That is not
+# redundancy: repeated measurement of the same window at growing lags traces the
+# expiry curve directly, which is what will later make different lags comparable.
+#
+# WHAT THIS WORKFLOW IS TRUSTED WITH
+# ----------------------------------
+# Two repository secrets, FRANCETRAVAIL_CLIENT_ID and FRANCETRAVAIL_CLIENT_SECRET.
+# The repository is public, so note what that does and does not mean: secrets are not
+# exposed to workflows triggered by forked pull requests, and this workflow has no
+# pull_request trigger at all. It never echoes the credentials, and the collector
+# hides them from reprs and never writes them to a record.
+
+name: collect-offers
+
+on:
+  schedule:
+    # 04:10 UTC. Away from midnight so that a GitHub scheduling delay -- which can
+    # run to tens of minutes under load -- cannot push captured_at into another day
+    # and silently shift every lag by one.
+    - cron: "10 4 * * *"
+  workflow_dispatch:
+
+# Never two runs at once: the ledger is hash-chained, and a concurrent append would
+# fork the chain. Queue instead of cancelling -- a cancelled run is a lost day.
+concurrency:
+  group: collect-offers
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # A shallow clone cannot rebase onto origin later in this job.
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync --frozen
+
+      # Appending onto a ledger whose chain is already broken would bury the
+      # breakage under a valid-looking tail. Check before writing, not only after.
+      - name: Verify the ledger before appending to it
+        run: uv run predlab collect verify
+
+      - name: Collect
+        id: collect
+        env:
+          FRANCETRAVAIL_CLIENT_ID: ${{ secrets.FRANCETRAVAIL_CLIENT_ID }}
+          FRANCETRAVAIL_CLIENT_SECRET: ${{ secrets.FRANCETRAVAIL_CLIENT_SECRET }}
+        run: uv run predlab collect offers --months 6
+
+      # Runs even when the previous step failed: a sweep that fell over halfway still
+      # captured measurements that can never be taken again at this lag. The job's
+      # own failure is what surfaces the problem; discarding the data would not.
+      - name: Commit the new measurements
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name  "prediction-lab collector"
+          git config user.email "noreply@anthropic.com"
+          if [ -z "$(git status --porcelain -- data/offers.jsonl)" ]; then
+            echo "no new measurement to commit"
+            exit 0
+          fi
+          git add data/offers.jsonl
+          git commit -m "Collect cadre offer counts ($(date -u +%F))"
+          # The ledger is append-only, so a rebase over an unrelated commit replays
+          # cleanly. A conflict means someone else appended to the same ledger, which
+          # is genuinely ambiguous -- fail rather than guess.
+          for attempt in 1 2 3; do
+            if git pull --rebase --autostash origin "${GITHUB_REF_NAME}"; then
+              break
+            fi
+            echo "rebase attempt ${attempt} failed"
+            if [ "${attempt}" = 3 ]; then
+              exit 1
+            fi
+            git rebase --abort || true
+            sleep 5
+          done
+          git push origin "HEAD:${GITHUB_REF_NAME}"

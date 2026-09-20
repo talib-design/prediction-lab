@@ -173,3 +173,76 @@ def _next_draw_day(start: date) -> date:
     while day.isoweekday() not in (1, 3, 6):
         day += timedelta(days=1)
     return day
+
+
+def test_collect_fails_loudly_when_nothing_was_captured(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A cron job that exits 0 having captured nothing leaves an invisible hole.
+
+    The series cannot be rebuilt afterwards, so a silent no-op is the worst possible
+    outcome: it is discovered months later, when the gap is permanent.
+    """
+    from predlab.data.sources import francetravail
+
+    monkeypatch.setenv("FRANCETRAVAIL_CLIENT_ID", "id")
+    monkeypatch.setenv("FRANCETRAVAIL_CLIENT_SECRET", "secret")
+
+    def dead(*args: object, **kwargs: object) -> object:
+        raise francetravail.ApiError("search refused (503)")
+
+    monkeypatch.setattr(francetravail.OffersClient, "count", dead)
+
+    result = runner.invoke(app, ["collect", "offers", "--months", "2"])
+    assert result.exit_code != 0
+    assert not (workspace / "data" / "offers.jsonl").exists()
+
+
+def test_collect_keeps_what_it_captured_before_a_failure(
+    workspace: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A window that fails does not invalidate the ones already measured.
+
+    Each record stands alone -- discarding the whole sweep would throw away
+    measurements that can never be taken again at the same lag. The run still exits
+    non-zero so the failure is noticed.
+    """
+    from datetime import UTC, datetime
+
+    from predlab.data.sources import francetravail
+
+    monkeypatch.setenv("FRANCETRAVAIL_CLIENT_ID", "id")
+    monkeypatch.setenv("FRANCETRAVAIL_CLIENT_SECRET", "secret")
+
+    calls = {"n": 0}
+
+    def flaky(
+        self: object,
+        window_start: date,
+        window_end: date,
+        **kwargs: object,
+    ) -> francetravail.OfferCount:
+        calls["n"] += 1
+        if calls["n"] > 2:
+            raise francetravail.ApiError("search refused (429)")
+        return francetravail.OfferCount(
+            captured_at=datetime(2026, 9, 20, tzinfo=UTC).isoformat(),
+            window_start=window_start.isoformat(),
+            window_end=window_end.isoformat(),
+            qualification=francetravail.QUALIFICATION_CADRE,
+            secteur_activite=None,
+            region=None,
+            count=1000 + calls["n"],
+            lag_days=10,
+            observed_days=31,
+            window_days=31,
+        )
+
+    monkeypatch.setattr(francetravail.OffersClient, "count", flaky)
+
+    result = runner.invoke(app, ["collect", "offers", "--months", "5"])
+    assert result.exit_code != 0, "the failure must be visible to a CI job"
+
+    ledger = (workspace / "data" / "offers.jsonl").read_text().strip().splitlines()
+    assert len(ledger) == 2, "the two successful measurements must survive"
+    assert json.loads(ledger[0])["count"] == 1001

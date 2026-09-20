@@ -175,6 +175,53 @@ curve a nowcast needs. `--skip-current` leaves it out. **Records with
 
 `collector_version` is `ft-offres-2` (v1 recorded no completeness information).
 
+### Collecte automatique
+
+`.github/workflows/collect-offers.yml` capture tous les jours à 04:10 UTC et commite
+le ledger. Il tourne chez GitHub plutôt que sur une machine parce qu'un jour manqué
+est un trou définitif : un Mac endormi produit exactement ça, un cron hébergé non.
+
+- Secrets attendus : `FRANCETRAVAIL_CLIENT_ID`, `FRANCETRAVAIL_CLIENT_SECRET`
+  (Settings → Secrets and variables → Actions). Le dépôt est public : les secrets ne
+  sont pas exposés aux workflows déclenchés par une PR de fork, et ce workflow n'a
+  aucun déclencheur `pull_request`.
+- `concurrency` interdit deux exécutions simultanées : le ledger est chaîné, un append
+  concurrent forkerait la chaîne.
+- 04:10 UTC et non minuit : un retard d'ordonnancement GitHub (plusieurs dizaines de
+  minutes en charge) ne doit pas faire basculer `captured_at` d'un jour et décaler
+  silencieusement tous les lags.
+- Les mois clos sont re-mesurés à chaque passage. Ce n'est pas de la redondance :
+  mesurer la même fenêtre à des lags croissants trace la courbe d'expiration.
+- `predlab collect offers` sort en code non-zéro si aucune mesure n'a été enregistrée,
+  et l'étape de commit tourne malgré l'échec : une passe interrompue à mi-parcours a
+  quand même capturé des mesures qu'on ne pourra plus jamais reprendre à ce lag.
+- `predlab collect verify` contrôle la chaîne avant l'append, pas seulement après :
+  écrire sur un ledger déjà rompu enterrerait la rupture sous une queue valide.
+
+### Mesure de la courbe d'expiration (2026-09-20)
+
+Première collecte : 6 mois clos mesurés le même jour, donc chacun à un lag différent.
+
+| fenêtre | lag | offres cadre |
+|---|---:|---:|
+| 2026-03 | J+173 | 54 |
+| 2026-04 | J+143 | 113 |
+| 2026-05 | J+112 | 339 |
+| 2026-06 | J+82 | 771 |
+| 2026-07 | J+51 | 1 388 |
+| 2026-08 | J+20 | 4 625 |
+
+Une régression log-linéaire du comptage sur le lag donne R² = 0,994 et une demi-vie
+apparente de **24,3 jours** (survie 42 % à J+30, 7,6 % à J+90). Août mesuré à J+20
+compte **86×** plus d'offres que mars mesuré à J+173.
+
+Ceci n'est pas une série du marché de l'emploi : c'est la fonction de survie des
+annonces, et rien d'autre. Un R² de 0,994 sur six points ne laisse pratiquement aucune
+place à un signal de marché. **Conséquence : l'historique rétro-capturé est
+inutilisable comme série de volumes.** Seules les mesures prises à lag constant, en
+avant, le sont. La table ci-dessus garde une valeur propre — elle mesure la survie —
+mais elle ne doit jamais servir de niveau de marché.
+
 ### Known limitations
 
 - **History cannot be rebuilt.** Only active offers are exposed, so a month not
