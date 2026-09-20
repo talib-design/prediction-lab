@@ -21,7 +21,7 @@ from predlab.core.gamespec import REGISTRY, get_spec
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError, sha256_file
 from predlab.core.historyview import build_view
 from predlab.core.paths import default_paths
-from predlab.data.sources import fdj_loto
+from predlab.data.sources import fdj_loto, francetravail
 from predlab.data.store import ArchiveManifest, DrawStore, SourceMutationError
 from predlab.eval.power import power_report
 from predlab.eval.report import build_report, render_markdown
@@ -40,7 +40,9 @@ predictions_app = typer.Typer(help="Forward predictions.", no_args_is_help=True)
 hypothesis_app = typer.Typer(help="Hypothesis registry.", no_args_is_help=True)
 app.add_typer(data_app, name="data")
 app.add_typer(predictions_app, name="predictions")
+collect_app = typer.Typer(help="Live collection from external APIs.", no_args_is_help=True)
 app.add_typer(hypothesis_app, name="hypothesis")
+app.add_typer(collect_app, name="collect")
 
 GameOpt = Annotated[str, typer.Option("--game", help="Game name, e.g. loto.")]
 EraOpt = Annotated[str | None, typer.Option("--era", help="Rule era; default is the current one.")]
@@ -451,6 +453,76 @@ def hypothesis_update(
         return
     h = registry.update(hypothesis_id, **changes)
     typer.echo(f"{h.hypothesis_id}  {h.status}  {h.description}")
+
+
+# ------------------------------------------------------------------------- collect
+
+
+@collect_app.command("offers")
+def collect_offers(
+    months: Annotated[
+        int, typer.Option("--months", help="How many complete months back to capture.")
+    ] = 6,
+    qualification: Annotated[
+        str, typer.Option("--qualification", help="cadre | non-cadre")
+    ] = "cadre",
+    dry_run: Annotated[
+        bool,
+        typer.Option("--dry-run", help="Check credentials with one call, store nothing."),
+    ] = False,
+) -> None:
+    """Capture how many job offers were created per month, from France Travail.
+
+    Run this on a schedule. The API only exposes offers that are still active, so the
+    history cannot be rebuilt later: a month not captured now is captured at a longer
+    lag forever after, and lags are not comparable.
+    """
+    paths = default_paths().ensure()
+    try:
+        credentials = francetravail.Credentials.from_env()
+    except francetravail.MissingCredentialsError as exc:
+        _fail(str(exc))
+        return
+
+    code = {
+        "cadre": francetravail.QUALIFICATION_CADRE,
+        "non-cadre": francetravail.QUALIFICATION_NON_CADRE,
+    }.get(qualification)
+    if code is None:
+        _fail("--qualification must be 'cadre' or 'non-cadre'")
+        return
+
+    client = francetravail.OffersClient(francetravail.TokenProvider(credentials))
+    today = datetime.now(UTC).date()
+    windows = []
+    year, month = today.year, today.month
+    for _ in range(1 if dry_run else months + 1):
+        windows.append(francetravail.month_window(year, month))
+        year, month = (year - 1, 12) if month == 1 else (year, month - 1)
+
+    ledger = AppendOnlyLedger(paths.offers)
+    try:
+        for start, end in reversed(windows):
+            record = client.count(start, end, qualification=code)
+            typer.echo(
+                f"{record.window_start[:7]}  {record.count:>8,} offres {qualification}"
+                f"  (mesuré à J+{record.lag_days})"
+            )
+            if not dry_run:
+                ledger.append(record.payload())
+    except francetravail.ApiError as exc:
+        _fail(str(exc))
+        return
+
+    if dry_run:
+        typer.secho("identifiants valides — rien n'a été enregistré", fg=typer.colors.GREEN)
+    else:
+        typer.echo(f"\nenregistré dans {paths.offers} ({len(ledger)} mesures au total)")
+        typer.secho(
+            "Relancez cette commande régulièrement : la fenêtre d'un mois non capturé "
+            "aujourd'hui ne sera plus jamais mesurable au même délai.",
+            fg=typer.colors.YELLOW,
+        )
 
 
 @app.command("version")

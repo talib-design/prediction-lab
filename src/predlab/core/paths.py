@@ -41,6 +41,10 @@ class Paths:
     def hypotheses(self) -> Path:
         return self.root / "hypotheses.jsonl"
 
+    @property
+    def offers(self) -> Path:
+        return self.root / "offers.jsonl"
+
     def ensure(self) -> Paths:
         for directory in (self.raw, self.processed, self.runs):
             directory.mkdir(parents=True, exist_ok=True)
