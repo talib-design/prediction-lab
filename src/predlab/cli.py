@@ -17,6 +17,7 @@ import typer
 from predlab import __version__
 from predlab.backtest.engine import BacktestConfig, dataset_fingerprint, run_backtest
 from predlab.backtest.splits import proportional_split
+from predlab.core.dotenv import load_dotenv
 from predlab.core.gamespec import REGISTRY, get_spec
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError, sha256_file
 from predlab.core.historyview import build_view
@@ -478,6 +479,8 @@ def collect_offers(
     lag forever after, and lags are not comparable.
     """
     paths = default_paths().ensure()
+    # Read .env before looking for credentials. Anything already exported wins.
+    load_dotenv()
     try:
         credentials = francetravail.Credentials.from_env()
     except francetravail.MissingCredentialsError as exc:
