@@ -3,7 +3,11 @@ name = "prediction-lab"
 version = "0.1.0"
 description = "An experimental platform for building and honestly evaluating predictive systems."
 readme = "README.md"
-requires-python = ">=3.12"
+# Pinned to a range rather than an open ">=3.12": uv otherwise picks whatever
+# interpreter it finds first, and on an Apple Silicon Mac that can be an x86_64
+# Homebrew build running under Rosetta -- where Polars' wheels fail for want of
+# AVX. .python-version pins the exact version so uv fetches its own native build.
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "polars>=1.0",
     "numpy>=2.0",

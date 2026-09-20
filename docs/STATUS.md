@@ -110,7 +110,7 @@ like.
 
 ```bash
 cd "Prediction Lab"
-uv sync
+uv sync   # .python-version pins 3.12; uv fetches a native build
 
 uv run predlab data fetch                 # downloads the official archive
 uv run predlab data status
