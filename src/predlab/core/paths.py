@@ -45,6 +45,10 @@ class Paths:
     def offers(self) -> Path:
         return self.root / "offers.jsonl"
 
+    @property
+    def forecasts(self) -> Path:
+        return self.root / "forecasts.jsonl"
+
     def ensure(self) -> Paths:
         for directory in (self.raw, self.processed, self.runs):
             directory.mkdir(parents=True, exist_ok=True)

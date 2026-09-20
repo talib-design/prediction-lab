@@ -34,6 +34,8 @@ from predlab.ts.backtest import BacktestError, walk_forward
 from predlab.ts.baselines import default_forecasters
 from predlab.ts.html import render_html
 from predlab.ts.metrics import MetricError
+from predlab.ts.predict import HindsightError as ForecastHindsightError
+from predlab.ts.predict import block_error_band, forward, record, score, scoreboard
 from predlab.ts.report import build_report as build_ts_report
 from predlab.ts.report import render_markdown as render_ts_markdown
 from predlab.ts.report import to_json
@@ -775,7 +777,44 @@ def forecast_backtest(
         _fail(str(exc))
         return
 
-    report = build_ts_report(result, series)
+    # Forecast the unpublished months in the same run, so the page can show where
+    # the series is heading rather than stopping at the last published point.
+    horizon_out = 5
+    forward_result = walk_forward(
+        series,
+        default_forecasters(),
+        train_end=train_end,
+        horizons=tuple(range(1, horizon_out + 1)),
+    )
+    projection = forward(
+        series,
+        forward_result,
+        default_forecasters(),
+        until=dares.period_of(dares.month_index(series.end) + horizon_out),
+    )
+    band = block_error_band(forward_result, block=horizon_out)
+    year = series.end[:4]
+    published_ytd = sum(
+        v for p, v in zip(series.periods, series.values, strict=True) if p.startswith(year)
+    )
+    projected = sum(f.median or 0.0 for f in projection)
+    cumulative = {
+        "year": year,
+        "published_months": sum(1 for p in series.periods if p.startswith(year)),
+        "published": round(published_ytd),
+        "projected": round(projected),
+        "total": round(published_ytd + projected),
+        "low": None if band is None else round(published_ytd + projected + band[0]),
+        "high": None if band is None else round(published_ytd + projected + band[1]),
+        "previous_year": round(
+            sum(
+                v
+                for p, v in zip(series.periods, series.values, strict=True)
+                if p.startswith(str(int(year) - 1))
+            )
+        ),
+    }
+    report = build_ts_report(result, series, forward=projection, cumulative=cumulative)
     paths = default_paths().ensure()
     run_id = f"cadres_{datetime.now(UTC):%Y%m%dT%H%M%SZ}"
     run_dir = paths.runs / run_id
@@ -791,6 +830,121 @@ def forecast_backtest(
     typer.echo(f"\nécrit dans {run_dir}")
     if html:
         typer.secho(f"interface : open {run_dir / 'report.html'}", fg=typer.colors.GREEN)
+
+
+@forecast_app.command("predict")
+def forecast_predict(
+    until: Annotated[str, typer.Option("--until", help="Last month to forecast (YYYY-MM).")],
+    series_path: Annotated[str, typer.Option("--series")] = DARES_CSV,
+    train_end: Annotated[str, typer.Option("--train-end")] = "2014-12",
+    record_it: Annotated[
+        bool,
+        typer.Option(
+            "--record/--no-record",
+            help="Write to the append-only ledger so the forecast can be scored later.",
+        ),
+    ] = True,
+) -> None:
+    """Forecast the months the source has not published yet, and record them.
+
+    Recording is the point. A forecast that is not written down before the answer
+    arrives cannot be scored afterwards, and a track record assembled from memory is
+    not a track record. The ledger is hash-chained and refuses a month the series
+    already covers.
+    """
+    path = Path(series_path)
+    if not path.exists():
+        _fail(f"no series at {path}; run `predlab forecast fetch` first.")
+        return
+    series = dares.read_csv(path)
+    span = dares.month_index(until) - dares.month_index(series.end)
+    if span < 1:
+        _fail(f"{until} is already published (the series ends {series.end}).")
+        return
+
+    result = walk_forward(
+        series,
+        default_forecasters(),
+        train_end=train_end,
+        horizons=tuple(range(1, span + 1)),
+    )
+    forecasts = forward(series, result, default_forecasters(), until=until)
+
+    typer.echo(f"série publiée jusqu'à {series.end} · prévisions jusqu'à {until}\n")
+    for f in forecasts:
+        if f.median is None:
+            typer.secho(f"{f.period}   non évalué — {f.reason}", fg=typer.colors.YELLOW)
+            continue
+        line = f"{f.period}   {f.median:>8,.0f}   [{f.low:>7,.0f} a {f.high:>7,.0f}]   {f.method}"
+        if f.interval_trusted:
+            typer.echo(line)
+        else:
+            typer.secho(f"{line}   (fourchette non garantie)", fg=typer.colors.YELLOW)
+
+    if not record_it:
+        typer.secho("\nrien n'a été enregistré (--no-record)", fg=typer.colors.YELLOW)
+        return
+    paths = default_paths().ensure()
+    ledger = AppendOnlyLedger(paths.forecasts)
+    try:
+        written = record(ledger, forecasts, series, train_end=train_end)
+    except ForecastHindsightError as exc:
+        _fail(str(exc))
+        return
+    typer.secho(
+        f"\n{written} prévisions enregistrées dans {paths.forecasts} "
+        f"({len(ledger)} au total). Scorez-les avec `predlab forecast score` "
+        "quand la DARES aura publié.",
+        fg=typer.colors.GREEN,
+    )
+
+
+@forecast_app.command("score")
+def forecast_score(
+    series_path: Annotated[str, typer.Option("--series")] = DARES_CSV,
+) -> None:
+    """Compare recorded forecasts with what the source has published since.
+
+    This is the only number that settles anything. The backtest says how a method
+    behaved on history; this says how it behaved on months nobody had seen when the
+    forecast was written. Where the two disagree, this one is right.
+    """
+    paths = default_paths()
+    if not paths.forecasts.exists():
+        _fail("no forecast recorded yet; run `predlab forecast predict` first.")
+        return
+    series = dares.read_csv(Path(series_path))
+    ledger = AppendOnlyLedger(paths.forecasts)
+    try:
+        ledger.verify()
+    except LedgerCorruptionError as exc:
+        _fail(str(exc))
+        return
+
+    scored, pending = score(ledger, series)
+    if scored:
+        typer.echo(f"{'mois':9} {'prévu':>8} {'publié':>8} {'écart':>9} {'':>6} méthode")
+        for row in sorted(scored, key=lambda r: r.period):
+            mark = "dans" if row.inside else "HORS"
+            typer.echo(
+                f"{row.period:9} {row.forecast:>8,.0f} {row.actual:>8,.0f} "
+                f"{row.error:>+9,.0f} {mark:>6} {row.method}"
+            )
+        board = scoreboard(scored)
+        typer.echo(f"\n{board.n} prévisions scorées ({board.first} → {board.last})")
+        typer.echo(f"  erreur moyenne     ± {board.mae:,.0f} offres ({board.mape:.1%})")
+        typer.echo(
+            f"  biais              {board.bias:+,.0f} offres "
+            f"({'sous-estime' if board.bias > 0 else 'surestime'} en moyenne)"
+        )
+        typer.echo(
+            f"  fourchette tenue   {board.kept_promise:.1f} fois sur 10 (la méthode en promet 8)"
+        )
+    else:
+        typer.echo("aucune prévision n'est encore arrivée à échéance.")
+    if pending:
+        months = ", ".join(sorted({str(r["period"]) for r in pending}))
+        typer.echo(f"\nen attente de publication : {months}")
 
 
 @forecast_app.command("report")

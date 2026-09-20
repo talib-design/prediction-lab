@@ -1,0 +1,406 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prévision des offres cadre</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap"><style>
+:root{
+  color-scheme: light;
+  --page:#f4f3ef; --surface:#fcfcfb; --raised:#ffffff;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --rule:#d8d7cf; --ring:rgba(11,11,11,.10);
+  --observed:#2a78d6; --forecast:#eb6834;
+  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b;
+  --good-ink:#006300; --critical-ink:#a32020;
+  --band:rgba(42,120,214,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --raised:#212120;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --rule:#383835; --ring:rgba(255,255,255,.10);
+    --observed:#3987e5; --forecast:#d95926;
+    --good-ink:#0ca30c; --critical-ink:#e08080;
+    --band:rgba(57,135,229,.10);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --raised:#212120;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --rule:#383835; --ring:rgba(255,255,255,.10);
+  --observed:#3987e5; --forecast:#d95926;
+  --good-ink:#0ca30c; --critical-ink:#e08080;
+  --band:rgba(57,135,229,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--page); color:var(--ink);
+  font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding-block:40px 64px; padding-left:20px; padding-right:20px;}
+h1,h2,h3{font-family:Newsreader,Georgia,"Times New Roman",serif; font-weight:500; margin:0; text-wrap:balance;}
+h1{font-size:34px; line-height:1.15; letter-spacing:-.01em;}
+h2{font-size:22px; line-height:1.25;}
+h3{font-size:16px; font-family:inherit; font-weight:600;}
+.eyebrow{
+  font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); font-weight:600;
+}
+.sub{color:var(--ink-2); margin-top:10px; max-width:66ch;}
+header{border-bottom:1px solid var(--rule); padding-bottom:26px; margin-bottom:30px;}
+.meta{display:flex; flex-wrap:wrap; gap:6px 20px; margin-top:16px; font-size:12.5px; color:var(--muted);}
+.meta b{color:var(--ink-2); font-weight:600;}
+
+section{margin-top:40px;}
+.section-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:16px;}
+.section-head p{margin:0; color:var(--ink-2); font-size:13px;}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:10px; overflow:hidden;}
+.tile{background:var(--surface); padding:18px 18px 16px;}
+.tile .label{font-size:12px; color:var(--muted); margin-bottom:8px;}
+.tile .value{font-size:30px; line-height:1; font-weight:600; letter-spacing:-.02em;}
+.tile .note{font-size:12px; color:var(--ink-2); margin-top:8px;}
+
+.chart-card{background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:20px 18px 14px;}
+.chart-card figcaption{font-size:12.5px; color:var(--ink-2); margin-top:12px;}
+.legend{display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-2); margin-bottom:14px;}
+.legend span{display:inline-flex; align-items:center; gap:7px;}
+.key{width:14px; height:3px; border-radius:2px; display:inline-block;}
+.key.sq{width:12px; height:12px; border-radius:3px;}
+svg{display:block; width:100%; height:auto;}
+.tick{fill:var(--muted); font-size:11px; font-family:system-ui,sans-serif;}
+.tabular{font-variant-numeric:tabular-nums;}
+
+.hcard{background:var(--surface); border:1px solid var(--rule); border-radius:10px;
+  padding:20px 18px; margin-top:16px;}
+.hcard > header{border:0; padding:0; margin:0 0 14px; display:flex; align-items:baseline;
+  gap:12px; flex-wrap:wrap;}
+.verdict{font-size:13px; color:var(--ink-2);}
+.pill{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
+  padding:3px 9px; border-radius:999px; border:1px solid var(--ring); white-space:nowrap;}
+.pill .dot{width:7px; height:7px; border-radius:50%;}
+.pill.ok{color:var(--good-ink);} .pill.ok .dot{background:var(--good);}
+.pill.bad{color:var(--critical-ink);} .pill.bad .dot{background:var(--critical);}
+.pill.warn{color:var(--ink-2);} .pill.warn .dot{background:var(--warning);}
+
+.table-scroll{overflow-x:auto; margin:0 -18px; padding:0 18px;}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:13px;}
+th,td{text-align:right; padding:9px 10px; border-bottom:1px solid var(--grid); white-space:nowrap;}
+th:first-child,td:first-child{text-align:left; white-space:normal;}
+thead th{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
+  font-weight:600; border-bottom:1px solid var(--rule);}
+tbody tr:last-child td{border-bottom:0;}
+tr.best td{background:color-mix(in srgb, var(--observed) 6%, transparent);}
+
+code{font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink);}
+
+.gauge{width:132px; height:9px; border-radius:999px; background:var(--grid);
+  position:relative; display:inline-block; vertical-align:middle;}
+.gauge .target{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--muted);}
+.gauge .fill{position:absolute; top:0; bottom:0; left:0; border-radius:999px;}
+
+.headline{margin:0 0 6px; font-size:15px; line-height:1.5; max-width:72ch;}
+.headline strong{font-weight:600;}
+.promise-line{margin:0 0 18px; font-size:13.5px; color:var(--ink-2); max-width:72ch;}
+.promise-line b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums;}
+.chart-note{margin:10px 0 0; font-size:12.5px; color:var(--muted);}
+.key.dashed{background:repeating-linear-gradient(90deg,var(--forecast) 0 5px,transparent 5px 9px)!important;}
+details{margin-top:18px; border-top:1px solid var(--grid); padding-top:6px;}
+summary{cursor:pointer; font-size:13px; color:var(--ink-2); padding:8px 0; font-weight:500;}
+summary:hover{color:var(--ink);}
+summary:focus-visible{outline:2px solid var(--observed); outline-offset:3px; border-radius:4px;}
+table{min-width:520px;}
+table.fwd{min-width:420px; margin-top:16px;}
+table.fwd td:first-child{font-weight:600; font-variant-numeric:tabular-nums;}
+td.refused{color:var(--muted); font-style:italic; white-space:normal;}
+td{vertical-align:top;}
+.m-name{font-weight:600; font-size:13.5px;}
+.m-explain{font-size:12px; color:var(--muted); margin-top:4px; max-width:40ch; white-space:normal;}
+.m-sub{font-size:11.5px; color:var(--muted); margin-top:4px; font-variant-numeric:normal;}
+.num{font-size:15px; font-weight:600; white-space:nowrap;}
+.unit{font-size:11.5px; font-weight:400; color:var(--muted);}
+.promise{font-size:15px; font-weight:600; margin-bottom:5px;}
+.tag{font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--muted); border:1px solid var(--ring); border-radius:4px; padding:1px 5px;
+  margin-left:6px; vertical-align:1px;}
+ul.caveats{margin:0; padding:0; list-style:none; display:grid; gap:12px;}
+ul.caveats li{padding-left:20px; position:relative; color:var(--ink-2); max-width:78ch;}
+ul.caveats li::before{content:""; position:absolute; left:0; top:8px; width:9px; height:2px;
+  background:var(--forecast);}
+footer{margin-top:48px; padding-top:18px; border-top:1px solid var(--rule);
+  font-size:12px; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap;}
+@media (max-width:560px){ h1{font-size:27px} .tile .value{font-size:26px} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important; animation:none!important} }
+</style></head><body><div class="wrap">
+<header>
+  <div class="eyebrow">Prediction Lab · backtest</div>
+  <h1>Peut-on prévoir le volume d'offres cadre&nbsp;?</h1>
+  <p class="sub">Chaque mois, France Travail collecte des offres d'emploi cadre et la
+  DARES en publie le compte&nbsp;— avec deux mois de retard. Cette page teste cinq
+  façons simples de deviner ce chiffre avant sa publication, et mesure deux choses&nbsp;:
+  de combien elles se trompent, et si elles sont honnêtes sur leur propre marge
+  d'erreur.</p>
+  <div class="meta">
+    <span><b>367</b> mois · 1996-01 → 2026-07</span>
+    <span>entraînement ≤ <b>2014-12</b></span>
+    <span>DARES, offres collectées et satisfaites par France Travail (brutes, mensuelles)</span>
+    <span>Licence Ouverte v2.0 (lov2)</span>
+  </div>
+</header>
+
+<section>
+  <div class="section-head"><h2>En bref</h2>
+    <p>Les quatre chiffres qui résument le reste de la page.</p></div>
+  <div class="tiles">
+  <div class="tile"><div class="label">Dernier chiffre publié</div>
+    <div class="value tabular">12 000</div>
+    <div class="note">offres cadre en 2026-07</div></div>
+  <div class="tile"><div class="label">Le mois prochain, on se trompe de</div>
+    <div class="value tabular">± 1 543</div>
+    <div class="note">offres en moyenne, soit 14,3 %</div></div>
+  <div class="tile"><div class="label">La fourchette annoncée est tenue</div>
+    <div class="value tabular">7,7<span
+      style="font-size:17px;color:var(--ink-2)"> fois sur 10</span></div>
+    <div class="note">la méthode en promet 8 sur 10</div></div>
+  <div class="tile"><div class="label">Ce chiffre sort avec</div>
+    <div class="value tabular">2 mois</div>
+    <div class="note">de retard — 2026-08 n'est pas
+      encore publié</div></div>
+</div>
+</section>
+
+<section>
+  <div class="section-head"><h2>Ce qu'on cherche à prévoir</h2>
+    <p>Le nombre d'offres cadre collectées chaque mois depuis 1996. Sur la zone
+    teintée, les méthodes ont été mises à l'épreuve&nbsp;: elles n'avaient accès à
+    aucune de ces données.</p></div>
+  <figure class="chart-card" style="margin:0">
+    <div class="legend">
+      <span><i class="key" style="background:var(--observed)"></i>offres cadre collectées, par mois</span>
+      <span><i class="key sq" style="background:var(--band);border:1px solid var(--rule)"></i>période de test</span>
+    </div>
+    <svg viewBox="0 0 1000 300" role="img"
+  aria-label="Offres cadre collectées par mois, 1996-01 à 2026-07. Maximum 21100 en 2023-03.">
+  <rect x="633.8" y="16" width="352.2" height="254" fill="var(--band)"/>
+  <line x1="52" y1="270.0" x2="986" y2="270.0" stroke="var(--grid)" stroke-width="1"/><line x1="52" y1="219.2" x2="986" y2="219.2" stroke="var(--grid)" stroke-width="1"/><line x1="52" y1="168.4" x2="986" y2="168.4" stroke="var(--grid)" stroke-width="1"/><line x1="52" y1="117.6" x2="986" y2="117.6" stroke="var(--grid)" stroke-width="1"/><line x1="52" y1="66.8" x2="986" y2="66.8" stroke="var(--grid)" stroke-width="1"/><line x1="52" y1="16.0" x2="986" y2="16.0" stroke="var(--grid)" stroke-width="1"/>
+  <line x1="52" y1="270.0" x2="986" y2="270.0" stroke="var(--rule)" stroke-width="1"/>
+  <text class="tick" x="43" y="274.0" text-anchor="end">0k</text><text class="tick" x="43" y="223.2" text-anchor="end">5k</text><text class="tick" x="43" y="172.4" text-anchor="end">10k</text><text class="tick" x="43" y="121.6" text-anchor="end">15k</text><text class="tick" x="43" y="70.8" text-anchor="end">20k</text><text class="tick" x="43" y="20.0" text-anchor="end">25k</text><text class="tick" x="174.5" y="290" text-anchor="middle">2000</text><text class="tick" x="327.6" y="290" text-anchor="middle">2005</text><text class="tick" x="480.7" y="290" text-anchor="middle">2010</text><text class="tick" x="633.8" y="290" text-anchor="middle">2015</text><text class="tick" x="787.0" y="290" text-anchor="middle">2020</text><text class="tick" x="940.1" y="290" text-anchor="middle">2025</text>
+  <path d="M52.0,231.4 L54.6,227.3 L57.1,224.3 L59.7,231.4 L62.2,233.4 L64.8,232.4 L67.3,228.3 L69.9,242.6 L72.4,231.4 L75.0,228.3 L77.5,235.5 L80.1,228.3 L82.6,218.2 L85.2,216.2 L87.7,215.1 L90.3,208.0 L92.8,220.2 L95.4,211.1 L97.9,218.2 L100.5,234.4 L103.0,196.8 L105.6,199.9 L108.1,213.1 L110.7,219.2 L113.2,206.0 L115.8,204.0 L118.3,201.9 L120.9,205.0 L123.5,214.1 L126.0,201.9 L128.6,206.0 L131.1,226.3 L133.7,206.0 L136.2,208.0 L138.8,215.1 L141.3,222.2 L143.9,210.1 L146.4,205.0 L149.0,206.0 L151.5,207.0 L154.1,213.1 L156.6,200.9 L159.2,212.1 L161.7,221.2 L164.3,204.0 L166.8,210.1 L169.4,214.1 L171.9,217.2 L174.5,208.0 L177.0,201.9 L179.6,193.8 L182.1,209.0 L184.7,197.9 L187.3,205.0 L189.8,192.8 L192.4,212.1 L194.9,201.9 L197.5,198.9 L200.0,204.0 L202.6,215.1 L205.1,195.8 L207.7,199.9 L210.2,197.9 L212.8,209.0 L215.3,202.9 L217.9,204.0 L220.4,200.9 L223.0,217.2 L225.5,210.1 L228.1,204.0 L230.6,213.1 L233.2,223.3 L235.7,211.1 L238.3,210.1 L240.8,208.0 L243.4,212.1 L245.9,216.2 L248.5,212.1 L251.0,208.0 L253.6,230.4 L256.2,215.1 L258.7,210.1 L261.3,219.2 L263.8,223.3 L266.4,211.1 L268.9,210.1 L271.5,211.1 L274.0,213.1 L276.6,219.2 L279.1,213.1 L281.7,208.0 L284.2,229.4 L286.8,206.0 L289.3,204.0 L291.9,215.1 L294.4,214.1 L297.0,202.9 L299.5,206.0 L302.1,193.8 L304.6,201.9 L307.2,205.0 L309.7,191.8 L312.3,201.9 L314.8,215.1 L317.4,192.8 L320.0,195.8 L322.5,197.9 L325.1,205.0 L327.6,186.7 L330.2,191.8 L332.7,179.6 L335.3,179.6 L337.8,187.7 L340.4,177.5 L342.9,189.7 L345.5,204.0 L348.0,170.4 L350.6,185.7 L353.1,186.7 L355.7,194.8 L358.2,176.5 L360.8,181.6 L363.3,164.3 L365.9,190.8 L368.4,181.6 L371.0,168.4 L373.5,191.8 L376.1,200.9 L378.6,178.6 L381.2,175.5 L383.7,181.6 L386.3,194.8 L388.9,171.4 L391.4,176.5 L394.0,168.4 L396.5,183.6 L399.1,185.7 L401.6,169.4 L404.2,177.5 L406.7,199.9 L409.3,178.6 L411.8,169.4 L414.4,185.7 L416.9,196.8 L419.5,174.5 L422.0,176.5 L424.6,180.6 L427.1,172.5 L429.7,183.6 L432.2,177.5 L434.8,179.6 L437.3,214.1 L439.9,180.6 L442.4,179.6 L445.0,212.1 L447.5,208.0 L450.1,209.0 L452.7,208.0 L455.2,208.0 L457.8,215.1 L460.3,222.2 L462.9,206.0 L465.4,214.1 L468.0,229.4 L470.5,206.0 L473.1,207.0 L475.6,213.1 L478.2,215.1 L480.7,211.1 L483.3,211.1 L485.8,193.8 L488.4,199.9 L490.9,210.1 L493.5,191.8 L496.0,201.9 L498.6,217.2 L501.1,195.8 L503.7,197.9 L506.2,206.0 L508.8,207.0 L511.3,198.9 L513.9,195.8 L516.4,180.6 L519.0,195.8 L521.6,182.6 L524.1,192.8 L526.7,194.8 L529.2,205.0 L531.8,178.6 L534.3,185.7 L536.9,191.8 L539.4,208.0 L542.0,181.6 L544.5,193.8 L547.1,189.7 L549.6,202.9 L552.2,196.8 L554.7,190.8 L557.3,195.8 L559.8,217.2 L562.4,204.0 L564.9,193.8 L567.5,213.1 L570.0,221.2 L572.6,201.9 L575.1,205.0 L577.7,205.0 L580.2,199.9 L582.8,213.1 L585.3,211.1 L587.9,200.9 L590.5,224.3 L593.0,204.0 L595.6,198.9 L598.1,211.1 L600.7,216.2 L603.2,196.8 L605.8,204.0 L608.3,199.9 L610.9,191.8 L613.4,214.1 L616.0,204.0 L618.5,204.0 L621.1,225.3 L623.6,195.8 L626.2,196.8 L628.7,210.1 L631.3,213.1 L633.8,197.9 L636.4,202.9 L638.9,195.8 L641.5,197.9 L644.0,210.1 L646.6,189.7 L649.1,188.7 L651.7,214.1 L654.3,181.6 L656.8,187.7 L659.4,194.8 L661.9,201.9 L664.5,185.7 L667.0,185.7 L669.6,177.5 L672.1,182.6 L674.7,189.7 L677.2,187.7 L679.8,195.8 L682.3,204.0 L684.9,166.4 L687.4,181.6 L690.0,181.6 L692.5,188.7 L695.1,168.4 L697.6,175.5 L700.2,156.2 L702.7,171.4 L705.3,159.3 L707.8,153.2 L710.4,162.3 L712.9,180.6 L715.5,152.1 L718.0,153.2 L720.6,163.3 L723.2,175.5 L725.7,137.9 L728.3,154.2 L730.8,134.9 L733.4,150.1 L735.9,153.2 L738.5,146.0 L741.0,148.1 L743.6,173.5 L746.1,152.1 L748.7,143.0 L751.2,161.3 L753.8,179.6 L756.3,142.0 L758.9,159.3 L761.4,152.1 L764.0,153.2 L766.5,155.2 L769.1,169.4 L771.6,143.0 L774.2,194.8 L776.7,156.2 L779.3,157.2 L781.8,173.5 L784.4,181.6 L787.0,154.2 L789.5,171.4 L792.1,195.8 L794.6,223.3 L797.2,222.2 L799.7,194.8 L802.3,192.8 L804.8,220.2 L807.4,182.6 L809.9,193.8 L812.5,189.7 L815.0,193.8 L817.6,177.5 L820.1,187.7 L822.7,163.3 L825.2,172.5 L827.8,171.4 L830.3,150.1 L832.9,159.3 L835.4,175.5 L838.0,132.8 L840.5,135.9 L843.1,128.8 L845.6,142.0 L848.2,103.4 L850.7,122.7 L853.3,88.1 L855.9,107.4 L858.4,105.4 L861.0,100.3 L863.5,107.4 L866.1,121.7 L868.6,77.0 L871.2,102.4 L873.7,80.0 L876.3,107.4 L878.8,68.8 L881.4,92.2 L883.9,55.6 L886.5,109.5 L889.0,95.2 L891.6,83.1 L894.1,102.4 L896.7,126.7 L899.2,82.0 L901.8,92.2 L904.3,99.3 L906.9,125.7 L909.4,88.1 L912.0,94.2 L914.5,105.4 L917.1,109.5 L919.7,123.7 L922.2,125.7 L924.8,96.3 L927.3,151.1 L929.9,116.6 L932.4,109.5 L935.0,133.9 L937.5,153.2 L940.1,121.7 L942.6,148.1 L945.2,135.9 L947.7,145.0 L950.3,158.2 L952.8,143.0 L955.4,134.9 L957.9,183.6 L960.5,145.0 L963.0,150.1 L965.6,169.4 L968.1,168.4 L970.7,153.2 L973.2,160.3 L975.8,145.0 L978.3,161.3 L980.9,175.5 L983.4,149.1 L986.0,148.1" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="986.0" cy="148.1" r="4.5" fill="var(--observed)"
+          stroke="var(--surface)" stroke-width="2"/>
+  <text class="tick" x="978.0" y="138.1" text-anchor="end"
+        style="fill:var(--ink);font-weight:600">12 000</text>
+</svg>
+    <figcaption>La chute de mars-mai 2020 (11&nbsp;400 → 4&nbsp;600 offres) est le
+    confinement. Elle est conservée dans l'évaluation&nbsp;: une méthode doit être jugée
+    sur les mois difficiles aussi.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="section-head"><h2>Où va-t-on&nbsp;?</h2>
+    <p>La DARES publie avec 2&nbsp;mois de retard&nbsp;:
+    au moment d'écrire, 2026-08 n'existe pas encore.
+    Voici ce que les méthodes en disent.</p></div>
+  <figure class="chart-card" style="margin:0">
+    <div class="legend">
+      <span><i class="key" style="background:var(--observed)"></i>publié par la DARES</span>
+      <span><i class="key dashed" style="background:var(--forecast)"></i>prévision</span>
+      <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 22%,transparent);
+        border:1px solid var(--rule)"></i>fourchette 8&nbsp;fois sur&nbsp;10</span>
+    </div>
+    <svg viewBox="0 0 1000 300" role="img"
+  aria-label="Historique récent puis projection jusqu'à 2026-12.">
+  <line x1="56" y1="268.0" x2="934" y2="268.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="205.0" x2="934" y2="205.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="142.0" x2="934" y2="142.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="79.0" x2="934" y2="79.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="16.0" x2="934" y2="16.0" stroke="var(--grid)" stroke-width="1"/>
+  <path d="M827.6,116.8 L854.2,167.9 L880.8,106.3 L907.4,74.3 L934.0,70.4 L934.0,159.2 L907.4,148.9 L880.8,161.0 L854.2,200.0 L827.6,116.8 Z" fill="var(--forecast)" fill-opacity="0.15"/>
+  <line x1="840.9" y1="16" x2="840.9" y2="268"
+        stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="56" y1="268.0" x2="934" y2="268.0" stroke="var(--rule)" stroke-width="1"/>
+  <text class="tick" x="47" y="272.0" text-anchor="end">0k</text><text class="tick" x="47" y="209.0" text-anchor="end">5k</text><text class="tick" x="47" y="146.0" text-anchor="end">10k</text><text class="tick" x="47" y="83.0" text-anchor="end">15k</text><text class="tick" x="47" y="20.0" text-anchor="end">20k</text><text class="tick" x="109.2" y="289" text-anchor="middle">04</text><text class="tick" x="189.0" y="289" text-anchor="middle">07</text><text class="tick" x="268.8" y="289" text-anchor="middle">10</text><text class="tick" x="348.7" y="289" text-anchor="middle">2025</text><text class="tick" x="428.5" y="289" text-anchor="middle">04</text><text class="tick" x="508.3" y="289" text-anchor="middle">07</text><text class="tick" x="588.1" y="289" text-anchor="middle">10</text><text class="tick" x="667.9" y="289" text-anchor="middle">2026</text><text class="tick" x="747.8" y="289" text-anchor="middle">04</text><text class="tick" x="827.6" y="289" text-anchor="middle">07</text><text class="tick" x="907.4" y="289" text-anchor="middle">10</text>
+  <path d="M56.0,50.0 L82.6,63.9 L109.2,68.9 L135.8,86.6 L162.4,89.1 L189.0,52.5 L215.6,120.6 L242.2,77.7 L268.8,68.9 L295.5,99.2 L322.1,123.1 L348.7,84.0 L375.3,116.8 L401.9,101.7 L428.5,113.0 L455.1,129.4 L481.7,110.5 L508.3,100.4 L534.9,160.9 L561.5,113.0 L588.1,119.3 L614.7,143.3 L641.3,142.0 L667.9,123.1 L694.5,131.9 L721.2,113.0 L747.8,133.2 L774.4,150.8 L801.0,118.1 L827.6,116.8" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M827.6,116.8 L854.2,187.6 L880.8,139.7 L907.4,116.0 L934.0,116.8" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <circle cx="827.6" cy="116.8" r="4.5" fill="var(--observed)"
+          stroke="var(--surface)" stroke-width="2"/>
+  <circle cx="934.0" cy="116.8" r="4.5" fill="var(--forecast)"
+          stroke="var(--surface)" stroke-width="2"/>
+  <text class="tick" x="944.0" y="120.8"
+        style="fill:var(--ink);font-weight:600">12 000</text>
+  <text class="tick" x="832.9" y="28" text-anchor="end">publié</text>
+  <text class="tick" x="848.9" y="28">prévu</text>
+</svg>
+  </figure>
+  <p class="headline">Sur l'année 2026 entière&nbsp;: <strong>119 134 offres</strong> (entre 115 914 et 122 194), dont 78 500 déjà publiées sur 7 mois. Soit <strong>-15,7 %</strong> par rapport à 2025.</p>
+  <div class="table-scroll"><table class="fwd">
+    <thead><tr><th>Mois</th><th>Prévision</th><th>Fourchette</th></tr></thead>
+    <tbody><tr><td>2026-08</td><td class="tabular num">6 383<span class="unit"> offres</span></td><td class="tabular">5 399&nbsp;&ndash;&nbsp;7 942<div class="m-sub">L&#x27;an dernier, corrigé de la tendance récente</div></td></tr><tr><td>2026-09</td><td class="tabular num">10 183<span class="unit"> offres</span></td><td class="tabular">8 494&nbsp;&ndash;&nbsp;12 831<div class="m-sub">L&#x27;an dernier, corrigé de la tendance récente</div></td></tr><tr><td>2026-10</td><td class="tabular num">12 067<span class="unit"> offres</span></td><td class="tabular">9 455&nbsp;&ndash;&nbsp;15 372<div class="m-sub">La tendance longue</div></td></tr><tr><td>2026-11</td><td colspan="2" class="refused">Refusé — fourchette non tenue au backtest : 74% de couverture pour 80 % annoncés</td></tr><tr><td>2026-12</td><td class="tabular num">12 000<span class="unit"> offres</span></td><td class="tabular">8 631&nbsp;&ndash;&nbsp;15 684<div class="m-sub">Le mois dernier</div></td></tr></tbody>
+  </table></div>
+  <p class="chart-note">Ces prévisions sont enregistrées dans un journal inaltérable
+  au moment où elles sont faites. Quand la DARES publiera, l'écart sera mesuré et
+  ajouté ici&nbsp;— c'est la seule façon de savoir si elles valent quelque chose.</p>
+</section>
+
+<section>
+  <div class="section-head"><h2>Est-ce fiable&nbsp;?</h2>
+    <p>Les prévisions ci-dessus ne valent que ce que valent les méthodes qui les
+    produisent. Chaque échéance a donc été testée séparément sur les onze dernières
+    années&nbsp;— prévoir le mois prochain et prévoir dans un an sont deux problèmes
+    différents.</p></div>
+  <article class="hcard">
+  <header>
+    <h3>Le mois prochain</h3>
+    <span class="pill ok"><span class="dot"></span>fourchette honnête</span>
+  </header>
+  <p class="headline"><strong>L&#x27;an dernier, corrigé de la tendance récente</strong> est la meilleure méthode&nbsp;: elle se trompe de 1 543 offres en moyenne, contre 2 364 pour la méthode de référence — 821 offres d'écart.</p>
+  <p class="promise-line">Elle annonce une fourchette censée contenir la réalité <b>8&nbsp;fois sur 10</b>. Sur 139 mois testés, elle y arrive <b>7,7&nbsp;fois sur&nbsp;10</b>.</p>
+  <div class="legend">
+    <span><i class="key" style="background:var(--observed)"></i>offres réellement collectées</span>
+    <span><i class="key dashed" style="background:var(--forecast)"></i>prévision de la méthode</span>
+    <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 20%,transparent);
+      border:1px solid var(--rule)"></i>fourchette annoncée</span>
+  </div>
+  <svg viewBox="0 0 1000 280" role="img"
+  aria-label="Prévision contre réalité sur les 36 derniers mois, avec la fourchette annoncée.">
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="209.0" x2="986" y2="209.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="170.0" x2="986" y2="170.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="131.0" x2="986" y2="131.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="92.0" x2="986" y2="92.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="53.0" x2="986" y2="53.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="14.0" x2="986" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+  <path d="M56.0,78.1 L82.6,40.1 L109.1,69.2 L135.7,49.5 L162.3,81.1 L188.9,48.3 L215.4,75.0 L242.0,42.2 L268.6,100.2 L295.1,86.7 L321.7,77.8 L348.3,101.0 L374.9,124.5 L401.4,83.1 L428.0,95.1 L454.6,104.3 L481.1,130.8 L507.7,95.4 L534.3,102.3 L560.9,117.2 L587.4,119.6 L614.0,136.1 L640.6,138.6 L667.1,108.4 L693.7,164.6 L720.3,132.1 L746.9,124.9 L773.4,150.1 L800.0,168.7 L826.6,137.6 L853.1,162.7 L879.7,147.6 L906.3,154.7 L932.9,165.9 L959.4,150.0 L986.0,141.4 L986.0,175.6 L959.4,181.5 L932.9,192.3 L906.3,184.8 L879.7,180.0 L853.1,190.2 L826.6,173.2 L800.0,194.3 L773.4,181.7 L746.9,164.7 L720.3,169.7 L693.7,191.6 L667.1,153.7 L640.6,174.2 L614.0,172.5 L587.4,161.4 L560.9,159.8 L534.3,149.6 L507.7,145.0 L481.1,169.0 L454.6,151.2 L428.0,145.0 L401.4,137.0 L374.9,164.9 L348.3,149.2 L321.7,133.2 L295.1,139.3 L268.6,148.4 L242.0,108.7 L215.4,131.0 L188.9,113.1 L162.3,134.3 L135.7,112.7 L109.1,126.1 L82.6,106.3 L56.0,132.1 Z" fill="var(--forecast)" fill-opacity="0.13"/>
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--rule)" stroke-width="1"/>
+  <text class="tick" x="47" y="252.0" text-anchor="end">0k</text><text class="tick" x="47" y="213.0" text-anchor="end">5k</text><text class="tick" x="47" y="174.0" text-anchor="end">10k</text><text class="tick" x="47" y="135.0" text-anchor="end">15k</text><text class="tick" x="47" y="96.0" text-anchor="end">20k</text><text class="tick" x="47" y="57.0" text-anchor="end">25k</text><text class="tick" x="47" y="18.0" text-anchor="end">30k</text><text class="tick" x="188.9" y="269" text-anchor="middle">2024</text><text class="tick" x="348.3" y="269" text-anchor="middle">07</text><text class="tick" x="507.7" y="269" text-anchor="middle">2025</text><text class="tick" x="667.1" y="269" text-anchor="middle">07</text><text class="tick" x="826.6" y="269" text-anchor="middle">2026</text><text class="tick" x="986.0" y="269" text-anchor="middle">07</text>
+  <path d="M56.0,111.4 L82.6,80.9 L109.1,104.3 L135.7,88.6 L162.3,114.0 L188.9,87.8 L215.4,109.2 L242.0,83.2 L268.6,129.8 L295.1,118.7 L321.7,111.8 L348.3,130.5 L374.9,149.1 L401.4,116.0 L428.0,125.7 L454.6,132.9 L481.1,154.2 L507.7,125.9 L534.3,131.5 L560.9,143.4 L587.4,145.3 L614.0,158.5 L640.6,160.4 L667.1,136.2 L693.7,181.2 L720.3,155.2 L746.9,149.3 L773.4,169.5 L800.0,184.4 L826.6,159.5 L853.1,179.6 L879.7,167.6 L906.3,173.3 L932.9,182.2 L959.4,169.4 L986.0,162.4" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <path d="M56.0,138.0 L82.6,103.7 L109.1,111.5 L135.7,117.0 L162.3,137.2 L188.9,108.4 L215.4,113.1 L242.0,121.6 L268.6,124.8 L295.1,135.7 L321.7,137.2 L348.3,114.6 L374.9,156.7 L401.4,130.2 L428.0,124.8 L454.6,143.5 L481.1,158.3 L507.7,134.1 L534.3,154.4 L560.9,145.0 L587.4,152.1 L614.0,162.2 L640.6,150.5 L667.1,144.3 L693.7,181.7 L720.3,152.1 L746.9,156.0 L773.4,170.8 L800.0,170.0 L826.6,158.3 L853.1,163.8 L879.7,152.1 L906.3,164.5 L932.9,175.5 L959.4,155.2 L986.0,154.4" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
+  <p class="chart-note">Les 36 derniers mois du test. Le modèle n'a jamais vu le mois
+  qu'il prédit.</p>
+  <details>
+    <summary>Comparer les cinq méthodes</summary>
+    <div class="table-scroll"><table>
+      <thead><tr>
+        <th>Méthode</th><th>Erreur moyenne</th><th>Fourchette tenue</th>
+      </tr></thead>
+      <tbody><tr class="best"><td><div class="m-name">L&#x27;an dernier, corrigé de la tendance récente</div><div class="m-explain">Part du même mois l&#x27;an dernier, puis corrige de l&#x27;évolution récente du niveau. Calendrier et conjoncture ensemble.</div></td><td class="tabular num">± 1 543<span class="unit"> offres</span><div class="m-sub">soit 14,3 % d'écart</div></td><td><div class="promise tabular">7,7<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 77,0 % pour un nominal de 80 %"><span class="fill" style="width:77.0%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">Le mois dernier</div><div class="m-explain">Recopie la dernière valeur connue. Le minimum syndical : toute méthode qui ne bat pas ça ne sert à rien.</div></td><td class="tabular num">± 1 668<span class="unit"> offres</span><div class="m-sub">soit 15,1 % d'écart</div></td><td><div class="promise tabular">8,4<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 84,2 % pour un nominal de 80 %"><span class="fill" style="width:84.2%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">La tendance longue</div><div class="m-explain">Prolonge la droite qui relie le premier et le dernier point.</div></td><td class="tabular num">± 1 674<span class="unit"> offres</span><div class="m-sub">soit 15,2 % d'écart</div></td><td><div class="promise tabular">8,5<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 84,9 % pour un nominal de 80 %"><span class="fill" style="width:84.9%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">Le même mois, l&#x27;an dernier <span class="tag">référence</span></div><div class="m-explain">Recopie le même mois de l&#x27;année précédente. Connaît le calendrier, ignore tout du niveau actuel.</div></td><td class="tabular num">± 2 364<span class="unit"> offres</span><div class="m-sub">soit 21,8 % d'écart</div></td><td><div class="promise tabular">6,3<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 63,3 % pour un nominal de 80 %"><span class="fill" style="width:63.3%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">Ce mois-ci, moyenne des 3 dernières années</div><div class="m-explain">Moyenne le même mois sur trois ans, pour lisser le bruit d&#x27;une seule année.</div></td><td class="tabular num">± 3 147<span class="unit"> offres</span><div class="m-sub">soit 27,5 % d'écart</div></td><td><div class="promise tabular">4,7<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 47,5 % pour un nominal de 80 %"><span class="fill" style="width:47.5%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr></tbody>
+    </table></div>
+  </details>
+</article><article class="hcard">
+  <header>
+    <h3>Dans 3 mois</h3>
+    <span class="pill ok"><span class="dot"></span>fourchette honnête</span>
+  </header>
+  <p class="headline"><strong>La tendance longue</strong> est la meilleure méthode&nbsp;: elle se trompe de 1 568 offres en moyenne, contre 2 397 pour la méthode de référence — 829 offres d'écart.</p>
+  <p class="promise-line">Elle annonce une fourchette censée contenir la réalité <b>8&nbsp;fois sur 10</b>. Sur 137 mois testés, elle y arrive <b>8,4&nbsp;fois sur&nbsp;10</b>.</p>
+  <div class="legend">
+    <span><i class="key" style="background:var(--observed)"></i>offres réellement collectées</span>
+    <span><i class="key dashed" style="background:var(--forecast)"></i>prévision de la méthode</span>
+    <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 20%,transparent);
+      border:1px solid var(--rule)"></i>fourchette annoncée</span>
+  </div>
+  <svg viewBox="0 0 1000 280" role="img"
+  aria-label="Prévision contre réalité sur les 36 derniers mois, avec la fourchette annoncée.">
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="201.2" x2="986" y2="201.2" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="154.4" x2="986" y2="154.4" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="107.6" x2="986" y2="107.6" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="60.8" x2="986" y2="60.8" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="14.0" x2="986" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+  <path d="M56.0,40.3 L82.6,25.6 L109.1,48.8 L135.7,77.7 L162.3,24.3 L188.9,36.6 L215.4,45.1 L242.0,76.6 L268.6,32.0 L295.1,39.3 L321.7,52.7 L348.3,57.6 L374.9,74.5 L401.4,76.9 L428.0,42.1 L454.6,107.2 L481.1,66.3 L507.7,57.8 L534.3,86.9 L560.9,109.8 L587.4,72.4 L614.0,103.8 L640.6,89.3 L667.1,100.2 L693.7,115.9 L720.3,97.9 L746.9,88.3 L773.4,146.1 L800.0,100.3 L826.6,106.3 L853.1,129.2 L879.7,128.0 L906.3,109.9 L932.9,118.4 L959.4,100.4 L986.0,119.7 L986.0,169.2 L959.4,157.4 L932.9,168.5 L906.3,163.3 L879.7,174.4 L853.1,175.2 L826.6,161.2 L800.0,157.6 L773.4,185.6 L746.9,150.0 L720.3,155.9 L693.7,167.0 L667.1,157.5 L640.6,150.9 L614.0,159.7 L587.4,140.6 L560.9,163.5 L534.3,149.3 L507.7,131.6 L481.1,136.8 L454.6,161.9 L428.0,122.1 L401.4,143.5 L374.9,142.1 L348.3,131.8 L321.7,128.9 L295.1,120.8 L268.6,116.5 L242.0,143.7 L215.4,124.2 L188.9,119.0 L162.3,111.6 L135.7,144.2 L109.1,126.6 L82.6,112.6 L56.0,121.5 Z" fill="var(--forecast)" fill-opacity="0.13"/>
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--rule)" stroke-width="1"/>
+  <text class="tick" x="47" y="252.0" text-anchor="end">0k</text><text class="tick" x="47" y="205.2" text-anchor="end">5k</text><text class="tick" x="47" y="158.4" text-anchor="end">10k</text><text class="tick" x="47" y="111.6" text-anchor="end">15k</text><text class="tick" x="47" y="64.8" text-anchor="end">20k</text><text class="tick" x="47" y="18.0" text-anchor="end">25k</text><text class="tick" x="188.9" y="269" text-anchor="middle">2024</text><text class="tick" x="348.3" y="269" text-anchor="middle">07</text><text class="tick" x="507.7" y="269" text-anchor="middle">2025</text><text class="tick" x="667.1" y="269" text-anchor="middle">07</text><text class="tick" x="826.6" y="269" text-anchor="middle">2026</text><text class="tick" x="986.0" y="269" text-anchor="middle">07</text>
+  <path d="M56.0,85.9 L82.6,74.5 L109.1,92.5 L135.7,115.2 L162.3,73.6 L188.9,83.0 L215.4,89.7 L242.0,114.2 L268.6,79.3 L295.1,84.9 L321.7,95.3 L348.3,99.1 L374.9,112.3 L401.4,114.2 L428.0,86.8 L454.6,137.8 L481.1,105.7 L507.7,99.1 L534.3,121.8 L560.9,139.7 L587.4,110.5 L614.0,135.0 L640.6,123.7 L667.1,132.2 L693.7,144.5 L720.3,130.3 L746.9,122.8 L773.4,168.1 L800.0,132.2 L826.6,136.9 L853.1,154.9 L879.7,153.9 L906.3,139.8 L932.9,146.4 L959.4,132.2 L986.0,147.3" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <path d="M56.0,116.0 L82.6,74.8 L109.1,84.2 L135.7,90.8 L162.3,115.1 L188.9,80.5 L215.4,86.1 L242.0,96.4 L268.6,100.1 L295.1,113.2 L321.7,115.1 L348.3,87.9 L374.9,138.5 L401.4,106.7 L428.0,100.1 L454.6,122.6 L481.1,140.4 L507.7,111.3 L534.3,135.7 L560.9,124.4 L587.4,132.9 L614.0,145.0 L640.6,131.0 L667.1,123.5 L693.7,168.4 L720.3,132.9 L746.9,137.6 L773.4,155.3 L800.0,154.4 L826.6,140.4 L853.1,146.9 L879.7,132.9 L906.3,147.8 L932.9,161.0 L959.4,136.6 L986.0,135.7" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
+  <p class="chart-note">Les 36 derniers mois du test. Le modèle n'a jamais vu le mois
+  qu'il prédit.</p>
+  <details>
+    <summary>Comparer les cinq méthodes</summary>
+    <div class="table-scroll"><table>
+      <thead><tr>
+        <th>Méthode</th><th>Erreur moyenne</th><th>Fourchette tenue</th>
+      </tr></thead>
+      <tbody><tr class="best"><td><div class="m-name">La tendance longue</div><div class="m-explain">Prolonge la droite qui relie le premier et le dernier point.</div></td><td class="tabular num">± 1 568<span class="unit"> offres</span><div class="m-sub">soit 15,0 % d'écart</div></td><td><div class="promise tabular">8,4<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 83,9 % pour un nominal de 80 %"><span class="fill" style="width:83.9%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">Le mois dernier</div><div class="m-explain">Recopie la dernière valeur connue. Le minimum syndical : toute méthode qui ne bat pas ça ne sert à rien.</div></td><td class="tabular num">± 1 569<span class="unit"> offres</span><div class="m-sub">soit 14,9 % d'écart</div></td><td><div class="promise tabular">8,2<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 81,8 % pour un nominal de 80 %"><span class="fill" style="width:81.8%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">L&#x27;an dernier, corrigé de la tendance récente</div><div class="m-explain">Part du même mois l&#x27;an dernier, puis corrige de l&#x27;évolution récente du niveau. Calendrier et conjoncture ensemble.</div></td><td class="tabular num">± 1 858<span class="unit"> offres</span><div class="m-sub">soit 17,0 % d'écart</div></td><td><div class="promise tabular">7,5<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 75,2 % pour un nominal de 80 %"><span class="fill" style="width:75.2%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">Le même mois, l&#x27;an dernier <span class="tag">référence</span></div><div class="m-explain">Recopie le même mois de l&#x27;année précédente. Connaît le calendrier, ignore tout du niveau actuel.</div></td><td class="tabular num">± 2 397<span class="unit"> offres</span><div class="m-sub">soit 22,1 % d'écart</div></td><td><div class="promise tabular">6,3<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 62,8 % pour un nominal de 80 %"><span class="fill" style="width:62.8%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">Ce mois-ci, moyenne des 3 dernières années</div><div class="m-explain">Moyenne le même mois sur trois ans, pour lisser le bruit d&#x27;une seule année.</div></td><td class="tabular num">± 3 188<span class="unit"> offres</span><div class="m-sub">soit 27,8 % d'écart</div></td><td><div class="promise tabular">4,8<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 48,2 % pour un nominal de 80 %"><span class="fill" style="width:48.2%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr></tbody>
+    </table></div>
+  </details>
+</article><article class="hcard">
+  <header>
+    <h3>Dans 6 mois</h3>
+    <span class="pill ok"><span class="dot"></span>fourchette honnête</span>
+  </header>
+  <p class="headline"><strong>Le mois dernier</strong> est la meilleure méthode&nbsp;: elle se trompe de 1 846 offres en moyenne, contre 2 440 pour la méthode de référence — 594 offres d'écart.</p>
+  <p class="promise-line">Elle annonce une fourchette censée contenir la réalité <b>8&nbsp;fois sur 10</b>. Sur 134 mois testés, elle y arrive <b>8,1&nbsp;fois sur&nbsp;10</b>.</p>
+  <div class="legend">
+    <span><i class="key" style="background:var(--observed)"></i>offres réellement collectées</span>
+    <span><i class="key dashed" style="background:var(--forecast)"></i>prévision de la méthode</span>
+    <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 20%,transparent);
+      border:1px solid var(--rule)"></i>fourchette annoncée</span>
+  </div>
+  <svg viewBox="0 0 1000 280" role="img"
+  aria-label="Prévision contre réalité sur les 36 derniers mois, avec la fourchette annoncée.">
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="209.0" x2="986" y2="209.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="170.0" x2="986" y2="170.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="131.0" x2="986" y2="131.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="92.0" x2="986" y2="92.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="53.0" x2="986" y2="53.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="14.0" x2="986" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+  <path d="M56.0,67.6 L82.6,30.7 L109.1,85.4 L135.7,71.0 L162.3,58.9 L188.9,78.5 L215.4,103.3 L242.0,58.3 L268.6,68.7 L295.1,76.0 L321.7,102.8 L348.3,65.1 L374.9,71.3 L401.4,82.5 L428.0,86.6 L454.6,100.9 L481.1,102.9 L507.7,73.2 L534.3,128.4 L560.9,93.6 L587.4,86.4 L614.0,111.0 L640.6,130.4 L667.1,98.7 L693.7,125.3 L720.3,113.1 L746.9,122.3 L773.4,135.6 L800.0,120.5 L826.6,112.3 L853.1,161.3 L879.7,122.7 L906.3,127.7 L932.9,147.0 L959.4,145.9 L986.0,130.5 L986.0,179.6 L959.4,188.6 L932.9,189.3 L906.3,178.1 L879.7,175.2 L853.1,197.7 L826.6,169.0 L800.0,173.9 L773.4,182.7 L746.9,175.1 L720.3,169.7 L693.7,176.8 L667.1,161.5 L640.6,179.9 L614.0,168.7 L587.4,154.6 L560.9,158.8 L534.3,178.9 L507.7,146.8 L481.1,164.1 L454.6,162.9 L428.0,154.7 L401.4,152.3 L374.9,145.9 L348.3,142.3 L321.7,164.2 L295.1,148.7 L268.6,144.6 L242.0,138.7 L215.4,164.7 L188.9,150.5 L162.3,139.4 L135.7,146.4 L109.1,154.8 L82.6,123.6 L56.0,144.8 Z" fill="var(--forecast)" fill-opacity="0.13"/>
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--rule)" stroke-width="1"/>
+  <text class="tick" x="47" y="252.0" text-anchor="end">0k</text><text class="tick" x="47" y="213.0" text-anchor="end">5k</text><text class="tick" x="47" y="174.0" text-anchor="end">10k</text><text class="tick" x="47" y="135.0" text-anchor="end">15k</text><text class="tick" x="47" y="96.0" text-anchor="end">20k</text><text class="tick" x="47" y="57.0" text-anchor="end">25k</text><text class="tick" x="47" y="18.0" text-anchor="end">30k</text><text class="tick" x="188.9" y="269" text-anchor="middle">2024</text><text class="tick" x="348.3" y="269" text-anchor="middle">07</text><text class="tick" x="507.7" y="269" text-anchor="middle">2025</text><text class="tick" x="667.1" y="269" text-anchor="middle">07</text><text class="tick" x="826.6" y="269" text-anchor="middle">2026</text><text class="tick" x="986.0" y="269" text-anchor="middle">07</text>
+  <path d="M56.0,111.5 L82.6,83.4 L109.1,124.8 L135.7,113.8 L162.3,104.5 L188.9,119.3 L215.4,138.0 L242.0,103.7 L268.6,111.5 L295.1,117.0 L321.7,137.2 L348.3,108.4 L374.9,113.1 L401.4,121.6 L428.0,124.8 L454.6,135.7 L481.1,137.2 L507.7,114.6 L534.3,156.7 L560.9,130.2 L587.4,124.8 L614.0,143.5 L640.6,158.3 L667.1,134.1 L693.7,154.4 L720.3,145.0 L746.9,152.1 L773.4,162.2 L800.0,150.5 L826.6,144.3 L853.1,181.7 L879.7,152.1 L906.3,156.0 L932.9,170.8 L959.4,170.0 L986.0,158.3" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <path d="M56.0,138.0 L82.6,103.7 L109.1,111.5 L135.7,117.0 L162.3,137.2 L188.9,108.4 L215.4,113.1 L242.0,121.6 L268.6,124.8 L295.1,135.7 L321.7,137.2 L348.3,114.6 L374.9,156.7 L401.4,130.2 L428.0,124.8 L454.6,143.5 L481.1,158.3 L507.7,134.1 L534.3,154.4 L560.9,145.0 L587.4,152.1 L614.0,162.2 L640.6,150.5 L667.1,144.3 L693.7,181.7 L720.3,152.1 L746.9,156.0 L773.4,170.8 L800.0,170.0 L826.6,158.3 L853.1,163.8 L879.7,152.1 L906.3,164.5 L932.9,175.5 L959.4,155.2 L986.0,154.4" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
+  <p class="chart-note">Les 36 derniers mois du test. Le modèle n'a jamais vu le mois
+  qu'il prédit.</p>
+  <details>
+    <summary>Comparer les cinq méthodes</summary>
+    <div class="table-scroll"><table>
+      <thead><tr>
+        <th>Méthode</th><th>Erreur moyenne</th><th>Fourchette tenue</th>
+      </tr></thead>
+      <tbody><tr class="best"><td><div class="m-name">Le mois dernier</div><div class="m-explain">Recopie la dernière valeur connue. Le minimum syndical : toute méthode qui ne bat pas ça ne sert à rien.</div></td><td class="tabular num">± 1 846<span class="unit"> offres</span><div class="m-sub">soit 17,8 % d'écart</div></td><td><div class="promise tabular">8,1<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 81,3 % pour un nominal de 80 %"><span class="fill" style="width:81.3%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">La tendance longue</div><div class="m-explain">Prolonge la droite qui relie le premier et le dernier point.</div></td><td class="tabular num">± 1 860<span class="unit"> offres</span><div class="m-sub">soit 18,0 % d'écart</div></td><td><div class="promise tabular">8,4<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 83,6 % pour un nominal de 80 %"><span class="fill" style="width:83.6%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">L&#x27;an dernier, corrigé de la tendance récente</div><div class="m-explain">Part du même mois l&#x27;an dernier, puis corrige de l&#x27;évolution récente du niveau. Calendrier et conjoncture ensemble.</div></td><td class="tabular num">± 2 341<span class="unit"> offres</span><div class="m-sub">soit 20,8 % d'écart</div></td><td><div class="promise tabular">7,7<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 76,9 % pour un nominal de 80 %"><span class="fill" style="width:76.9%;background:var(--good)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">tient sa promesse</div></td></tr><tr class=""><td><div class="m-name">Le même mois, l&#x27;an dernier <span class="tag">référence</span></div><div class="m-explain">Recopie le même mois de l&#x27;année précédente. Connaît le calendrier, ignore tout du niveau actuel.</div></td><td class="tabular num">± 2 440<span class="unit"> offres</span><div class="m-sub">soit 22,4 % d'écart</div></td><td><div class="promise tabular">5,9<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 59,0 % pour un nominal de 80 %"><span class="fill" style="width:59.0%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">Ce mois-ci, moyenne des 3 dernières années</div><div class="m-explain">Moyenne le même mois sur trois ans, pour lisser le bruit d&#x27;une seule année.</div></td><td class="tabular num">± 3 256<span class="unit"> offres</span><div class="m-sub">soit 28,4 % d'écart</div></td><td><div class="promise tabular">4,9<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 49,3 % pour un nominal de 80 %"><span class="fill" style="width:49.3%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr></tbody>
+    </table></div>
+  </details>
+</article><article class="hcard">
+  <header>
+    <h3>Dans un an</h3>
+    <span class="pill bad"><span class="dot"></span>fourchette trompeuse</span>
+  </header>
+  <p class="headline">Aucune méthode ne fait mieux que la référence. À cet horizon, la série ne contient rien d'exploitable que le calendrier ne donne déjà.</p>
+  <p class="promise-line">Elle annonce une fourchette censée contenir la réalité <b>8&nbsp;fois sur 10</b>. Sur 128 mois testés, elle n'y arrive que <b>6,2&nbsp;fois sur&nbsp;10</b> — elle se dit plus précise qu'elle ne l'est.</p>
+  <div class="legend">
+    <span><i class="key" style="background:var(--observed)"></i>offres réellement collectées</span>
+    <span><i class="key dashed" style="background:var(--forecast)"></i>prévision de la méthode</span>
+    <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 20%,transparent);
+      border:1px solid var(--rule)"></i>fourchette annoncée</span>
+  </div>
+  <svg viewBox="0 0 1000 280" role="img"
+  aria-label="Prévision contre réalité sur les 36 derniers mois, avec la fourchette annoncée.">
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="209.0" x2="986" y2="209.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="170.0" x2="986" y2="170.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="131.0" x2="986" y2="131.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="92.0" x2="986" y2="92.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="53.0" x2="986" y2="53.0" stroke="var(--grid)" stroke-width="1"/><line x1="56" y1="14.0" x2="986" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+  <path d="M56.0,102.8 L82.6,58.3 L109.1,83.4 L135.7,61.6 L162.3,88.7 L188.9,51.0 L215.4,74.0 L242.0,38.3 L268.6,91.0 L295.1,77.2 L321.7,65.3 L348.3,84.2 L374.9,108.1 L401.4,64.4 L428.0,74.4 L454.6,81.4 L481.1,107.1 L507.7,70.4 L534.3,76.3 L560.9,87.1 L587.4,91.1 L614.0,105.0 L640.6,106.6 L667.1,77.4 L693.7,131.2 L720.3,97.1 L746.9,90.1 L773.4,114.0 L800.0,133.0 L826.6,102.0 L853.1,127.8 L879.7,115.6 L906.3,124.5 L932.9,137.4 L959.4,122.2 L986.0,114.1 L986.0,168.2 L959.4,173.0 L932.9,182.1 L906.3,174.4 L879.7,168.7 L853.1,176.1 L826.6,160.1 L800.0,178.8 L773.4,167.5 L746.9,152.6 L720.3,156.8 L693.7,177.4 L667.1,145.0 L640.6,162.8 L614.0,161.6 L587.4,153.2 L560.9,150.9 L534.3,144.2 L507.7,140.7 L481.1,162.9 L454.6,147.4 L428.0,143.3 L401.4,137.3 L374.9,163.6 L348.3,149.3 L321.7,138.0 L295.1,145.2 L268.6,153.5 L242.0,121.9 L215.4,143.4 L188.9,129.6 L162.3,152.3 L135.7,136.2 L109.1,149.3 L82.6,134.4 L56.0,160.8 Z" fill="var(--forecast)" fill-opacity="0.13"/>
+  <line x1="56" y1="248.0" x2="986" y2="248.0" stroke="var(--rule)" stroke-width="1"/>
+  <text class="tick" x="47" y="252.0" text-anchor="end">0k</text><text class="tick" x="47" y="213.0" text-anchor="end">5k</text><text class="tick" x="47" y="174.0" text-anchor="end">10k</text><text class="tick" x="47" y="135.0" text-anchor="end">15k</text><text class="tick" x="47" y="96.0" text-anchor="end">20k</text><text class="tick" x="47" y="57.0" text-anchor="end">25k</text><text class="tick" x="47" y="18.0" text-anchor="end">30k</text><text class="tick" x="188.9" y="269" text-anchor="middle">2024</text><text class="tick" x="348.3" y="269" text-anchor="middle">07</text><text class="tick" x="507.7" y="269" text-anchor="middle">2025</text><text class="tick" x="667.1" y="269" text-anchor="middle">07</text><text class="tick" x="826.6" y="269" text-anchor="middle">2026</text><text class="tick" x="986.0" y="269" text-anchor="middle">07</text>
+  <path d="M56.0,134.1 L82.6,99.8 L109.1,119.3 L135.7,102.1 L162.3,123.2 L188.9,93.6 L215.4,111.5 L242.0,83.4 L268.6,124.8 L295.1,113.8 L321.7,104.5 L348.3,119.3 L374.9,138.0 L401.4,103.7 L428.0,111.5 L454.6,117.0 L481.1,137.2 L507.7,108.4 L534.3,113.1 L560.9,121.6 L587.4,124.8 L614.0,135.7 L640.6,137.2 L667.1,114.6 L693.7,156.7 L720.3,130.2 L746.9,124.8 L773.4,143.5 L800.0,158.3 L826.6,134.1 L853.1,154.4 L879.7,145.0 L906.3,152.1 L932.9,162.2 L959.4,150.5 L986.0,144.3" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <path d="M56.0,138.0 L82.6,103.7 L109.1,111.5 L135.7,117.0 L162.3,137.2 L188.9,108.4 L215.4,113.1 L242.0,121.6 L268.6,124.8 L295.1,135.7 L321.7,137.2 L348.3,114.6 L374.9,156.7 L401.4,130.2 L428.0,124.8 L454.6,143.5 L481.1,158.3 L507.7,134.1 L534.3,154.4 L560.9,145.0 L587.4,152.1 L614.0,162.2 L640.6,150.5 L667.1,144.3 L693.7,181.7 L720.3,152.1 L746.9,156.0 L773.4,170.8 L800.0,170.0 L826.6,158.3 L853.1,163.8 L879.7,152.1 L906.3,164.5 L932.9,175.5 L959.4,155.2 L986.0,154.4" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+</svg>
+  <p class="chart-note">Les 36 derniers mois du test. Le modèle n'a jamais vu le mois
+  qu'il prédit.</p>
+  <details>
+    <summary>Comparer les cinq méthodes</summary>
+    <div class="table-scroll"><table>
+      <thead><tr>
+        <th>Méthode</th><th>Erreur moyenne</th><th>Fourchette tenue</th>
+      </tr></thead>
+      <tbody><tr class="best"><td><div class="m-name">Le mois dernier</div><div class="m-explain">Recopie la dernière valeur connue. Le minimum syndical : toute méthode qui ne bat pas ça ne sert à rien.</div></td><td class="tabular num">± 2 494<span class="unit"> offres</span><div class="m-sub">soit 22,6 % d'écart</div></td><td><div class="promise tabular">6,2<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 61,7 % pour un nominal de 80 %"><span class="fill" style="width:61.7%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">Le même mois, l&#x27;an dernier <span class="tag">référence</span></div><div class="m-explain">Recopie le même mois de l&#x27;année précédente. Connaît le calendrier, ignore tout du niveau actuel.</div></td><td class="tabular num">± 2 494<span class="unit"> offres</span><div class="m-sub">soit 22,6 % d'écart</div></td><td><div class="promise tabular">5,9<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 58,6 % pour un nominal de 80 %"><span class="fill" style="width:58.6%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">La tendance longue</div><div class="m-explain">Prolonge la droite qui relie le premier et le dernier point.</div></td><td class="tabular num">± 2 550<span class="unit"> offres</span><div class="m-sub">soit 23,3 % d'écart</div></td><td><div class="promise tabular">6,4<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 64,1 % pour un nominal de 80 %"><span class="fill" style="width:64.1%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">L&#x27;an dernier, corrigé de la tendance récente</div><div class="m-explain">Part du même mois l&#x27;an dernier, puis corrige de l&#x27;évolution récente du niveau. Calendrier et conjoncture ensemble.</div></td><td class="tabular num">± 3 178<span class="unit"> offres</span><div class="m-sub">soit 27,0 % d'écart</div></td><td><div class="promise tabular">7,1<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 71,1 % pour un nominal de 80 %"><span class="fill" style="width:71.1%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr><tr class=""><td><div class="m-name">Ce mois-ci, moyenne des 3 dernières années</div><div class="m-explain">Moyenne le même mois sur trois ans, pour lisser le bruit d&#x27;une seule année.</div></td><td class="tabular num">± 3 349<span class="unit"> offres</span><div class="m-sub">soit 28,9 % d'écart</div></td><td><div class="promise tabular">4,3<span class="unit"> / 10</span></div><span class="gauge" role="img" aria-label="couverture observée 43,0 % pour un nominal de 80 %"><span class="fill" style="width:43.0%;background:var(--critical)"></span><span class="target" style="left:80.0%"></span></span><div class="m-sub">se surestime</div></td></tr></tbody>
+    </table></div>
+  </details>
+</article>
+</section>
+
+<section>
+  <div class="section-head"><h2>Ce que ces chiffres ne disent pas</h2>
+    <p>Écrit pendant que le résultat est bon, parce que c'est le seul moment où on
+    l'écrit.</p></div>
+  <ul class="caveats"><li>Les valeurs publiées sont arrondies à la centaine, soit 1.18% du niveau moyen de la série. Une erreur sous ce seuil n&#x27;est pas de la compétence : elle est sous la résolution de la donnée.</li><li>Série brute, non désaisonnalisée. Une partie de la performance de tout modèle vient du calendrier, pas du marché.</li><li>Mars-mai 2020 est une rupture de régime, pas un point aberrant à retirer. Elle est incluse dans l&#x27;évaluation et pèse sur toutes les erreurs moyennes.</li><li>Offres collectées par France Travail, pas le marché cadre entier. C&#x27;est un indicateur, pas un recensement.</li><li>Le lien entre cette série et les volumes internes Apec n&#x27;est pas mesuré et ne doit pas être affirmé.</li><li>À l&#x27;horizon 12, le naïf saisonnier se réduit exactement au naïf — le même mois l&#x27;an dernier, douze mois à l&#x27;avance, est la dernière observation. Leurs scores y coïncident par construction, pas par hasard.</li></ul>
+</section>
+
+<footer>
+  <span>predlab 0.1.0</span>
+  <span>généré le 2026-09-20T16:26:13+00:00</span>
+  <span>«&nbsp;Erreur moyenne&nbsp;» = écart absolu moyen entre la prévision et le
+    chiffre réellement publié</span>
+</footer>
+</div></body></html>

@@ -73,6 +73,8 @@ def build_report(
     series: MonthlySeries,
     *,
     now: datetime | None = None,
+    forward: list[Any] | None = None,
+    cumulative: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """A machine-readable record of one run, complete enough to be re-checked."""
     moment = now or datetime.now(UTC)
@@ -150,6 +152,11 @@ def build_report(
             "mase_scale": round(result.scale, 2),
         },
         "horizons": horizons,
+        # The months the source has not published. Kept beside the backtest rather
+        # than in a separate document, so a reader always sees the forecast next to
+        # the measurement of how far that kind of forecast has been wrong before.
+        "forward": [{**f.payload(), "label": label_of(f.method)} for f in (forward or [])],
+        "cumulative": cumulative,
         "caveats": _caveats(result, floor),
     }
 

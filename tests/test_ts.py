@@ -9,6 +9,7 @@ than the calendar" is broken, not careful.
 from __future__ import annotations
 
 import math
+from pathlib import Path
 from typing import ClassVar
 
 import numpy as np
@@ -345,3 +346,135 @@ def test_pure_noise_yields_no_winner_over_the_reference() -> None:
     for row in result.for_horizon(1):
         if row.model != "seasonal_naive":
             assert row.mase > reference.mase * 0.95, row.model
+
+
+# --------------------------------------------------- recording and scoring forecasts
+
+
+def _ledger(tmp_path: Path):
+    from predlab.core.hashing import AppendOnlyLedger
+
+    return AppendOnlyLedger(tmp_path / "forecasts.jsonl")
+
+
+def test_a_forecast_about_a_published_month_is_refused(tmp_path: Path) -> None:
+    """The rule that makes a track record mean anything.
+
+    A "forecast" written after the answer is available is not a forecast, and
+    recording it with a caveat would not help: a caveat is something a later reader
+    can overlook. It is refused outright.
+    """
+    from predlab.ts.predict import ForwardForecast, HindsightError, record
+
+    series = make_series([100.0] * 24, start="2020-01")  # ends 2021-12
+    stale = ForwardForecast(
+        period="2021-06",
+        horizon=1,
+        method="naive",
+        method_label="naive",
+        median=100.0,
+        low=90.0,
+        high=110.0,
+        backtest_mae=5.0,
+        backtest_coverage=0.8,
+    )
+    with pytest.raises(HindsightError, match="already published"):
+        record(_ledger(tmp_path), [stale], series, train_end="2020-12")
+
+
+def test_an_untrusted_interval_keeps_its_point(tmp_path: Path) -> None:
+    """The refusal applies to the range, not to the month.
+
+    Dropping the whole forecast made the month disappear from the monthly table and
+    therefore from the annual total, understating the year by one month while the
+    reader assumed it was included. The point stays; only the range is flagged.
+    """
+    from predlab.ts.predict import ForwardForecast, record, score
+
+    series = make_series([100.0] * 24, start="2020-01")
+    shaky = ForwardForecast(
+        period="2022-01",
+        horizon=1,
+        method="naive",
+        method_label="naive",
+        median=100.0,
+        low=90.0,
+        high=110.0,
+        backtest_mae=5.0,
+        backtest_coverage=0.61,
+        interval_trusted=False,
+        reason="fourchette non tenue",
+    )
+    ledger = _ledger(tmp_path)
+    assert record(ledger, [shaky], series, train_end="2020-12") == 1
+    assert ledger.records()[0]["interval_trusted"] is False
+    assert ledger.records()[0]["median"] == 100, "the point survives the flag"
+    scored, pending = score(ledger, series)
+    assert scored == []
+    assert [r["period"] for r in pending] == ["2022-01"], "scored like any other"
+
+
+def test_an_unevaluated_horizon_carries_nothing_to_score(tmp_path: Path) -> None:
+    """A record with no point at all stays in the ledger but cannot be scored."""
+    from predlab.ts.predict import ForwardForecast, record, score
+
+    series = make_series([100.0] * 24, start="2020-01")
+    empty = ForwardForecast(
+        period="2022-01",
+        horizon=1,
+        method="",
+        method_label="",
+        median=None,
+        low=None,
+        high=None,
+        backtest_mae=0.0,
+        backtest_coverage=0.0,
+        interval_trusted=False,
+        reason="non évalué",
+    )
+    ledger = _ledger(tmp_path)
+    assert record(ledger, [empty], series, train_end="2020-12") == 1
+    assert len(ledger) == 1
+    assert score(ledger, series) == ([], [])
+
+
+def test_scoring_measures_the_gap_and_the_promise(tmp_path: Path) -> None:
+    """The number that settles it: forecasts against months nobody had seen."""
+    from predlab.ts.predict import ForwardForecast, record, score, scoreboard
+
+    early = make_series([100.0] * 24, start="2020-01")  # ends 2021-12
+    made = [
+        ForwardForecast("2022-01", 1, "naive", "naive", 100.0, 90.0, 110.0, 5.0, 0.8),
+        ForwardForecast("2022-02", 2, "naive", "naive", 100.0, 90.0, 110.0, 5.0, 0.8),
+    ]
+    ledger = _ledger(tmp_path)
+    record(ledger, made, early, train_end="2020-12")
+
+    # The source publishes: one inside the range, one well outside it.
+    later = make_series([100.0] * 24 + [104.0, 130.0], start="2020-01")
+    scored, pending = score(ledger, later)
+    assert pending == []
+    assert len(scored) == 2
+
+    board = scoreboard(scored)
+    assert board.n == 2
+    assert board.mae == pytest.approx(17.0)
+    assert board.bias == pytest.approx(17.0), "positive bias = forecasts were too low"
+    assert board.kept_promise == pytest.approx(5.0), "1 of 2 inside = 5 on 10"
+
+
+def test_pending_forecasts_are_reported_as_pending(tmp_path: Path) -> None:
+    """A month the source has not reached yet is not a miss."""
+    from predlab.ts.predict import ForwardForecast, record, score
+
+    series = make_series([100.0] * 24, start="2020-01")
+    ledger = _ledger(tmp_path)
+    record(
+        ledger,
+        [ForwardForecast("2022-06", 6, "naive", "naive", 100.0, 90.0, 110.0, 5.0, 0.8)],
+        series,
+        train_end="2020-12",
+    )
+    scored, pending = score(ledger, series)
+    assert scored == []
+    assert [r["period"] for r in pending] == ["2022-06"]

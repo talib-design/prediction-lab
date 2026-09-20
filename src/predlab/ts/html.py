@@ -139,6 +139,11 @@ summary{cursor:pointer; font-size:13px; color:var(--ink-2); padding:8px 0; font-
 summary:hover{color:var(--ink);}
 summary:focus-visible{outline:2px solid var(--observed); outline-offset:3px; border-radius:4px;}
 table{min-width:520px;}
+table.fwd{min-width:420px; margin-top:16px;}
+table.fwd td:first-child{font-weight:600; font-variant-numeric:tabular-nums;}
+td.refused{color:var(--muted); font-style:italic; white-space:normal;}
+.untrusted{color:var(--muted); text-decoration:underline dotted; text-underline-offset:3px;}
+.m-sub.warn{color:var(--critical-ink); white-space:normal; max-width:36ch; margin-left:auto;}
 td{vertical-align:top;}
 .m-name{font-weight:600; font-size:13.5px;}
 .m-explain{font-size:12px; color:var(--muted); margin-top:4px; max-width:40ch; white-space:normal;}
@@ -338,6 +343,165 @@ def _trace_chart(trace: dict[str, Any], months: int = 36) -> str:
 </svg>"""
 
 
+def _projection_chart(
+    periods: list[str], values: list[int], forward: list[dict[str, Any]], months: int = 30
+) -> str:
+    """Where the series is heading: recent history, then the forecast and its range.
+
+    The published series stops two months before the present, so a chart that ends
+    there shows the past and calls it a forecast page. The dashed continuation and
+    its band are the answer to the only question a reader came with.
+    """
+    hist_p = periods[-months:]
+    hist_v = values[-months:]
+    fwd = [f for f in forward if f.get("median") is not None]
+    if not fwd:
+        return ""
+
+    w, h = 1000, 300
+    left, right, top, bottom = 56, 66, 16, 32
+    iw, ih = w - left - right, h - top - bottom
+    n = len(hist_v) + len(fwd)
+    vmax = max([*hist_v, *[f["high"] for f in fwd]])
+    step = 5000
+    top_v = ((int(vmax) // step) + 1) * step
+
+    def x(i: int) -> float:
+        return left + (i / max(1, n - 1)) * iw
+
+    def y(v: float) -> float:
+        return top + ih - (v / top_v) * ih
+
+    grid, ticks = [], []
+    for v in range(0, top_v + 1, step):
+        gy = y(v)
+        grid.append(
+            f'<line x1="{left}" y1="{gy:.1f}" x2="{w - right}" y2="{gy:.1f}" '
+            f'stroke="var(--grid)" stroke-width="1"/>'
+        )
+        ticks.append(
+            f'<text class="tick" x="{left - 9}" y="{gy + 4:.1f}" text-anchor="end">'
+            f"{v // 1000}k</text>"
+        )
+    xticks = [
+        f'<text class="tick" x="{x(i):.1f}" y="{h - 11}" text-anchor="middle">'
+        f"{_esc(p[:4] if p.endswith('-01') else p[5:7])}</text>"
+        for i, p in enumerate([*hist_p, *[f["period"] for f in fwd]])
+        if p.endswith(("-01", "-04", "-07", "-10"))
+    ]
+
+    j = len(hist_v) - 1  # the forecast starts from the last published point
+    fx = [j, *range(len(hist_v), n)]
+    highs = [hist_v[-1], *[f["high"] for f in fwd]]
+    lows = [hist_v[-1], *[f["low"] for f in fwd]]
+    meds = [hist_v[-1], *[f["median"] for f in fwd]]
+
+    band = (
+        "M"
+        + " L".join(f"{x(i):.1f},{y(v):.1f}" for i, v in zip(fx, highs, strict=True))
+        + " L"
+        + " L".join(f"{x(i):.1f},{y(v):.1f}" for i, v in reversed(list(zip(fx, lows, strict=True))))
+        + " Z"
+    )
+    hist = " ".join(f"{'M' if i == 0 else 'L'}{x(i):.1f},{y(v):.1f}" for i, v in enumerate(hist_v))
+    proj = "M" + " L".join(f"{x(i):.1f},{y(v):.1f}" for i, v in zip(fx, meds, strict=True))
+    split = (x(j) + x(j + 1)) / 2
+    last = fwd[-1]
+    return f"""<svg viewBox="0 0 {w} {h}" role="img"
+  aria-label="Historique récent puis projection jusqu'à {_esc(last["period"])}.">
+  {"".join(grid)}
+  <path d="{band}" fill="var(--forecast)" fill-opacity="0.15"/>
+  <line x1="{split:.1f}" y1="{top}" x2="{split:.1f}" y2="{top + ih}"
+        stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="{left}" y1="{y(0):.1f}" x2="{w - right}" y2="{y(0):.1f}" stroke="var(--rule)" stroke-width="1"/>
+  {"".join(ticks)}{"".join(xticks)}
+  <path d="{hist}" fill="none" stroke="var(--observed)" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="{proj}" fill="none" stroke="var(--forecast)" stroke-width="2"
+        stroke-linejoin="round" stroke-dasharray="5 4"/>
+  <circle cx="{x(j):.1f}" cy="{y(hist_v[-1]):.1f}" r="4.5" fill="var(--observed)"
+          stroke="var(--surface)" stroke-width="2"/>
+  <circle cx="{x(n - 1):.1f}" cy="{y(last["median"]):.1f}" r="4.5" fill="var(--forecast)"
+          stroke="var(--surface)" stroke-width="2"/>
+  <text class="tick" x="{x(n - 1) + 10:.1f}" y="{y(last["median"]) + 4:.1f}"
+        style="fill:var(--ink);font-weight:600">{_fmt_int(last["median"])}</text>
+  <text class="tick" x="{split - 8:.1f}" y="{top + 12}" text-anchor="end">publié</text>
+  <text class="tick" x="{split + 8:.1f}" y="{top + 12}">prévu</text>
+</svg>"""
+
+
+def _projection_section(report: dict[str, Any]) -> str:
+    fwd = report.get("forward") or []
+    cum = report.get("cumulative")
+    if not fwd:
+        return ""
+    series = report["series"]
+    rows = []
+    for f in fwd:
+        if f.get("median") is None:
+            rows.append(
+                f"<tr><td>{_esc(f['period'])}</td>"
+                f'<td colspan="2" class="refused">Non évalué — {_esc(f["reason"])}</td></tr>'
+            )
+            continue
+        if f.get("interval_trusted", True):
+            band = (
+                f"{_fmt_int(f['low'])}&nbsp;&ndash;&nbsp;{_fmt_int(f['high'])}"
+                f'<div class="m-sub">{_esc(f["label"])}</div>'
+            )
+        else:
+            band = (
+                f'<span class="untrusted">{_fmt_int(f["low"])}&nbsp;&ndash;&nbsp;'
+                f"{_fmt_int(f['high'])}</span>"
+                f'<div class="m-sub warn">Fourchette non garantie&nbsp;: '
+                f"{_esc(f['reason'])}</div>"
+            )
+        rows.append(
+            f"<tr><td>{_esc(f['period'])}</td>"
+            f'<td class="tabular num">{_fmt_int(f["median"])}'
+            f'<span class="unit"> offres</span></td>'
+            f'<td class="tabular">{band}</td></tr>'
+        )
+
+    total = ""
+    if cum:
+        evol = (cum["total"] / cum["previous_year"] - 1) if cum["previous_year"] else 0.0
+        rng = (
+            f" (entre {_fmt_int(cum['low'])} et {_fmt_int(cum['high'])})" if cum.get("low") else ""
+        )
+        total = (
+            f'<p class="headline">Sur l\'année {_esc(cum["year"])} entière&nbsp;: '
+            f"<strong>{_fmt_int(cum['total'])} offres</strong>{rng}, dont "
+            f"{_fmt_int(cum['published'])} déjà publiées sur {cum['published_months']} "
+            f"mois. Soit <strong>{_fmt_pct(evol)}</strong> par rapport à "
+            f"{int(cum['year']) - 1}.</p>"
+        )
+
+    return f"""<section>
+  <div class="section-head"><h2>Où va-t-on&nbsp;?</h2>
+    <p>La DARES publie avec {series["publication_lag_months"]}&nbsp;mois de retard&nbsp;:
+    au moment d'écrire, {_esc(series["first_unpublished_period"])} n'existe pas encore.
+    Voici ce que les méthodes en disent.</p></div>
+  <figure class="chart-card" style="margin:0">
+    <div class="legend">
+      <span><i class="key" style="background:var(--observed)"></i>publié par la DARES</span>
+      <span><i class="key dashed" style="background:var(--forecast)"></i>prévision</span>
+      <span><i class="key sq" style="background:color-mix(in srgb,var(--forecast) 22%,transparent);
+        border:1px solid var(--rule)"></i>fourchette 8&nbsp;fois sur&nbsp;10</span>
+    </div>
+    {_projection_chart(series["periods"], series["values"], fwd)}
+  </figure>
+  {total}
+  <div class="table-scroll"><table class="fwd">
+    <thead><tr><th>Mois</th><th>Prévision</th><th>Fourchette</th></tr></thead>
+    <tbody>{"".join(rows)}</tbody>
+  </table></div>
+  <p class="chart-note">Ces prévisions sont enregistrées dans un journal inaltérable
+  au moment où elles sont faites. Quand la DARES publiera, l'écart sera mesuré et
+  ajouté ici&nbsp;— c'est la seule façon de savoir si elles valent quelque chose.</p>
+</section>"""
+
+
 def _horizon_card(block: dict[str, Any]) -> str:
     best = block["models"][0]
     ref = next((m for m in block["models"] if m["is_reference"]), None)
@@ -484,11 +648,14 @@ def _body(report: dict[str, Any]) -> str:
   </figure>
 </section>
 
+{_projection_section(report)}
+
 <section>
-  <div class="section-head"><h2>À quelle échéance&nbsp;?</h2>
-    <p>Prévoir le mois prochain et prévoir dans un an sont deux problèmes différents.
-    Chacun est évalué séparément&nbsp;: en faire une moyenne donnerait un chiffre qui ne
-    décrit ni l'un ni l'autre.</p></div>
+  <div class="section-head"><h2>Est-ce fiable&nbsp;?</h2>
+    <p>Les prévisions ci-dessus ne valent que ce que valent les méthodes qui les
+    produisent. Chaque échéance a donc été testée séparément sur les onze dernières
+    années&nbsp;— prévoir le mois prochain et prévoir dans un an sont deux problèmes
+    différents.</p></div>
   {cards}
 </section>
 
