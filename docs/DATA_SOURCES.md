@@ -366,3 +366,78 @@ supprimer en silence.
   juillet 2013 ; seules les offres collectées sont utilisées ici.
 - Le lien entre cette série et les volumes internes Apec est **non mesuré** et ne doit
   pas être affirmé.
+
+
+---
+
+## Climat des affaires — INSEE
+
+Vérifié sur le service SDMX le 2026-09-21.
+
+| | |
+|---|---|
+| endpoint | `https://bdm.insee.fr/series/sdmx/data/SERIES_BDM/{idbank}` — **sans clé** |
+| idbank | `001565530` |
+| intitulé | Indicateur du climat des affaires — Tous secteurs — France métropolitaine |
+| couverture | mensuel, 1977-01 → 2026-08 (retenu à partir de 1996-01) |
+| licence | Licence Ouverte — attribution Insee |
+
+### Pourquoi cette variable et pas une autre
+
+**Les élections et la géopolitique ne sont pas modélisables ici, et l'arithmétique le
+dit sans détour.** 367 mois de données cibles contiennent environ sept élections
+nationales françaises : on ne peut pas estimer à partir de sept observations un effet
+dont on ignore le signe, l'ampleur et le délai. C'est le même calcul de puissance qui
+disait qu'il faudrait 385 ans pour détecter un biais de 5 % au Loto. « Tensions
+géopolitiques » est pire encore : ce n'est pas une série, donc il n'y a rien à
+confronter à la cible.
+
+Le climat des affaires est le cas inverse. Série mensuelle depuis 1977, il mesure
+l'appréciation que les entreprises portent sur leur propre situation — ce qui précède
+une décision d'embauche — et surtout **il est publié en avance sur la cible** : la
+lecture d'août 2026 est sortie le 21 août, quand la DARES n'avait publié que juin. Une
+variable qui arrive après ce qu'elle doit prédire ne sert à rien, si bien corrélée
+soit-elle.
+
+### La règle de causalité, et la faute qu'elle a corrigée
+
+La première version lisait le climat **du mois prévu**. À un mois d'échéance c'est
+légitime ; à six mois c'est une fiction — prévoir janvier 2027 depuis une série
+s'arrêtant en juillet 2026 aurait utilisé le climat de janvier, qui n'existe pas
+encore. Le backtest aurait rapporté un modèle impossible à exécuter.
+
+La règle qui tient à tous les horizons est opérationnelle : la DARES publie à +2 mois,
+le climat à +0, donc au moment de prévoir, la lecture la plus fraîche disponible est
+environ *dernier mois DARES publié + 2*. Chaque horizon utilise **cette** lecture.
+Corriger cette faute a ramené le gain à un mois de 21,4 % à 18,2 % — l'écart était la
+fuite.
+
+### Résultat mesuré (2026-09-21)
+
+139 prévisions, entraînement ≤ 2014-12, base `seasonal_naive_drift`.
+
+| horizon | sans climat | avec climat | gain | p (permutation par blocs) |
+|---|---:|---:|---:|---:|
+| 1 mois | 1 543 | **1 261** | +18,2 % | 0,0146 |
+| 3 mois | 1 858 | **1 451** | +21,9 % | 0,0104 |
+| 6 mois | 2 341 | **1 872** | +20,0 % | 0,0128 |
+
+MAPE à un mois : **11,4 %** contre 14,3 %. Couverture 85,6 % pour 80 % annoncés.
+
+**Et pourtant : rien ne survit au contrôle des tests multiples.** Six tests (2 bases ×
+3 horizons), Benjamini-Yekutieli à q = 0,05 donne un seuil de 0,0034 au rang 1 ; le
+plus petit p vaut 0,0104. Tout est rejeté.
+
+Les deux lectures méritent d'être posées côte à côte :
+
+- **Contre.** Le protocole que ce projet s'est imposé rejette le résultat. Le point
+  principal n'avait pas été pré-spécifié : avoir choisi `seasonal_naive_drift` à
+  l'horizon 1 *après* avoir vu les chiffres est précisément ce que la correction
+  sanctionne.
+- **Pour.** Le gain est de même signe et de même ampleur aux trois horizons (18 à
+  22 %), et la calibration s'améliore en même temps que l'erreur baisse. Du bruit pur
+  produirait des signes dispersés.
+
+La résolution n'est pas de choisir la lecture qui arrange. L'hypothèse est enregistrée
+au registre (`d609a33dd501`, statut PROPOSED) et sera tranchée **en aveugle** sur les
+prévisions forward déjà consignées. C'est exactement ce à quoi sert ce registre.

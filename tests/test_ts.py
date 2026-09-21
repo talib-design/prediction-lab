@@ -478,3 +478,96 @@ def test_pending_forecasts_are_reported_as_pending(tmp_path: Path) -> None:
     scored, pending = score(ledger, series)
     assert scored == []
     assert [r["period"] for r in pending] == ["2022-06"]
+
+
+# ------------------------------------------------- exogenous variable and scenarios
+
+
+def test_the_indicator_never_reads_a_month_that_does_not_exist_yet() -> None:
+    """The flaw that made the first version of this model unrunnable.
+
+    Reading the climate *of the month being forecast* is fine one month out and
+    fiction six months out: forecasting January 2027 from a series ending July 2026
+    would have used January's climate. Every horizon must use the freshest reading
+    that will actually exist -- last published month plus the indicator's lead.
+    """
+    from predlab.ts.exogenous import PUBLICATION_LEAD, Indicator
+
+    ind = Indicator("test", {f"2026-{m:02d}": 100.0 + m for m in range(1, 9)})  # runs to 2026-08
+    assert ind.latest_available("2026-06", PUBLICATION_LEAD) == "2026-08"
+    # Beyond what the indicator has, it steps back instead of inventing a reading.
+    assert ind.latest_available("2026-08", PUBLICATION_LEAD) == "2026-08"
+    assert ind.latest_available("2030-01", PUBLICATION_LEAD) is None
+
+
+def test_the_deviation_needs_a_full_year_behind_it() -> None:
+    """A partial window would compare the indicator with a different average."""
+    from predlab.ts.exogenous import Indicator
+
+    ind = Indicator("test", {f"2020-{m:02d}": 100.0 for m in range(1, 7)})
+    assert ind.deviation("2020-06") is None, "only five months of history"
+
+
+def test_a_scenario_must_name_its_basis_and_author() -> None:
+    """An adjustment with no stated source is a number someone liked."""
+    from predlab.ts.scenarios import Scenario, ScenarioError
+
+    ok = {
+        "key": "k",
+        "name": "n",
+        "trigger": "t",
+        "adjustment": 0.9,
+        "basis": "historical_analogue",
+        "rationale": "because 2020",
+        "author": "Chris",
+    }
+    Scenario(**ok)  # type: ignore[arg-type]
+    with pytest.raises(ScenarioError, match="rationale"):
+        Scenario(**{**ok, "rationale": "  "})  # type: ignore[arg-type]
+    with pytest.raises(ScenarioError, match="author"):
+        Scenario(**{**ok, "author": ""})  # type: ignore[arg-type]
+
+
+def test_a_certain_scenario_is_refused() -> None:
+    """Certainty is not a scenario, and a probability of 1 hides that it is a guess."""
+    from predlab.ts.scenarios import Scenario, ScenarioError
+
+    with pytest.raises(ScenarioError, match="strictly in"):
+        Scenario(
+            key="k",
+            name="n",
+            trigger="t",
+            adjustment=0.9,
+            basis="expert_judgement",
+            rationale="r",
+            author="Chris",
+            subjective_probability=1.0,
+        )
+
+
+def test_scenarios_are_never_averaged_into_one_number() -> None:
+    """Averaging invented probabilities produces a figure that looks measured.
+
+    The output is a list, and the baseline is flagged as the only measured value in
+    it, precisely so that nobody downstream can collapse the two.
+    """
+    from predlab.ts.scenarios import apply_all, default_scenarios
+
+    out = apply_all(100_000.0, default_scenarios())
+    assert out["baseline_is_measured"] is True
+    assert isinstance(out["scenarios"], list)
+    assert "expected" not in out and "expected_value" not in out
+    for s in out["scenarios"]:  # type: ignore[union-attr]
+        assert s["is_judgement"] is True
+        assert s["rationale"] and s["author"]
+
+
+def test_a_scenario_leaves_the_baseline_untouched() -> None:
+    """The recorded forecast must score the model, not somebody's view of the world."""
+    from predlab.ts.scenarios import apply_all, default_scenarios
+
+    baseline = 131_134.0
+    out = apply_all(baseline, default_scenarios())
+    assert out["baseline"] == round(baseline)
+    values = [s["value"] for s in out["scenarios"]]  # type: ignore[union-attr]
+    assert all(v != round(baseline) for v in values)
