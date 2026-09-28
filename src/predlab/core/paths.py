@@ -36,6 +36,11 @@ class Paths:
         return self.root / "racing.duckdb"
 
     @property
+    def runs(self) -> Path:
+        """Backtest reports: aggregates only, safe to commit."""
+        return self.root / "runs"
+
+    @property
     def audit(self) -> Path:
         return self.root / "audit"
 

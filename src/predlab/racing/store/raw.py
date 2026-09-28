@@ -115,7 +115,7 @@ class RawStore:
         return Capture.from_record(payload)
 
     @contextmanager
-    def _manifest_lock(self) -> Iterator[None]:
+    def _manifest_lock(self, *, shared: bool = False) -> Iterator[None]:
         """Serialise appends across processes.
 
         The live collector and the nightly backfill can run at the same moment. Two
@@ -124,7 +124,7 @@ class RawStore:
         """
         self.manifests.mkdir(parents=True, exist_ok=True)
         with (self.manifests / ".lock").open("a") as fh:
-            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+            fcntl.flock(fh.fileno(), fcntl.LOCK_SH if shared else fcntl.LOCK_EX)
             try:
                 yield
             finally:
@@ -150,10 +150,12 @@ class RawStore:
     def captures(self, days: Iterable[date] | None = None) -> list[Capture]:
         selected = self.manifest_days() if days is None else sorted(set(days))
         out: list[Capture] = []
-        for day in selected:
-            ledger = self._ledger(day)
-            if ledger.path.exists():
-                out.extend(Capture.from_record(r) for r in ledger.records())
+        # Shared lock: never read a line another process is half-way through writing.
+        with self._manifest_lock(shared=True):
+            for day in selected:
+                ledger = self._ledger(day)
+                if ledger.path.exists():
+                    out.extend(Capture.from_record(r) for r in ledger.records())
         return out
 
     def index(self, days: Iterable[date] | None = None) -> dict[str, list[Capture]]:

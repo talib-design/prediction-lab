@@ -58,8 +58,9 @@ INCONCLUSIVE ≠ REJECTED. La loterie a montré qu'un banc d'essai honnête sait
 Trois niveaux, dans l'ordre. Un niveau n'est revendiqué que si le précédent l'est.
 
 1. **Le banc fonctionne :** sur des courses synthétiques à vérité connue, un avantage
-   planté est trouvé et un faux avantage (fort en échantillon, nul hors échantillon)
-   est refusé.
+   planté est trouvé, un biais de marché planté est corrigé, et un faux avantage
+   (marché + bruit) est refusé — `predlab racing synthetic-check`, 10 000 courses.
+   **Atteint le 2026-09-28** (3 graines sur 3).
 2. **Mieux que les baselines non-marché :** log loss hors échantillon inférieure à
    celle des baselines 1 à 4.
 3. **Mieux que le marché calibré (objectif principal) :** un modèle qui *combine* le
@@ -80,9 +81,30 @@ et l'ajustement sera daté ici.
 
 ## 6. Découpage et usage de la fenêtre de test
 
-Chronologique uniquement (`backtest/splits.py`). Les paramètres libres se choisissent
-sur la validation. La fenêtre de test se regarde une fois par hypothèse
-pré-enregistrée dans le registre (`predlab hypothesis add`).
+Chronologique uniquement (`backtest/splits.py`). **Pré-enregistré le 2026-09-28**
+(`racing/backtest.py`, `PREREGISTERED_SPLIT`) :
+
+| Phase | Courses dont le jour est… |
+|---|---|
+| train | ≤ 2022-12-31 |
+| validation | 2023-01-01 → 2023-12-31 |
+| test | ≥ 2024-01-01 (≈ 2,7 ans, ~11 000 courses attendues) |
+
+Les paramètres libres se choisissent sur la validation. La fenêtre de test se regarde
+une fois par hypothèse pré-enregistrée dans le registre (`predlab hypothesis add`).
+Les baselines n'ont aucun paramètre choisi sur les données : leurs valeurs sont fixées
+dans `racing/models.py`. Le seul paramètre ajusté, l'exposant du marché calibré, est
+réajusté tous les 500 résultats publiés, sur les seuls résultats publiés.
+
+## 6 bis. Horizon et éligibilité (v1)
+
+- **Horizon : T-25 min** avant le départ programmé. Choisi pour inclure la cote
+  REFERENCE (médiane −30 min depuis 2017, audit) ; toute cote horodatée après
+  l'instant de prédiction est exclue au chargement.
+- **Course évaluée** si chaque partant a une cote avant l'horizon : tous les modèles,
+  marché compris, sont jugés sur exactement les mêmes courses.
+- **Partants** = chevaux ayant couru. Un retrait postérieur à l'horizon est ignoré
+  (limite connue, faible).
 
 ## 7. Champion / challengers
 
@@ -102,3 +124,4 @@ nombre de comparaisons faites sur une fenêtre fixe la correction appliquée.
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
+- 2026-09-28 — découpage pré-enregistré, horizon T-25 min, règle d'éligibilité, niveau 1 atteint.

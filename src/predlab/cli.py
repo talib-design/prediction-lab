@@ -18,7 +18,12 @@ from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import default_paths
 from predlab.racing.audit import run_audit, write_report
 from predlab.racing.backfill import run_backfill
+from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES, PREREGISTERED_SPLIT, run_backtest
 from predlab.racing.collect import PROGRAMME, SNAPSHOT, CollectConfig, run_collect
+from predlab.racing.events import load_events
+from predlab.racing.models import CalibratedMarketModel, MarketModel, default_models
+from predlab.racing.report import build_report, compare
+from predlab.racing.report import write_report as write_backtest_report
 from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key
 from predlab.racing.sources.pmu.parser import (
     PmuFormatError,
@@ -27,6 +32,7 @@ from predlab.racing.sources.pmu.parser import (
 )
 from predlab.racing.store.normalized import build
 from predlab.racing.store.raw import RawStore
+from predlab.racing.synthetic import JitteredMarketModel, OracleModel, make_world
 from predlab.registry.hypotheses import Hypothesis, HypothesisRegistry, Origin, Status
 
 app = typer.Typer(
@@ -152,6 +158,61 @@ def build_db() -> None:
     typer.echo(f"Base reconstruite ({paths.database}) : {report.summary()}")
     for error in report.errors[:10]:
         typer.echo(f"  {error}")
+
+
+@racing_app.command("backtest")
+def backtest(
+    horizon: Annotated[
+        float, typer.Option(help="Minutes avant le départ.")
+    ] = DEFAULT_HORIZON_MINUTES,
+) -> None:
+    """Walk-forward backtest of the baselines on the normalized database."""
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    events = load_events(paths.database, horizon_minutes=horizon)
+    typer.echo(f"{len(events)} courses chargées, évaluation en cours…")
+    models = default_models()
+    result = run_backtest(events, models, horizon_minutes=horizon, split=PREREGISTERED_SPLIT)
+    calibrated = next(m for m in models if isinstance(m, CalibratedMarketModel))
+    report = build_report(
+        result, {"alpha": calibrated.alpha, "alpha_refits": len(calibrated.history)}
+    )
+    md, _ = write_backtest_report(report, paths.runs)
+    typer.echo(f"{result.n_eligible} courses évaluées. Rapport : {md}")
+
+
+@racing_app.command("synthetic-check")
+def synthetic_check(races: int = 10_000, seed: int = 0) -> None:
+    """Level 1: does the bench find a real edge, fix a planted bias, refuse a fake edge?"""
+    world = make_world(races, seed=seed)
+    models = [
+        MarketModel(),
+        CalibratedMarketModel(),
+        OracleModel(world.truth),
+        JitteredMarketModel(),
+    ]
+    result = run_backtest(world.events, models, horizon_minutes=DEFAULT_HORIZON_MINUTES)
+    rows = {r["model"]: r for r in compare(result, "all")}
+    checks = [
+        (
+            "un vrai avantage est trouvé (oracle)",
+            rows["oracle"]["verdict"] == "meilleur que la référence",
+        ),
+        (
+            "un biais planté est corrigé (marché brut)",
+            rows["market"]["verdict"] == "moins bon que la référence",
+        ),
+        (
+            "un faux avantage est refusé (marché bruité)",
+            rows["market_jittered"]["verdict"] != "meilleur que la référence",
+        ),
+    ]
+    for label, ok in checks:
+        typer.echo(f"  {'OK ' if ok else 'ÉCHEC'}  {label}")
+    if not all(ok for _, ok in checks):
+        raise typer.Exit(code=1)
 
 
 @racing_app.command("today")

@@ -1,4 +1,4 @@
-# Statut — Phase 2 : historique et base normalisée
+# Statut — Phase 3 : baselines et backtest
 
 Dernière mise à jour : 2026-09-28.
 
@@ -58,12 +58,35 @@ parser (`parse-check` : 2 012 OK, 3 échecs = les programmes 2013 ci-dessus).
 
 ## Ce qui manque (phases suivantes)
 
-Stockage normalisé et identité (Phase 2) ; PointInTimeView, baselines, backtest,
-puissance (Phase 3) ; courses à venir et registre de prédictions (Phases 4-5) ;
-API et front (Phase 6) ; pipeline quotidien complet (Phase 7) ; modèles avancés et
-agents (Phase 8).
+Premier modèle fondamental combiné au marché, historiques jockey / entraîneur
+(Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; API et
+tableau de bord (avancé : v0 possible dès maintenant) ; pipeline quotidien complet
+(Phase 7) ; modèles avancés et agents (Phase 8).
 
-## Phase 2 — en cours (démarrée le 2026-09-28)
+## Phase 3 — livrée le 2026-09-28
+
+- **Moteur walk-forward** `racing/backtest.py` : les courses sont parcourues dans
+  l'ordre des instants de prédiction ; les résultats ne sont publiés au modèle
+  qu'une fois connus (lendemain, règle v1). Un modèle « espion » vérifie en test qu'aucun
+  résultat futur ni du jour même n'est jamais visible.
+- **Séparation par les types** `racing/events.py` : la carte de course (ce qu'un
+  modèle voit) n'a aucun champ de résultat ; les cotes sont filtrées sur leur
+  horodatage PMU au chargement.
+- **Six baselines** `racing/models.py` : aléatoire, uniforme, taux de victoire du
+  cheval (rétréci), forme récente (reconstruite depuis nos données, pas la musique),
+  marché brut, **marché calibré** (loi de puissance réajustée en continu).
+- **Rapport** `predlab racing backtest` : puissance d'abord, scores par phase,
+  comparaison au marché calibré (IC bootstrap par blocs, permutation appariée,
+  correction BY), calibration du marché. Écrit dans `data/runs/`.
+- **Niveau 1 du critère atteint** `predlab racing synthetic-check` : sur 10 000 courses
+  synthétiques, le banc trouve un vrai avantage, corrige un biais planté, refuse un
+  faux avantage (3 graines sur 3).
+- Découpage pré-enregistré : train ≤ 2022, validation 2023, test ≥ 2024.
+
+Les résultats sur données réelles ne sont interprétables qu'une fois le rattrapage
+terminé : avant, la fenêtre de test est trop petite et le rapport le dit.
+
+## Phase 2 — livrée (rattrapage en cours, 3 à 4 nuits)
 
 Livré :
 
@@ -110,6 +133,8 @@ uv run predlab racing parse-check
 uv run predlab racing audit --start 2013-01-01
 uv run predlab racing backfill --hours 1   # une tranche à la main
 uv run predlab racing build                # reconstruit data/racing.duckdb
+uv run predlab racing synthetic-check      # le banc trouve-t-il ce qu'il doit trouver ?
+uv run predlab racing backtest             # baselines sur données réelles, T-25 min
 uv run predlab hypothesis list
 ```
 

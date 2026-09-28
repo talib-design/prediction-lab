@@ -43,6 +43,8 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "N", "C4", "PTH"]
 ignore = ["E501"]
+# French prose and maths in docstrings and reports.
+allowed-confusables = ["α", "−", "–", "’", "×"]
 
 [tool.pyright]
 include = ["src", "tests"]
