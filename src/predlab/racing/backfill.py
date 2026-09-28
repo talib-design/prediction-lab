@@ -1,7 +1,8 @@
 """Historical backfill: every French flat race since 2015, fetched once, politely.
 
 Scale, from the audit: ~4 000 target races a year, so ~51 000 requests for programmes
-and runners since 2015 -- about 15 hours at one request per second. It therefore runs
+and runners since 2015 and ~100 000 with dividends -- about 28 hours at one request
+per second. It therefore runs
 in bounded slices (a request cap and a deadline), typically a few hours a night, and
 resumes where it stopped. There is no progress file to trust: the raw store *is* the
 state. A day is done when its programme and every target race's post-race runners
@@ -11,7 +12,8 @@ skip them without re-reading their programmes.
 Order: newest first. The most recent seasons are the ones a test window will use, so
 they become usable soonest.
 
-Past performances (``performances-detaillees``) are opt-in: the runners of every race
+Dividends (``rapports-definitifs``) are fetched too: the betting simulation settles
+fictitious tickets against them. Past performances (``performances-detaillees``) are opt-in: the runners of every race
 since 2015 already give each horse's French flat history from 2015 on; performances
 add older and non-flat runs at the cost of one more request per race.
 """
@@ -86,12 +88,16 @@ def run_backfill(
     max_requests: int = 20_000,
     deadline: datetime | None = None,
     with_performances: bool = False,
+    with_dividends: bool = True,
     country: str = "FRA",
     discipline: str = "PLAT",
     progress: Callable[[str], None] | None = None,
 ) -> BackfillReport:
     report = BackfillReport()
-    checkpoint = store.root / "backfill_done.json"
+    # v2: a day is complete only once its dividends are stored too (needed by the
+    # betting simulation). Days closed under v1 are rescanned; their programmes and
+    # runners are cached, so only the dividends are fetched.
+    checkpoint = store.root / "backfill_done_v2.json"
     done = _load_checkpoint(checkpoint)
     index = store.index()
     before = client.requests_made
@@ -160,6 +166,17 @@ def run_backfill(
                     report.races_fetched += 1
                 else:
                     complete = False
+            if with_dividends:
+                div_key = capture_key(
+                    Endpoint.RAPPORTS, race.day, race.meeting_number, race.race_number
+                )
+                if not any(c.ok for c in index.get(div_key, [])):
+                    if not budget_left():
+                        complete = False
+                        break
+                    complete &= fetch(
+                        Endpoint.RAPPORTS, race.day, race.meeting_number, race.race_number
+                    ).ok
             if with_performances:
                 perf_key = capture_key(
                     Endpoint.PERFORMANCES, race.day, race.meeting_number, race.race_number

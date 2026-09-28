@@ -6,6 +6,7 @@ and its log must be readable by a person.
 
 from __future__ import annotations
 
+import json
 from datetime import date, timedelta
 from typing import Annotated
 
@@ -19,6 +20,14 @@ from predlab.core.paths import default_paths
 from predlab.racing.audit import run_audit, write_report
 from predlab.racing.backfill import run_backfill
 from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES, PREREGISTERED_SPLIT, run_backtest
+from predlab.racing.betting import (
+    build_simulation_report,
+    exotic_strategies,
+    load_dividends,
+    render_simulation_markdown,
+    simple_strategies,
+    simulate,
+)
 from predlab.racing.collect import PROGRAMME, SNAPSHOT, CollectConfig, run_collect
 from predlab.racing.events import load_events
 from predlab.racing.models import CalibratedMarketModel, MarketModel, default_models
@@ -181,6 +190,45 @@ def backtest(
     )
     md, _ = write_backtest_report(report, paths.runs)
     typer.echo(f"{result.n_eligible} courses évaluées. Rapport : {md}")
+
+
+@racing_app.command("simulate")
+def simulate_bets(
+    horizon: Annotated[
+        float, typer.Option(help="Minutes avant le départ.")
+    ] = DEFAULT_HORIZON_MINUTES,
+) -> None:
+    """Fictitious bets (simple, tiercé, quinté) settled against official dividends."""
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    events = load_events(paths.database, horizon_minutes=horizon)
+    dividends = load_dividends(paths.database)
+    result = run_backtest(
+        events,
+        default_models(),
+        horizon_minutes=horizon,
+        split=PREREGISTERED_SPLIT,
+        keep_forecasts=True,
+    )
+    chosen = ["market_calibrated", "horse_win_rate", "form"]
+    strategies = {**simple_strategies(chosen), **exotic_strategies(chosen)}
+    ledgers = simulate(result, dividends, strategies)
+    settled = sum(1 for e in result.scored_events if e.card.race_id in dividends)
+    stamp = utcnow().isoformat(timespec="seconds")
+    report = build_simulation_report(
+        result, ledgers, n_races_with_dividends=settled, generated_at=stamp
+    )
+    out = paths.runs / f"simulation_T{horizon:g}_{stamp.replace(':', '').replace('-', '')[:15]}Z"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "report.md").write_text(render_simulation_markdown(report), encoding="utf-8")
+    (out / "report.json").write_text(
+        json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding="utf-8"
+    )
+    typer.echo(
+        f"{settled} courses réglées avec les rapports officiels. Rapport : {out / 'report.md'}"
+    )
 
 
 @racing_app.command("synthetic-check")

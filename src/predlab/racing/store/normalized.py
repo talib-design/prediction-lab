@@ -5,6 +5,7 @@
     data/normalized/races.parquet     one row per race (latest programme capture)
     data/normalized/runners.parquet   one row per runner (latest runners capture)
     data/normalized/odds.parquet      every distinct odds quote ever captured
+    data/normalized/dividends.parquet official payouts, one row per bet type and line
     data/racing.duckdb                the same, as DuckDB tables, plus ``horses``
 
 The build is a pure function of the raw store: delete the outputs and rebuild, and
@@ -34,6 +35,7 @@ import polars as pl
 from predlab.racing.sources.pmu.client import Endpoint
 from predlab.racing.sources.pmu.parser import (
     PmuFormatError,
+    parse_dividends,
     parse_participants,
     parse_programme_detailed,
 )
@@ -102,6 +104,17 @@ RUNNER_SCHEMA: dict[str, Any] = {
     "retrieved_at": pl.Datetime("us", "UTC"),
 }
 
+DIVIDEND_SCHEMA: dict[str, Any] = {
+    "race_id": pl.Utf8,
+    "bet_type": pl.Utf8,
+    "label": pl.Utf8,
+    "combination": pl.Utf8,
+    "per_euro": pl.Float64,
+    "base_stake": pl.Float64,
+    "refunded": pl.Boolean,
+    "retrieved_at": pl.Datetime("us", "UTC"),
+}
+
 ODDS_SCHEMA: dict[str, Any] = {
     "race_id": pl.Utf8,
     "number": pl.Int32,
@@ -117,6 +130,7 @@ ODDS_SCHEMA: dict[str, Any] = {
 class BuildReport:
     races: int = 0
     runners: int = 0
+    dividends: int = 0
     odds: int = 0
     horses: int = 0
     errors: list[str] = field(default_factory=list)
@@ -124,6 +138,7 @@ class BuildReport:
     def summary(self) -> str:
         return (
             f"{self.races} courses, {self.runners} partants, {self.odds} cotes, "
+            f"{self.dividends} rapports, "
             f"{self.horses} chevaux ; {len(self.errors)} erreur(s) de parsing"
         )
 
@@ -142,11 +157,14 @@ def build(store: RawStore, out_dir: Path, db_path: Path) -> BuildReport:
     ok = [c for c in store.captures() if c.ok]
     programmes: dict[str, list[Capture]] = {}
     participants: dict[str, list[Capture]] = {}
+    rapports: dict[str, list[Capture]] = {}
     for c in ok:
         if c.endpoint == Endpoint.PROGRAMME:
             programmes.setdefault(c.key, []).append(c)
         elif c.endpoint == Endpoint.PARTICIPANTS:
             participants.setdefault(c.key, []).append(c)
+        elif c.endpoint == Endpoint.RAPPORTS:
+            rapports.setdefault(c.key, []).append(c)
 
     race_rows: list[dict[str, Any]] = []
     for key in sorted(programmes):
@@ -256,11 +274,34 @@ def build(store: RawStore, out_dir: Path, db_path: Path) -> BuildReport:
                         }
                     )
 
+    dividend_rows: list[dict[str, Any]] = []
+    for key in sorted(rapports):
+        cap = _latest(rapports[key])
+        try:
+            lines = parse_dividends(store.read(cap), _race_id_from_key(key))
+        except PmuFormatError as exc:
+            report.errors.append(f"{key}: {exc}")
+            continue
+        dividend_rows.extend(
+            {
+                "race_id": d.race_id,
+                "bet_type": d.bet_type,
+                "label": d.label,
+                "combination": "-".join(d.combination),
+                "per_euro": d.per_euro,
+                "base_stake": d.base_stake,
+                "refunded": d.refunded,
+                "retrieved_at": cap.retrieved_at,
+            }
+            for d in lines
+        )
+
     out_dir.mkdir(parents=True, exist_ok=True)
     frames = {
         "races": pl.DataFrame(race_rows, schema=RACE_SCHEMA),
         "runners": pl.DataFrame(runner_rows, schema=RUNNER_SCHEMA),
         "odds": pl.DataFrame(list(odds_seen.values()), schema=ODDS_SCHEMA),
+        "dividends": pl.DataFrame(dividend_rows, schema=DIVIDEND_SCHEMA),
     }
     for name, frame in frames.items():
         frame.write_parquet(out_dir / f"{name}.parquet")
@@ -301,6 +342,7 @@ def build(store: RawStore, out_dir: Path, db_path: Path) -> BuildReport:
         report.races = con.execute("SELECT count(*) FROM races").fetchone()[0]  # type: ignore[index]
         report.runners = con.execute("SELECT count(*) FROM runners").fetchone()[0]  # type: ignore[index]
         report.odds = con.execute("SELECT count(*) FROM odds").fetchone()[0]  # type: ignore[index]
+        report.dividends = con.execute("SELECT count(*) FROM dividends").fetchone()[0]  # type: ignore[index]
         report.horses = con.execute("SELECT count(*) FROM horses").fetchone()[0]  # type: ignore[index]
     finally:
         con.close()

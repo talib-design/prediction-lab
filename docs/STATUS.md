@@ -1,4 +1,4 @@
-# Statut — Phase 3 : baselines et backtest
+# Statut — Phase 3 : baselines, backtest et paris fictifs
 
 Dernière mise à jour : 2026-09-28.
 
@@ -62,6 +62,23 @@ Premier modèle fondamental combiné au marché, historiques jockey / entraîneu
 (Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; API et
 tableau de bord (avancé : v0 possible dès maintenant) ; pipeline quotidien complet
 (Phase 7) ; modèles avancés et agents (Phase 8).
+
+## Paris fictifs — livrés le 2026-09-28 (décision de Chris : simuler comme pour le Loto)
+
+- **Rapports officiels** : parser des `rapports-definitifs` (vérifié sur une capture
+  réelle complète et sur un extrait de Quinté+), table `dividends` dans la base ;
+  le collecteur les prenait déjà en direct, le rattrapage les prend désormais aussi.
+- **Modèle d'ordre d'arrivée** `racing/orders.py` : probabilités de place exactes sous
+  Harville, vérifiées contre une énumération complète ; ordre le plus probable pour
+  tiercé et quinté.
+- **Simulateur** `predlab racing simulate` : Simple gagnant et placé (favori, hasard,
+  top modèle, valeur), Tiercé et Quinté+ (favoris, hasard, modèles), réglés au rapport
+  réel ; ROI avec IC, taux de réussite, part du plus gros gain ; calibration des
+  probabilités de place. Règles figées : docs/METHODOLOGY.md §9.
+
+Conséquence sur le rattrapage : un rapport de plus par course, soit ~100 000 requêtes
+au total au lieu de ~51 000 : **environ 6 nuits** au lieu de 3-4. Les jours déjà
+complets sont revisités, seuls leurs rapports sont téléchargés.
 
 ## Phase 3 — livrée le 2026-09-28
 
@@ -135,6 +152,7 @@ uv run predlab racing backfill --hours 1   # une tranche à la main
 uv run predlab racing build                # reconstruit data/racing.duckdb
 uv run predlab racing synthetic-check      # le banc trouve-t-il ce qu'il doit trouver ?
 uv run predlab racing backtest             # baselines sur données réelles, T-25 min
+uv run predlab racing simulate             # paris fictifs réglés aux rapports officiels
 uv run predlab hypothesis list
 ```
 

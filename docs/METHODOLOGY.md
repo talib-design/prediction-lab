@@ -121,7 +121,32 @@ réajusté tous les 500 résultats publiés, sur les seuls résultats publiés.
 Toute idée testée entre au registre d'hypothèses, y compris celles qui échouent. Le
 nombre de comparaisons faites sur une fenêtre fixe la correction appliquée.
 
+## 9. Simulation de paris fictifs (ajoutée le 2026-09-28)
+
+Même esprit que l'expérience Loto : **aucune mise réelle, aucun compte, aucun pari
+passé**. Des tickets imaginaires, réglés avec les rapports officiels du PMU
+(`predlab racing simulate`, `racing/betting.py`). Règles fixées avant la première
+simulation :
+
+- **Décision** à l'horizon (T-25 min), avec la seule carte de course ; **paiement** au
+  rapport final. Le glissement des cotes entre les deux fait partie de la mesure.
+- **Une unité par ticket** : 1 € (simple, tiercé), 2 € (mise de base du Quinté+).
+  Aucun plan de mise, aucune gestion de capital.
+- **Stratégies** : pour chaque famille, un témoin *favori* et un témoin *hasard* sur
+  les mêmes courses ; `top <modèle>` (le plus probable), `valeur <modèle>`
+  (p × cote ≥ **1,10**, seuil fixé ici), tiercé et quinté dans l'ordre le plus probable
+  (modèle d'ordre de Harville), sur les courses à Quinté+ seulement.
+- **Verdict** sur la phase de test : ROI avec IC 95 % par bootstrap en blocs ;
+  « gain significatif » seulement si l'IC entier est au-dessus de 0. La part du plus
+  gros gain est publiée : un ROI porté par un coup n'est pas un résultat.
+- **Critère de réussite financier** (en plus du §5) : une stratégie à gain significatif
+  sur le test, **puis** confirmée sur des courses futures enregistrées avant le départ.
+  Résultat attendu, dit à l'avance : une perte pour toutes, le prélèvement étant retenu
+  avant redistribution. La vraie question est « un modèle perd-il significativement
+  moins que les témoins ? ».
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
 - 2026-09-28 — découpage pré-enregistré, horizon T-25 min, règle d'éligibilité, niveau 1 atteint.
+- 2026-09-28 — §9 : simulation de paris fictifs (simple, tiercé, quinté), règles fixées avant tout résultat.

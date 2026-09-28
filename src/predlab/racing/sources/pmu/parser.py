@@ -20,7 +20,14 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from predlab.core.clock import from_epoch_ms, paris_day
-from predlab.racing.domain import GoingMeasure, OddsQuote, Race, Runner, WeatherForecast
+from predlab.racing.domain import (
+    Dividend,
+    GoingMeasure,
+    OddsQuote,
+    Race,
+    Runner,
+    WeatherForecast,
+)
 
 _HANDEDNESS = {"CORDE_DROITE": "RIGHT", "CORDE_GAUCHE": "LEFT"}
 
@@ -266,3 +273,50 @@ def _quote(obj: Any) -> OddsQuote | None:
         favourite=bool(obj.get("favoris")),
         trend=_opt(obj, "indicateurTendance", str),
     )
+
+
+# --------------------------------------------------------------------------- dividends
+
+
+def parse_dividends(raw: bytes | str | list[Any], race_id: str) -> list[Dividend]:
+    """``rapports-definitifs``: a JSON *array*, one element per bet type.
+
+    Verified on 2026-09-28: ``dividendePourUnEuro`` is in euro cents per 1 EUR staked,
+    stake included (760 = 7.60 EUR), for every bet type; ``miseBase`` is the minimum
+    stake in cents (200 = 2 EUR for the Quinté+).
+    """
+    if isinstance(raw, list):
+        doc: Any = raw
+    else:
+        try:
+            doc = json.loads(raw)
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            raise PmuFormatError(f"not valid JSON: {exc}") from exc
+    if not isinstance(doc, list):
+        raise PmuFormatError("$: expected an array of bet types")
+    out: list[Dividend] = []
+    for i, bet in enumerate(doc):
+        path = f"$[{i}]"
+        if not isinstance(bet, dict):
+            raise PmuFormatError(f"{path}: not an object")
+        bet_type = _req(bet, "typePari", str, path)
+        base = _opt(bet, "miseBase", int)
+        refunded = bool(bet.get("rembourse"))
+        for j, line in enumerate(bet.get("rapports") or []):
+            lpath = f"{path}.rapports[{j}]"
+            if not isinstance(line, dict):
+                raise PmuFormatError(f"{lpath}: not an object")
+            cents = _req(line, "dividendePourUnEuro", (int, float), lpath)
+            combo = _req(line, "combinaison", str, lpath)
+            out.append(
+                Dividend(
+                    race_id=race_id,
+                    bet_type=bet_type,
+                    label=_opt(line, "libelle", str) or bet_type,
+                    combination=tuple(t.strip() for t in combo.split("-") if t.strip()),
+                    per_euro=float(cents) / 100.0,
+                    base_stake=(base or 100) / 100.0,
+                    refunded=refunded,
+                )
+            )
+    return out

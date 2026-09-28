@@ -14,3 +14,13 @@ web-fetch tool that returned verbatim excerpts of the JSON. They are therefore
 
 Replace these with full captures from `data/raw/pmu/` once the collector has run on
 the Mac (`predlab racing parse-check` validates the parser against every capture).
+
+## Dividends (added 2026-09-28)
+
+| File | Origin |
+|---|---|
+| `rapports_2026-09-28_R2C1_full.json` | **Full real response**, copied byte-for-byte from the raw store (live collector capture) |
+| `rapports_2026-09-24_R1C1_quinte_excerpt.json` | Verbatim excerpt read via web fetch: only the `TIERCE` and `QUINTE_PLUS` elements of the response |
+
+`dividendePourUnEuro` is in euro cents per 1 € staked, stake included (760 = 7,60 €).
+For the Quinté+, `dividende` is per base stake of 2 € while `dividendePourUnEuro` stays per 1 €.

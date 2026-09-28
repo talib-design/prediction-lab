@@ -57,6 +57,10 @@ def _transport() -> FakeTransport:
                 200,
                 fixture_bytes("participants_2026-09-27_R1C1_partial.json"),
             ),
+            "/R1/C1/rapports-definitifs": (
+                200,
+                fixture_bytes("rapports_2026-09-28_R2C1_full.json"),
+            ),
         }
     )
 
@@ -79,7 +83,7 @@ def test_backfill_fetches_programme_and_runners_then_skips_done_days(tmp_path: P
     report = _run(store, first)
     assert report.races_fetched == 1 and report.days_completed == 1
     assert report.stopped_by == "done"
-    assert len(first.calls) == 2
+    assert len(first.calls) == 3, "programme, runners, dividends"
 
     again = _transport()
     assert _run(store, again).requests == 0

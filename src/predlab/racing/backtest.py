@@ -108,6 +108,9 @@ class BacktestResult:
     runs: list[ModelRun]
     code_version: str = __version__
     created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat(timespec="seconds"))
+    # Filled only with keep_forecasts=True: what each model said, race by race.
+    forecasts: dict[str, dict[str, np.ndarray]] = field(default_factory=dict)
+    scored_events: list[RaceEvent] = field(default_factory=list)
 
     def run(self, name: str) -> ModelRun:
         for r in self.runs:
@@ -123,6 +126,7 @@ def run_backtest(
     horizon_minutes: float,
     split: TimeSplit | None = None,
     eligible: Callable[[RaceCard], bool] = lambda c: c.market_complete,
+    keep_forecasts: bool = False,
 ) -> BacktestResult:
     ordered = sorted(events, key=lambda e: (e.card.prediction_time, e.card.race_id))
     pending: list[tuple[datetime, str, RaceEvent]] = []
@@ -131,6 +135,8 @@ def run_backtest(
     knowledge = Knowledge()
     runs = [ModelRun(m.name, m.version, m.config()) for m in models]
     n_eligible = 0
+    forecasts: dict[str, dict[str, np.ndarray]] = {}
+    scored: list[RaceEvent] = []
 
     for event in ordered:
         card = event.card
@@ -146,8 +152,13 @@ def run_backtest(
         n_eligible += 1
         winners = event.winner_indices()
         phase = split.phase_of(card.day) if split else "all"
+        if keep_forecasts:
+            forecasts[card.race_id] = {}
+            scored.append(event)
         for m, run in zip(models, runs, strict=True):
             p = validate(m.predict(card, knowledge), card, m.name)
+            if keep_forecasts:
+                forecasts[card.race_id][m.name] = p
             for k, v in score(p, winners).items():
                 run.scores[k].append(v)
             run.race_ids.append(card.race_id)
@@ -166,6 +177,8 @@ def run_backtest(
         n_eligible=n_eligible,
         dataset_fingerprint=fingerprint(ordered),
         runs=runs,
+        forecasts=forecasts,
+        scored_events=scored,
     )
 
 

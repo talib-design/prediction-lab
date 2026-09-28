@@ -140,3 +140,26 @@ class Runner(BaseModel, frozen=True):
     @property
     def is_runner(self) -> bool:
         return self.status == "PARTANT"
+
+
+class Dividend(BaseModel, frozen=True):
+    """One official payout line: what 1 EUR on this combination returned, stake included.
+
+    ``combination`` keeps the source's tokens: runner numbers, or ``NP`` for the
+    non-runner lines of some bets. ``refunded`` marks a bet type cancelled for the race.
+    """
+
+    race_id: str
+    bet_type: str
+    label: str
+    combination: tuple[str, ...]
+    per_euro: float
+    base_stake: float
+    refunded: bool = False
+
+    @property
+    def numbers(self) -> tuple[int, ...] | None:
+        """The combination as runner numbers, or None if it contains a non-number."""
+        if not all(t.isdigit() for t in self.combination):
+            return None
+        return tuple(int(t) for t in self.combination)
