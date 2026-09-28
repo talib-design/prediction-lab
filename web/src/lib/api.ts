@@ -86,6 +86,50 @@ export interface DividendRow {
   refunded: boolean;
 }
 
+export interface CarnetTicket {
+  strategy: string;
+  label: string;
+  bet_type: string;
+  numbers: number[];
+  stake: number;
+  returned: number | null;
+}
+
+export interface CarnetEntry {
+  race_id: string;
+  day: string;
+  rc: string;
+  discipline: Discipline;
+  venue: string | null;
+  has_quinte: boolean;
+  off_time: string;
+  frozen_at: string;
+  odds_as_of: string;
+  alpha: number;
+  tickets: CarnetTicket[];
+  settled: boolean;
+  settled_at: string | null;
+  finish_order: number[][] | null;
+  note: string | null;
+}
+
+export interface CarnetRow extends StrategyRow {
+  label: string;
+  pending: number;
+}
+
+export interface CarnetResponse {
+  records: number;
+  head_hash: string;
+  integrity_error: string | null;
+  first_day: string | null;
+  days: string[];
+  races: number;
+  settled: number;
+  summary: CarnetRow[];
+  entries: CarnetEntry[];
+}
+
 export interface RaceDetail {
   race: RaceSummary;
   conditions: {
@@ -101,6 +145,7 @@ export interface RaceDetail {
   runners: RunnerRow[];
   dividends: DividendRow[];
   snapshots: number;
+  carnet: CarnetEntry | null;
 }
 
 export interface HorseResponse {
@@ -287,5 +332,6 @@ export const api = {
   reports: () => get<{ reports: ReportListItem[] }>("/reports"),
   report: <T>(id: string) => get<T>(`/reports/${encodeURIComponent(id)}`),
   status: () => get<StatusResponse>("/status"),
+  carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),
 };

@@ -38,6 +38,7 @@ src/predlab/
     audit.py         audit volume / complétude / horodatage des cotes
     events.py, knowledge.py, models.py, backtest.py, report.py   banc walk-forward
     orders.py, betting.py   modèle d'ordre (Harville), paris fictifs
+    carnet.py        carnet en direct : tickets figés avant le départ, réglés au rapport
   api/app.py   API HTTP en lecture seule pour le tableau de bord (voir ci-dessous)
   cli.py       predlab racing {collect,backfill,build,backtest,simulate,…}, predlab dashboard, predlab hypothesis …
 web/           front React + TypeScript + Vite ; web/dist (compilé) est commité
@@ -58,6 +59,7 @@ pour ce qu'elle fait bien :
 | `GET /api/horses/{id}` | DuckDB | carrière |
 | `GET /api/reports`, `/api/reports/{id}` | `data/runs/*/report.json` | backtests et simulations |
 | `GET /api/status` | manifestes, checkpoints, journaux, DuckDB | santé de la collecte |
+| `GET /api/carnet` | `data/carnet.jsonl` (vérifié à chaque lecture) | carnet en direct |
 | `GET /api/hypotheses` | registre | recherche |
 
 Documentation interactive : `/api/docs`. Aucune route n'écrit.

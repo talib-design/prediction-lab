@@ -81,14 +81,19 @@ et l'ajustement sera daté ici.
 
 ## 6. Découpage et usage de la fenêtre de test
 
-Chronologique uniquement (`backtest/splits.py`). **Pré-enregistré le 2026-09-28**
-(`racing/backtest.py`, `PREREGISTERED_SPLIT`) :
+Chronologique uniquement (`backtest/splits.py`). **Pré-enregistré le 2026-09-28, révisé
+le même jour** quand l'historique a été limité à 2023 (`racing/backtest.py`,
+`PREREGISTERED_SPLIT`) — avant qu'aucun modèle challenger n'ait été évalué :
 
 | Phase | Courses dont le jour est… |
 |---|---|
-| train | ≤ 2022-12-31 |
-| validation | 2023-01-01 → 2023-12-31 |
-| test | ≥ 2024-01-01 (≈ 2,7 ans, ~11 000 courses attendues) |
+| train | 2023 |
+| validation | 2024 |
+| test | ≥ 2025-01-01 (≈ 21 mois au 2026-09, ~7 500 courses de plat, un peu plus chaque mois) |
+
+Conséquence assumée : la fenêtre de test est au départ un peu sous l'estimation de
+~8 000 courses pour détecter Δ = 0,01 ; elle la dépasse avec le temps, et le carnet
+(§9 bis) ajoute des courses réellement futures.
 
 Les paramètres libres se choisissent sur la validation. La fenêtre de test se regarde
 une fois par hypothèse pré-enregistrée dans le registre (`predlab hypothesis add`).
@@ -145,11 +150,32 @@ simulation :
   avant redistribution. La vraie question est « un modèle perd-il significativement
   moins que les témoins ? ».
 
+## 9 bis. Carnet de paris fictifs en direct (ajouté le 2026-09-28)
+
+Le niveau 4 du §5 : des décisions écrites **avant** la course.
+
+- À chaque passe du collecteur (5 min), toute course cible entrée dans sa fenêtre
+  [départ − 25 min, départ[ est **figée** : tickets de chaque stratégie, calculés avec
+  les seules cotes horodatées avant T-25 (même règle que le backtest), écrits dans
+  `data/carnet.jsonl`, registre chaîné par hash.
+- Une course non figée avant son départ (Mac en veille, marché incomplet) n'est
+  **jamais rattrapée** : l'absence est la trace honnête.
+- **Règlement** au rapport officiel, dès qu'il est collecté. Simple sur un non-partant :
+  remboursé. Tiercé/quinté avec un non-partant : réglé tel quel, signalé (approximation).
+- Stratégies v1 : SG favori / hasard / valeur (marché calibré), SP favori / hasard,
+  tiercé et quinté favoris / hasard (Quinté+ seulement). α du marché calibré : dernier
+  backtest de la discipline, sinon 1 (marché brut), noté dans chaque enregistrement.
+- Le carnet ne contient que nos décisions et probabilités, pas les cotes PMU (référencées
+  par le hash des captures). Le commiter dans git lui donne une date publique.
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
 - 2026-09-28 — découpage pré-enregistré, horizon T-25 min, règle d'éligibilité, niveau 1 atteint.
 - 2026-09-28 — §9 : simulation de paris fictifs (simple, tiercé, quinté), règles fixées avant tout résultat.
+- 2026-09-28 — historique limité à 2023 (décision de Chris : chevaux encore en activité) ;
+  découpage révisé en conséquence (train 2023, validation 2024, test ≥ 2025), avant tout
+  challenger. §9 bis : carnet en direct.
 - 2026-09-28 — trot attelé et trot monté ajoutés (décision de Chris). Chaque discipline est
   évaluée **séparément** (backtest, simulation, calibration du marché, découpage identique) ;
   aucun résultat d'une discipline ne vaut pour une autre. Au trot, la question du §1 se

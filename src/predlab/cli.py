@@ -29,10 +29,11 @@ from predlab.racing.betting import (
     simple_strategies,
     simulate,
 )
+from predlab.racing.carnet import CarnetReport, entries, run_carnet, summarise_entries
 from predlab.racing.collect import PROGRAMME, SNAPSHOT, CollectConfig, run_collect
 from predlab.racing.events import load_events
 from predlab.racing.models import CalibratedMarketModel, MarketModel, default_models
-from predlab.racing.report import build_report, compare
+from predlab.racing.report import build_report, compare, latest_alpha
 from predlab.racing.report import write_report as write_backtest_report
 from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key
 from predlab.racing.sources.pmu.parser import (
@@ -92,8 +93,61 @@ def collect(
     typer.echo(report.summary())
     for day, state in report.programmes.items():
         typer.echo(f"  programme {day}: {state}")
+    if not dry_run:
+        # The carnet rides on the collector: same schedule, freshest captures. A failure
+        # here must never stop the collection itself.
+        try:
+            _run_carnet_pass()
+        except Exception as exc:
+            _log_line(f"{utcnow().isoformat(timespec='seconds')} | carnet ERREUR {exc!r}")
     if report.failed and report.failed == report.fetched:
         raise typer.Exit(code=1)
+
+
+def _run_carnet_pass() -> CarnetReport:
+    paths = default_paths().ensure()
+    rep = run_carnet(
+        RawStore(paths.raw_pmu),
+        AppendOnlyLedger(paths.carnet),
+        now=utcnow(),
+        alpha_for=lambda d: latest_alpha(paths.runs, d),
+    )
+    if rep.frozen or rep.settled or rep.errors:
+        _log_line(f"{utcnow().isoformat(timespec='seconds')} | {rep.summary()}")
+    return rep
+
+
+@racing_app.command("carnet")
+def carnet(
+    verify: Annotated[
+        bool, typer.Option(help="Vérifier la chaîne de hash, sans rien écrire.")
+    ] = False,
+) -> None:
+    """Carnet de paris fictifs en direct : fige les tickets avant le départ, règle au rapport.
+
+    Tourne déjà tout seul avec le collecteur ; cette commande fait une passe à la main
+    et affiche le bilan.
+    """
+    paths = default_paths().ensure()
+    ledger = AppendOnlyLedger(paths.carnet)
+    try:
+        ledger.verify()
+    except LedgerCorruptionError as exc:
+        typer.echo(f"CARNET ALTÉRÉ : {exc}")
+        raise typer.Exit(code=1) from exc
+    if not verify:
+        typer.echo(_run_carnet_pass().summary())
+    items = entries(ledger)
+    typer.echo(
+        f"{len(items)} courses au carnet, {sum(e['settled'] for e in items)} réglées ; "
+        f"chaîne intacte ({len(ledger)} enregistrements)."
+    )
+    for row in summarise_entries(items):
+        if row.get("races"):
+            typer.echo(
+                f"  {row['label']:<28} {row['races']:>4} courses  ROI {row['roi'] * 100:+6.1f} %"
+                f"  ({row['pending']} en attente)"
+            )
 
 
 @racing_app.command("audit")
@@ -126,7 +180,7 @@ def audit(
 def backfill(
     plan: Annotated[
         str,
-        typer.Option(help="Disciplines et premier jour, par priorité : PLAT:2015-01-01,ATTELE:…"),
+        typer.Option(help="Disciplines et premier jour, par priorité : PLAT:2023-01-01,ATTELE:…"),
     ] = DEFAULT_PLAN,
     end: Annotated[
         str | None, typer.Option(help="Jour le plus récent (défaut : avant-hier).")

@@ -1,8 +1,7 @@
-"""Historical backfill: every French flat race since 2015, fetched once, politely.
+"""Historical backfill: French flat and trot races since 2023, fetched once, politely.
 
-Scale, from the audit: ~4 000 target races a year, so ~51 000 requests for programmes
-and runners since 2015 and ~100 000 with dividends -- about 28 hours at one request
-per second. It therefore runs
+Scale, from the audit: ~4 000 flat and ~7 000 trot races a year in France; since 2023
+that is ~40 000 races, two requests each (runners, dividends). It therefore runs
 in bounded slices (a request cap and a deadline), typically a few hours a night, and
 resumes where it stopped. There is no progress file to trust: the raw store *is* the
 state. A day is done when its programme and every target race's post-race runners
@@ -14,8 +13,8 @@ they become usable soonest.
 
 Dividends (``rapports-definitifs``) are fetched too: the betting simulation settles
 fictitious tickets against them. Past performances (``performances-detaillees``) are opt-in: the runners of every race
-since 2015 already give each horse's French flat history from 2015 on; performances
-add older and non-flat runs at the cost of one more request per race.
+already give each horse's French history within the window; performances add older
+runs at the cost of one more request per race.
 """
 
 from __future__ import annotations
@@ -205,11 +204,14 @@ def run_backfill(
     return report
 
 
-DEFAULT_PLAN = "PLAT:2015-01-01,ATTELE:2017-01-01,MONTE:2017-01-01"
+# From 2023 for every discipline (decision of 2026-09-28): the horses running now, with
+# their recent careers; three full seasons before the test window. Older seasons can
+# be added later by passing an earlier date -- nothing already stored is refetched.
+DEFAULT_PLAN = "PLAT:2023-01-01,ATTELE:2023-01-01,MONTE:2023-01-01"
 
 
 def parse_plan(text: str) -> list[tuple[str, date]]:
-    """``"PLAT:2015-01-01,ATTELE:2017-01-01"`` -> [("PLAT", date), ...], in priority order."""
+    """``"PLAT:2023-01-01,ATTELE:2023-01-01"`` -> [("PLAT", date), ...], in priority order."""
     plan = []
     for part in text.split(","):
         discipline, _, start = part.strip().partition(":")

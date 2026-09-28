@@ -126,3 +126,12 @@ def test_dashboard_skips_a_port_held_by_another_app() -> None:
     finally:
         other.close()
     assert isinstance(other, socket.socket)
+
+
+def test_carnet_endpoint_is_empty_then_reports_integrity(lab: Paths) -> None:
+    client = TestClient(create_app(lab))
+    body = client.get("/api/carnet").json()
+    assert body["races"] == 0 and body["integrity_error"] is None
+    assert {r["strategy"] for r in body["summary"]} >= {"SG favori", "SG hasard"}
+    lab.carnet.write_text('{"kind": "freeze", "prev_hash": "x", "record_hash": "y"}\n')
+    assert client.get("/api/carnet").json()["integrity_error"]

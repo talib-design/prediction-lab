@@ -34,8 +34,7 @@ export function Horse({ id }: { id: string }) {
           <Kpi label="Top 3" value={int(places)} kind="fact" sub={ran.length ? pct(places / ran.length, 0) : undefined} />
         </div>
         <p className="note small">
-          Seules les courses présentes dans la base apparaissent (plat depuis 2015, trot depuis 2017, au fil du
-          rattrapage). Identité : <code className="mono">{horse.horse_id}</code>
+          Seules les courses présentes dans la base apparaissent (depuis 2023, au fil du rattrapage). Identité : <code className="mono">{horse.horse_id}</code>
         </p>
         <Card title="Courses" aside={<KindBadge kind="fact" />} flush>
           {runs.length === 0 ? (

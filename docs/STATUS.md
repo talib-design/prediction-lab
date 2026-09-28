@@ -63,13 +63,25 @@ Premier modèle fondamental combiné au marché, historiques jockey / entraîneu
 (Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; pipeline quotidien complet
 (Phase 7) ; modèles avancés et agents (Phase 8).
 
+## Historique depuis 2023 et carnet en direct — 2026-09-28
+
+- **Rattrapage limité à 2023** pour toutes les disciplines (décision de Chris : garder
+  des chevaux encore en activité). Découpage révisé avant tout challenger : train 2023,
+  validation 2024, test ≥ 2025 (METHODOLOGY §6). Rythme mesuré quand le Mac est éveillé :
+  ~1 mois de plat par 5 min. Estimation : plat complet après la passe de cette nuit,
+  trot en ~2 nuits de plus.
+- **Carnet de paris fictifs** (`racing/carnet.py`, METHODOLOGY §9 bis) : tickets figés à
+  T-25 par le collecteur, réglés au rapport officiel, registre chaîné
+  `data/carnet.jsonl` (à commiter régulièrement). Page « Carnet » du tableau de bord et
+  bloc sur chaque fiche course ; `uv run predlab racing carnet` pour une passe et un
+  bilan, `--verify` pour contrôler la chaîne.
+
 ## Tableau de bord v0 et trot — livrés le 2026-09-28
 
 - **Trot attelé et monté** : collectés en direct (même politique d'instantanés), rattrapés
-  depuis 2017 après le plat (`--plan PLAT:2015-01-01,ATTELE:2017-01-01,MONTE:2017-01-01`),
+  après le plat (`--plan PLAT:2023-01-01,ATTELE:2023-01-01,MONTE:2023-01-01`),
   champs propres au trot (ferrure, distance de handicap, réduction kilométrique — cette
-  dernière est un résultat), `--discipline` sur `backtest` et `simulate`. Volume : ~74 000
-  courses de trot depuis 2017, soit ~150 000 requêtes : **8 à 10 nuits de plus** après le plat.
+  dernière est un résultat), `--discipline` sur `backtest` et `simulate`.
 - **Tableau de bord** `uv run predlab dashboard` → http://127.0.0.1:8765 : programme du
   jour par réunion (filtres discipline, Quinté+), fiche course (marché brut / calibré,
   probabilité de place, évolution des cotes, historique antérieur au jour, arrivée et
@@ -171,6 +183,7 @@ uv run predlab racing backtest             # baselines sur données réelles, T-
 uv run predlab racing simulate             # paris fictifs réglés aux rapports officiels
 uv run predlab racing backtest --discipline ATTELE   # idem trot attelé (MONTE : trot monté)
 uv run predlab dashboard                   # tableau de bord local
+uv run predlab racing carnet               # bilan du carnet en direct (--verify : chaîne)
 uv run predlab hypothesis list
 ```
 

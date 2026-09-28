@@ -165,6 +165,6 @@ def test_backfill_plan_is_parsed_in_priority_order() -> None:
 
     plan = parse_plan(DEFAULT_PLAN)
     assert [d for d, _ in plan] == ["PLAT", "ATTELE", "MONTE"]
-    assert plan[0][1] == date(2015, 1, 1)
+    assert all(start == date(2023, 1, 1) for _, start in plan)
     with pytest.raises(ValueError):
         parse_plan("PLAT")

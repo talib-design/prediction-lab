@@ -243,3 +243,18 @@ def write_report(report: dict[str, Any], directory: Path) -> tuple[Path, Path]:
     md.write_text(render_markdown(report), encoding="utf-8")
     js.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str), encoding="utf-8")
     return md, js
+
+
+def latest_alpha(runs: Path, discipline: str) -> float | None:
+    """Market calibration exponent of the most recent backtest of this discipline."""
+    best: tuple[str, float] | None = None
+    for f in runs.glob("backtest_*/report.json") if runs.exists() else []:
+        try:
+            rep = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if rep.get("discipline", "PLAT") != discipline or "alpha" not in rep:
+            continue
+        if best is None or rep["generated_at"] > best[0]:
+            best = (rep["generated_at"], float(rep["alpha"]))
+    return best[1] if best else None

@@ -1,4 +1,5 @@
 import { OddsSparkline, ProbBar } from "../components/charts";
+import { TicketList } from "./Carnet";
 import { Card, DisciplineBadge, Empty, Failure, KindBadge, Kpi, Loading, PageHead } from "../components/ui";
 import { api, type RaceDetail, type RunnerRow, type Tally } from "../lib/api";
 import { euros, euros0, fmt, int, longDay, minutesUntil, odds, pct, relative, time } from "../lib/format";
@@ -293,6 +294,27 @@ export function Race({ day, rc }: { day: string; rc: string }) {
             </ul>
           </Card>
         </div>
+
+        <Card
+          title="Carnet de paris fictifs"
+          aside={
+            data.carnet ? (
+              <span className="muted small">
+                figé à {time(data.carnet.frozen_at)} · cotes de {time(data.carnet.odds_as_of)}
+              </span>
+            ) : undefined
+          }
+        >
+          {data.carnet ? (
+            <TicketList tickets={data.carnet.tickets} settled={data.carnet.settled} />
+          ) : (
+            <p className="small muted" style={{ margin: 0 }}>
+              {m > 25
+                ? "Les tickets seront figés automatiquement dans les 25 minutes avant le départ."
+                : "Pas de ticket pour cette course : elle n'a pas été figée avant le départ (collecteur arrêté, marché incomplet, ou course antérieure au carnet)."}
+            </p>
+          )}
+        </Card>
 
         <Result data={data} />
       </div>

@@ -29,12 +29,14 @@ from fastapi.staticfiles import StaticFiles
 
 from predlab import __version__
 from predlab.core.clock import PARIS, minutes_between, paris_day, utcnow
-from predlab.core.hashing import AppendOnlyLedger
+from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import Paths, default_paths
 from predlab.core.probability import implied_probabilities
+from predlab.racing.carnet import entries as carnet_entries
+from predlab.racing.carnet import summarise_entries
 from predlab.racing.domain import Race, Runner
 from predlab.racing.orders import places_paid, top_k_probabilities
-from predlab.racing.report import discipline_label
+from predlab.racing.report import discipline_label, latest_alpha
 from predlab.racing.sources.pmu.client import Endpoint, capture_key
 from predlab.racing.sources.pmu.parser import (
     PmuFormatError,
@@ -152,18 +154,7 @@ def _race_summary(race: Race, index: dict[str, list[Capture]]) -> dict[str, Any]
 
 
 def _alpha_for(paths: Paths, discipline: str) -> float | None:
-    """Latest fitted calibration exponent for a discipline, from the backtest reports."""
-    best: tuple[str, float] | None = None
-    for f in paths.runs.glob("backtest_*/report.json") if paths.runs.exists() else []:
-        try:
-            rep = json.loads(f.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if rep.get("discipline", "PLAT") != discipline or "alpha" not in rep:
-            continue
-        if best is None or rep["generated_at"] > best[0]:
-            best = (rep["generated_at"], float(rep["alpha"]))
-    return best[1] if best else None
+    return latest_alpha(paths.runs, discipline)
 
 
 # ---------------------------------------------------------------------------- app
@@ -310,6 +301,7 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "runners": rows,
             "dividends": dividends,
             "snapshots": len([c for c in caps if c.retrieved_at < race.off_time]),
+            "carnet": _carnet_entry(lab, race.race_id),
         }
 
     @app.get("/api/horses/{horse_id}")
@@ -392,6 +384,30 @@ def create_app(paths: Paths | None = None) -> FastAPI:
     def status() -> dict[str, Any]:
         return _status(lab)
 
+    @app.get("/api/carnet")
+    def carnet(day: str | None = None) -> dict[str, Any]:
+        ledger = AppendOnlyLedger(lab.paths.carnet)
+        try:
+            ledger.verify()
+            integrity: str | None = None
+        except LedgerCorruptionError as exc:
+            integrity = str(exc)
+        # A broken chain is shown as such; nothing from it is summarised.
+        items = [] if integrity else carnet_entries(ledger)
+        shown = [e for e in items if day is None or e["day"] == day]
+        days = sorted({e["day"] for e in items}, reverse=True)
+        return {
+            "records": len(ledger),
+            "head_hash": ledger.head_hash(),
+            "integrity_error": integrity,
+            "first_day": days[-1] if days else None,
+            "days": days,
+            "races": len(items),
+            "settled": sum(e["settled"] for e in items),
+            "summary": summarise_entries(items),
+            "entries": sorted(shown, key=lambda e: e["off_time"], reverse=True),
+        }
+
     @app.get("/api/hypotheses")
     def hypotheses() -> dict[str, Any]:
         reg = HypothesisRegistry(AppendOnlyLedger(lab.paths.hypotheses))
@@ -465,6 +481,20 @@ def _histories(lab: Lab, race: Race, runners: list[Runner]) -> dict[str, dict[st
     finally:
         con.close()
     return out
+
+
+def _carnet_entry(lab: Lab, race_id: str) -> dict[str, Any] | None:
+    try:
+        return next(
+            (
+                e
+                for e in carnet_entries(AppendOnlyLedger(lab.paths.carnet))
+                if e["race_id"] == race_id
+            ),
+            None,
+        )
+    except (KeyError, ValueError, TypeError):
+        return None
 
 
 def _tail(path: Path, n: int = 5) -> list[str]:

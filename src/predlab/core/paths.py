@@ -52,6 +52,11 @@ class Paths:
     def hypotheses(self) -> Path:
         return self.root / "hypotheses.jsonl"
 
+    @property
+    def carnet(self) -> Path:
+        """Live paper-betting ledger: our decisions only, hash-chained, safe to commit."""
+        return self.root / "carnet.jsonl"
+
     def ensure(self) -> Paths:
         for directory in (self.raw_pmu, self.audit, self.logs):
             directory.mkdir(parents=True, exist_ok=True)
