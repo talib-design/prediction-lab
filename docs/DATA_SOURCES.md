@@ -38,6 +38,10 @@ courses vérifiées à la main :
 | 2026-09-28 R2C1 | 08:50:00 | 08:20:05 (−30 min) | 08:41:38 (−8 min, capture en direct) |
 | 2015-06-07 R1C1 | [inconnu] | 10:30:41 | 12:01:44 |
 
+**Mesuré par l'audit du 2026-09-28 (plat, 2013-2026, 1 jour sur 5) :** REFERENCE à
+−30 min (médiane) depuis 2017, plus tôt en 2014-2016 ; DIRECT après le départ dans
+98-100 % des cas. Détail dans `docs/STATUS.md`.
+
 Conséquences : (1) la dernière cote directe archivée est une **cote de clôture**,
 interdite comme entrée de modèle ; (2) la cote REFERENCE semble prise ~30 min avant le
 départ, ce qui rendrait un horizon T-30 min rétro-testable — trois courses ne
@@ -49,7 +53,8 @@ gains en centimes (315100 → 3 151 €). Valeurs brutes conservées à côté d
 
 **Identité du cheval.** `idCheval` vaut `NOM-MÈRE-PÈRE` en 2026
 (`"EAST AND WEST-LIVINGINAFANTASY-TERRITORIES"`) : une clé naturelle utile. Absent
-de l'échantillon 2015 : l'audit mesure sa présence par année.
+avant 2025, mais **reconstructible exactement** à partir de `nom`, `nomMere`, `nomPere`
+(1 836/1 836 cas vérifiés ; mère et père présents à 100 % de 2013 à 2026).
 
 **Écarts vus.** Un partant de 2015 n'avait pas de cote directe. Les disqualifications
 (`DISQUALIFIE_POUR_ALLURE_IRREGULIERE`, trot) et non-partants apparaissent dans

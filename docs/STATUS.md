@@ -14,6 +14,28 @@ Dernière mise à jour : 2026-09-28.
 - Critère de réussite : battre le marché *calibré* (docs/METHODOLOGY.md §5),
   ajustable après les premiers backtests.
 
+## Résultats de l'audit (2026-09-28)
+
+Rapport complet : `data/audit/audit_2013-01-01_2026-09-27.md` (1 jour sur 5, 1 941 requêtes).
+
+| Constat | Conséquence |
+|---|---|
+| **~3 900 à 4 750 courses de plat en France par an** (estimation ; 3 200 en 2020) | La condition est levée : **le plat est confirmé.** ~49 000 courses entre 2014 et 2025 |
+| Cote REFERENCE : médiane **−30 min** avant le départ, stable **depuis 2017** ; plus tôt en 2014-2016 (−194, −172, −119 min) | **Horizon T-30 min rétro-testable à partir de 2017** (~38 000 courses). 2014-2016 : autre horizon, à traiter à part |
+| Cote REFERENCE après le départ dans 0 à 5 % des cas selon l'année | Filtrer chaque cote sur son horodatage, jamais sur son type |
+| Dernière cote DIRECT : après le départ dans **98 à 100 %** des cas (médiane +1,5 à +4 min) | Confirmé : cote de clôture, étalon uniquement, jamais une entrée |
+| Pas de cote en 2013 ; ~40 % en 2014 | Fenêtre de backtest : 2015 → aujourd'hui |
+| `idCheval` absent avant 2025, **mais reconstructible** : `NOM-MÈRE-PÈRE` exact sur 1 836/1 836 cas vérifiés ; mère et père présents à 100 % toutes années | Le risque « identifiants incohérents » tombe en grande partie |
+| Valeur de handicap 58-80 %, pénétromètre 66-85 %, prévision météo ≥ 91 % dès 2014 | Handicap : probablement absent hors handicaps (à vérifier) ; terrain : prévoir le cas manquant |
+| 3 programmes de début 2013 rejetés (une réunion sans hippodrome) ; janvier-mi-février 2013 vides | Phase 2 : tolérance par réunion (isoler la réunion fautive, garder le reste du jour) |
+
+**Collecte en direct : opérationnelle.** Sur la journée du 2026-09-28, 14 instantanés
+pris dans l'heure précédant chaque départ ; toutes les captures réelles passent le
+parser (`parse-check` : 2 012 OK, 3 échecs = les programmes 2013 ci-dessus).
+
+**Puissance, première estimation [hypothèse] :** une fenêtre de test d'au moins
+2 ans (~8 000 courses) est nécessaire pour détecter un gain de log loss de 0,01.
+
 ## Ce qui fonctionne
 
 - Client PMU poli (1 req/s max, retries seulement sur erreurs réseau/429/5xx, échecs
@@ -30,13 +52,9 @@ Dernière mise à jour : 2026-09-28.
 
 ## Ce qui n'a pas pu être vérifié ici
 
-- **Aucune requête réelle vers le PMU n'a été faite par ce code** : les environnements
-  Cowork sont bloqués par la politique réseau. Le parser a été écrit contre des
-  extraits verbatim lus le 2026-09-28 (tests/fixtures/pmu/README.md). La première
-  passe sur le Mac est le vrai test ; `predlab racing parse-check` le rejoue sur tout.
-- Le script `launchd` n'a pas été exécuté sur macOS.
-- Le PMU accepte-t-il un `User-Agent` non navigateur ? Inconnu jusqu'à la première
-  passe.
+- Vérifié depuis : le code fonctionne contre le vrai flux depuis le Mac, `launchd`
+  tourne, le `User-Agent` est accepté. Les fixtures de test restent des extraits ;
+  les remplacer par des captures réelles est une tâche de Phase 2.
 
 ## Ce qui manque (phases suivantes)
 
@@ -45,14 +63,12 @@ puissance (Phase 3) ; courses à venir et registre de prédictions (Phases 4-5) 
 API et front (Phase 6) ; pipeline quotidien complet (Phase 7) ; modèles avancés et
 agents (Phase 8).
 
-## Prochaine étape — dans cet ordre
+## Prochaine étape
 
-1. **Installer la collecte** (Terminal, dans le dossier du projet) :
-   `bash ops/install_collector.sh`. Le script fait une passe de test avant d'installer.
-2. **Lancer l'audit** : `uv run predlab racing audit` (2013 → hier, un jour sur 5,
-   ≈ 2 000 requêtes, 35-45 min à 1 req/s). Rapport dans `data/audit/`.
-3. Relire le rapport ensemble : il tranche la condition sur la discipline, fixe la
-   fenêtre de backtest et dit si l'horizon T-30 min est rétro-testable.
+Phase 1 terminée (collecte installée le 2026-09-28, audit fait). Phase 2 : ingestion
+historique complète du plat français 2015 → aujourd'hui (tous les jours, partants,
+performances, rapports), stockage normalisé DuckDB, identité par clé
+`NOM-MÈRE-PÈRE`, tolérance par réunion dans le parser.
 
 ## Comment lancer
 

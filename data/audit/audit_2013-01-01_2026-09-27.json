@@ -1,0 +1,812 @@
+{
+  "start": "2013-01-01",
+  "end": "2026-09-27",
+  "step_days": 5,
+  "target": "FRA/PLAT",
+  "requests": 1941,
+  "failures": [
+    "programme/2013-01-01: empty response",
+    "programme/2013-01-06: empty response",
+    "programme/2013-01-11: empty response",
+    "programme/2013-01-16: empty response",
+    "programme/2013-01-21: empty response",
+    "programme/2013-01-26: empty response",
+    "programme/2013-01-31: empty response",
+    "programme/2013-02-05: empty response",
+    "programme/2013-02-10: empty response",
+    "programme/2013-02-15: empty response"
+  ],
+  "parse_errors": [
+    "programme 2013-02-20: $.programme.reunions[2].hippodrome: required field is missing",
+    "programme 2013-03-07: $.programme.reunions[3].hippodrome: required field is missing",
+    "programme 2013-03-22: $.programme.reunions[3].hippodrome: required field is missing"
+  ],
+  "years": {
+    "2013": {
+      "sampled_days": 60,
+      "estimated_target_races": 4751,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6248,
+        "FRA/PLAT": 4751,
+        "other/PLAT": 1284,
+        "FRA/MONTE": 1156,
+        "FRA/HAIE": 858,
+        "other/ATTELE": 645,
+        "FRA/STEEPLECHASE": 590,
+        "other/HAIE": 122,
+        "other/STEEPLECHASE": 97,
+        "FRA/CROSS": 79
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 0.985,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.99,
+        "going_value": 0.763,
+        "handedness": 0.954,
+        "prize": 1.0,
+        "weather_forecast": 0.197
+      },
+      "sampled_target_races_with_runners": 58,
+      "median_field_size": 10.0,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.904,
+        "form": 0.941,
+        "handicap_value": 0.0,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.0,
+        "odds_reference": 0.0,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": null,
+      "direct_odds_minutes_from_off": null
+    },
+    "2014": {
+      "sampled_days": 73,
+      "estimated_target_races": 4565,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6440,
+        "FRA/PLAT": 4565,
+        "other/PLAT": 1790,
+        "FRA/MONTE": 1230,
+        "FRA/HAIE": 1000,
+        "other/ATTELE": 970,
+        "FRA/STEEPLECHASE": 695,
+        "FRA/CROSS": 110,
+        "other/STEEPLECHASE": 45,
+        "other/HAIE": 30,
+        "other/MONTE": 10
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 0.981,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.993,
+        "going_value": 0.798,
+        "handedness": 0.956,
+        "prize": 1.0,
+        "weather_forecast": 0.91
+      },
+      "sampled_target_races_with_runners": 68,
+      "median_field_size": 11.0,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.994,
+        "form": 0.968,
+        "handicap_value": 0.0,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.462,
+        "odds_reference": 0.384,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 299,
+        "p10": -266.3,
+        "median": -193.5,
+        "p90": -84.8,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 360,
+        "p10": 1.0,
+        "median": 2.3,
+        "p90": 4.7,
+        "share_after_off": 0.983
+      }
+    },
+    "2015": {
+      "sampled_days": 73,
+      "estimated_target_races": 3955,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6775,
+        "FRA/PLAT": 3955,
+        "other/PLAT": 2060,
+        "other/ATTELE": 1585,
+        "FRA/MONTE": 1260,
+        "FRA/HAIE": 770,
+        "FRA/STEEPLECHASE": 510,
+        "FRA/CROSS": 110,
+        "other/STEEPLECHASE": 25,
+        "other/HAIE": 25
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 0.981,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 1.0,
+        "going_value": 0.799,
+        "handedness": 0.949,
+        "prize": 1.0,
+        "weather_forecast": 0.937
+      },
+      "sampled_target_races_with_runners": 67,
+      "median_field_size": 10,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.997,
+        "form": 0.904,
+        "handicap_value": 0.583,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.92,
+        "odds_reference": 0.903,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 652,
+        "p10": -289.1,
+        "median": -171.6,
+        "p90": -54.3,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 664,
+        "p10": 0.9,
+        "median": 2.1,
+        "p90": 6.9,
+        "share_after_off": 1.0
+      }
+    },
+    "2016": {
+      "sampled_days": 74,
+      "estimated_target_races": 4100,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6539,
+        "FRA/PLAT": 4100,
+        "other/PLAT": 2181,
+        "other/ATTELE": 1632,
+        "FRA/MONTE": 1241,
+        "FRA/HAIE": 762,
+        "FRA/STEEPLECHASE": 554,
+        "FRA/CROSS": 99,
+        "other/STEEPLECHASE": 25,
+        "other/HAIE": 20,
+        "other/MONTE": 5
+      },
+      "race_field_presence": {
+        "age_condition": 0.999,
+        "category": 0.993,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 1.0,
+        "going_value": 0.85,
+        "handedness": 0.903,
+        "prize": 1.0,
+        "weather_forecast": 1.0
+      },
+      "sampled_target_races_with_runners": 68,
+      "median_field_size": 12.0,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.988,
+        "form": 0.953,
+        "handicap_value": 0.657,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.998,
+        "odds_reference": 0.944,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 760,
+        "p10": -280.0,
+        "median": -119.1,
+        "p90": -29.8,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 803,
+        "p10": 1.0,
+        "median": 2.1,
+        "p90": 5.5,
+        "share_after_off": 1.0
+      }
+    },
+    "2017": {
+      "sampled_days": 73,
+      "estimated_target_races": 4365,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6635,
+        "FRA/PLAT": 4365,
+        "other/PLAT": 2050,
+        "other/ATTELE": 1825,
+        "FRA/MONTE": 1215,
+        "FRA/HAIE": 800,
+        "FRA/STEEPLECHASE": 550,
+        "FRA/CROSS": 95,
+        "other/STEEPLECHASE": 30,
+        "other/MONTE": 15,
+        "other/HAIE": 10
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.997,
+        "going_value": 0.805,
+        "handedness": 0.936,
+        "prize": 1.0,
+        "weather_forecast": 1.0
+      },
+      "sampled_target_races_with_runners": 69,
+      "median_field_size": 11,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.997,
+        "form": 0.904,
+        "handicap_value": 0.734,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.967,
+        "odds_reference": 0.949,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 710,
+        "p10": -34.9,
+        "median": -29.9,
+        "p90": -29.7,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 723,
+        "p10": 1.1,
+        "median": 2.5,
+        "p90": 5.2,
+        "share_after_off": 1.0
+      }
+    },
+    "2018": {
+      "sampled_days": 73,
+      "estimated_target_races": 4300,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6355,
+        "FRA/PLAT": 4300,
+        "other/PLAT": 2270,
+        "other/ATTELE": 1945,
+        "FRA/MONTE": 1180,
+        "FRA/HAIE": 790,
+        "FRA/STEEPLECHASE": 595,
+        "FRA/CROSS": 130,
+        "other/STEEPLECHASE": 55,
+        "other/HAIE": 50,
+        "other/MONTE": 15
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.992,
+        "going_value": 0.737,
+        "handedness": 0.953,
+        "prize": 1.0,
+        "weather_forecast": 1.0
+      },
+      "sampled_target_races_with_runners": 69,
+      "median_field_size": 12,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.999,
+        "form": 0.919,
+        "handicap_value": 0.787,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.981,
+        "odds_reference": 0.976,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 773,
+        "p10": -34.9,
+        "median": -31.8,
+        "p90": -29.8,
+        "share_after_off": 0.022
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 777,
+        "p10": 1.4,
+        "median": 3.2,
+        "p90": 7.5,
+        "share_after_off": 1.0
+      }
+    },
+    "2019": {
+      "sampled_days": 73,
+      "estimated_target_races": 3900,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 5525,
+        "FRA/PLAT": 3900,
+        "other/PLAT": 1785,
+        "other/ATTELE": 1460,
+        "FRA/MONTE": 1015,
+        "FRA/HAIE": 705,
+        "FRA/STEEPLECHASE": 585,
+        "FRA/CROSS": 85,
+        "other/STEEPLECHASE": 20,
+        "other/MONTE": 20,
+        "other/HAIE": 10
+      },
+      "race_field_presence": {
+        "age_condition": 0.999,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 1.0,
+        "going_value": 0.7,
+        "handedness": 0.936,
+        "prize": 1.0,
+        "weather_forecast": 0.991
+      },
+      "sampled_target_races_with_runners": 71,
+      "median_field_size": 11,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.999,
+        "form": 0.917,
+        "handicap_value": 0.717,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.991,
+        "odds_reference": 0.976,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 768,
+        "p10": -34.4,
+        "median": -29.9,
+        "p90": -24.9,
+        "share_after_off": 0.049
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 780,
+        "p10": 0.9,
+        "median": 4.0,
+        "p90": 9.2,
+        "share_after_off": 1.0
+      }
+    },
+    "2020": {
+      "sampled_days": 73,
+      "estimated_target_races": 3204,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 5304,
+        "FRA/PLAT": 3204,
+        "other/PLAT": 2953,
+        "other/ATTELE": 2231,
+        "FRA/MONTE": 928,
+        "FRA/HAIE": 642,
+        "FRA/STEEPLECHASE": 451,
+        "other/MONTE": 65,
+        "FRA/CROSS": 55,
+        "other/STEEPLECHASE": 25,
+        "other/HAIE": 15
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 1.0,
+        "going_value": 0.681,
+        "handedness": 0.955,
+        "prize": 1.0,
+        "weather_forecast": 0.967
+      },
+      "sampled_target_races_with_runners": 58,
+      "median_field_size": 12.0,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.999,
+        "form": 0.927,
+        "handicap_value": 0.762,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.981,
+        "odds_reference": 0.961,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 641,
+        "p10": -32.9,
+        "median": -29.9,
+        "p90": -29.9,
+        "share_after_off": 0.02
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 654,
+        "p10": 0.8,
+        "median": 1.5,
+        "p90": 4.8,
+        "share_after_off": 1.0
+      }
+    },
+    "2021": {
+      "sampled_days": 73,
+      "estimated_target_races": 4255,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 5460,
+        "FRA/PLAT": 4255,
+        "other/PLAT": 3725,
+        "other/ATTELE": 1755,
+        "FRA/MONTE": 1005,
+        "FRA/HAIE": 740,
+        "FRA/STEEPLECHASE": 430,
+        "FRA/CROSS": 90,
+        "other/MONTE": 40,
+        "other/HAIE": 40,
+        "other/STEEPLECHASE": 25,
+        "other/CROSS": 10
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.996,
+        "going_value": 0.658,
+        "handedness": 0.954,
+        "prize": 1.0,
+        "weather_forecast": 0.987
+      },
+      "sampled_target_races_with_runners": 72,
+      "median_field_size": 11.0,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.998,
+        "form": 0.962,
+        "handicap_value": 0.795,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 1.0,
+        "odds_reference": 0.99,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 812,
+        "p10": -36.9,
+        "median": -29.9,
+        "p90": -29.9,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 820,
+        "p10": 0.7,
+        "median": 1.7,
+        "p90": 4.6,
+        "share_after_off": 0.98
+      }
+    },
+    "2022": {
+      "sampled_days": 73,
+      "estimated_target_races": 4050,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6470,
+        "FRA/PLAT": 4050,
+        "other/PLAT": 3335,
+        "other/ATTELE": 1585,
+        "FRA/MONTE": 1135,
+        "FRA/HAIE": 940,
+        "FRA/STEEPLECHASE": 555,
+        "FRA/CROSS": 60,
+        "other/HAIE": 35,
+        "other/STEEPLECHASE": 25,
+        "other/MONTE": 5
+      },
+      "race_field_presence": {
+        "age_condition": 0.999,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.999,
+        "going_value": 0.72,
+        "handedness": 0.965,
+        "prize": 1.0,
+        "weather_forecast": 0.975
+      },
+      "sampled_target_races_with_runners": 71,
+      "median_field_size": 10,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.991,
+        "form": 0.962,
+        "handicap_value": 0.791,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 1.0,
+        "odds_reference": 0.986,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 756,
+        "p10": -33.9,
+        "median": -29.9,
+        "p90": -29.9,
+        "share_after_off": 0.019
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 767,
+        "p10": 0.9,
+        "median": 1.7,
+        "p90": 3.9,
+        "share_after_off": 1.0
+      }
+    },
+    "2023": {
+      "sampled_days": 73,
+      "estimated_target_races": 3825,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6160,
+        "FRA/PLAT": 3825,
+        "other/PLAT": 3685,
+        "other/ATTELE": 1655,
+        "FRA/MONTE": 1125,
+        "FRA/HAIE": 795,
+        "FRA/STEEPLECHASE": 470,
+        "FRA/CROSS": 70,
+        "other/MONTE": 25,
+        "other/HAIE": 25,
+        "other/STEEPLECHASE": 20,
+        "other/CROSS": 10
+      },
+      "race_field_presence": {
+        "age_condition": 0.999,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.991,
+        "going_value": 0.689,
+        "handedness": 0.949,
+        "prize": 1.0,
+        "weather_forecast": 0.978
+      },
+      "sampled_target_races_with_runners": 70,
+      "median_field_size": 11.0,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.997,
+        "form": 0.906,
+        "handicap_value": 0.72,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 0.993,
+        "odds_reference": 0.962,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 739,
+        "p10": -33.9,
+        "median": -30.9,
+        "p90": -29.9,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 763,
+        "p10": 1.0,
+        "median": 2.0,
+        "p90": 4.7,
+        "share_after_off": 1.0
+      }
+    },
+    "2024": {
+      "sampled_days": 73,
+      "estimated_target_races": 4081,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6628,
+        "FRA/PLAT": 4081,
+        "other/PLAT": 3800,
+        "other/ATTELE": 1549,
+        "FRA/MONTE": 1073,
+        "FRA/HAIE": 832,
+        "FRA/STEEPLECHASE": 516,
+        "FRA/CROSS": 75,
+        "other/STEEPLECHASE": 35,
+        "other/HAIE": 30,
+        "other/MONTE": 5
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.988,
+        "going_value": 0.699,
+        "handedness": 0.947,
+        "prize": 1.0,
+        "weather_forecast": 0.996
+      },
+      "sampled_target_races_with_runners": 71,
+      "median_field_size": 11,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.991,
+        "form": 0.874,
+        "handicap_value": 0.723,
+        "horse_key": 0.0,
+        "jockey": 1.0,
+        "odds_direct": 1.0,
+        "odds_reference": 1.0,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 770,
+        "p10": -33.9,
+        "median": -29.9,
+        "p90": -29.9,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 770,
+        "p10": 1.0,
+        "median": 1.9,
+        "p90": 4.0,
+        "share_after_off": 1.0
+      }
+    },
+    "2025": {
+      "sampled_days": 73,
+      "estimated_target_races": 3870,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 6300,
+        "other/PLAT": 4510,
+        "FRA/PLAT": 3870,
+        "other/ATTELE": 1665,
+        "FRA/MONTE": 985,
+        "FRA/HAIE": 855,
+        "FRA/STEEPLECHASE": 475,
+        "FRA/CROSS": 80,
+        "other/HAIE": 45,
+        "other/MONTE": 25,
+        "other/STEEPLECHASE": 25
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.996,
+        "going_value": 0.703,
+        "handedness": 0.95,
+        "prize": 1.0,
+        "weather_forecast": 0.981
+      },
+      "sampled_target_races_with_runners": 72,
+      "median_field_size": 10.5,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.99,
+        "form": 0.908,
+        "handicap_value": 0.73,
+        "horse_key": 0.533,
+        "jockey": 1.0,
+        "odds_direct": 0.997,
+        "odds_reference": 0.972,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 775,
+        "p10": -35.9,
+        "median": -29.9,
+        "p90": -29.9,
+        "share_after_off": 0.0
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 795,
+        "p10": 0.8,
+        "median": 2.0,
+        "p90": 4.4,
+        "share_after_off": 1.0
+      }
+    },
+    "2026": {
+      "sampled_days": 54,
+      "estimated_target_races": 2850,
+      "estimated_races_by_group": {
+        "FRA/ATTELE": 4795,
+        "other/PLAT": 3620,
+        "FRA/PLAT": 2850,
+        "other/ATTELE": 1615,
+        "FRA/MONTE": 780,
+        "FRA/HAIE": 535,
+        "FRA/STEEPLECHASE": 300,
+        "FRA/CROSS": 50,
+        "other/MONTE": 25,
+        "other/STEEPLECHASE": 10,
+        "other/HAIE": 5
+      },
+      "race_field_presence": {
+        "age_condition": 1.0,
+        "category": 1.0,
+        "declared_runners": 1.0,
+        "distance": 1.0,
+        "finish_order": 0.993,
+        "going_value": 0.779,
+        "handedness": 0.96,
+        "prize": 1.0,
+        "weather_forecast": 1.0
+      },
+      "sampled_target_races_with_runners": 53,
+      "median_field_size": 11,
+      "runner_field_presence": {
+        "draw": 1.0,
+        "finish_position": 0.998,
+        "form": 0.913,
+        "handicap_value": 0.727,
+        "horse_key": 1.0,
+        "jockey": 1.0,
+        "odds_direct": 0.993,
+        "odds_reference": 0.977,
+        "sire": 1.0,
+        "trainer": 1.0,
+        "weight": 1.0
+      },
+      "reference_odds_minutes_from_off": {
+        "n": 552,
+        "p10": -34.9,
+        "median": -29.9,
+        "p90": -29.9,
+        "share_after_off": 0.014
+      },
+      "direct_odds_minutes_from_off": {
+        "n": 561,
+        "p10": 0.8,
+        "median": 1.5,
+        "p90": 3.6,
+        "share_after_off": 1.0
+      }
+    }
+  }
+}
