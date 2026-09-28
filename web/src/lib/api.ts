@@ -282,6 +282,7 @@ export interface StatusResponse {
     dividends?: number;
     horses?: number;
     built_at?: string;
+    missing_tables?: string[];
     by_discipline?: { discipline: Discipline; races: number; with_runners: number }[];
   };
 }

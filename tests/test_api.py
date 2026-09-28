@@ -135,3 +135,13 @@ def test_carnet_endpoint_is_empty_then_reports_integrity(lab: Paths) -> None:
     assert {r["strategy"] for r in body["summary"]} >= {"SG favori", "SG hasard"}
     lab.carnet.write_text('{"kind": "freeze", "prev_hash": "x", "record_hash": "y"}\n')
     assert client.get("/api/carnet").json()["integrity_error"]
+
+
+def test_status_survives_a_base_built_by_an_older_version(lab: Paths) -> None:
+    import duckdb
+
+    con = duckdb.connect(str(lab.database))
+    con.execute("DROP TABLE dividends")
+    con.close()
+    db = TestClient(create_app(lab)).get("/api/status").json()["database"]
+    assert db["dividends"] is None and db["missing_tables"] == ["dividends"]

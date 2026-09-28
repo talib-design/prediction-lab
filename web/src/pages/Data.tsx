@@ -18,6 +18,14 @@ export function Data() {
         lead="Le brut est la source de vérité : chaque réponse du PMU est gardée telle quelle, horodatée et chaînée. La base est reconstruite depuis le brut chaque nuit."
       />
       <div className="stack">
+        {db.missing_tables && db.missing_tables.length > 0 && (
+          <div className="note warn">
+            <span>
+              <strong>Base incomplète</strong> (tables absentes : {db.missing_tables.join(", ")}) : elle a été construite
+              par une version plus ancienne. Lancez <code className="mono">uv run predlab racing build</code>.
+            </span>
+          </div>
+        )}
         <div className="kpis">
           <Kpi
             label="Dernière capture"

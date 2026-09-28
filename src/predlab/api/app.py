@@ -531,8 +531,17 @@ def _status(lab: Lab) -> dict[str, Any]:
     con = lab.db()
     if con is not None:
         try:
+            present = {t for (t,) in con.execute("SHOW TABLES").fetchall()}
             for table in ("races", "runners", "odds", "dividends", "horses"):
-                db[table] = con.execute(f"SELECT count(*) FROM {table}").fetchone()[0]  # type: ignore[index]
+                # A base built by an older version may lack a table: say so, don't crash.
+                db[table] = (
+                    con.execute(f"SELECT count(*) FROM {table}").fetchone()[0]  # type: ignore[index]
+                    if table in present
+                    else None
+                )
+            db["missing_tables"] = sorted(
+                {"races", "runners", "odds", "dividends", "horses"} - present
+            )
             db["by_discipline"] = [
                 {"discipline": d, "races": n, "with_runners": m}
                 for d, n, m in con.execute(

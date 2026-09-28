@@ -238,7 +238,7 @@ def run_carnet(
 ) -> CarnetReport:
     """One pass, holding an exclusive lock: the collector and a manual run never interleave."""
     ledger.path.parent.mkdir(parents=True, exist_ok=True)
-    with ledger.path.with_suffix(".lock").open("a") as fh:
+    with ledger.path.open("a") as fh:  # lock the ledger file itself: no stray lock file
         fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
         try:
             return _run_carnet(store, ledger, now, alpha_for, horizon_minutes)
