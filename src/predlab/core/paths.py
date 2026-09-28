@@ -19,38 +19,27 @@ class Paths:
 
     @property
     def raw(self) -> Path:
-        return self.root / "raw" / "fdj"
+        """Raw captures, one sub-folder per source. Never committed: see DATA_SOURCES.md."""
+        return self.root / "raw"
 
     @property
-    def processed(self) -> Path:
-        return self.root / "processed"
+    def raw_pmu(self) -> Path:
+        return self.raw / "pmu"
 
     @property
-    def runs(self) -> Path:
-        return self.root / "runs"
+    def audit(self) -> Path:
+        return self.root / "audit"
 
     @property
-    def manifest(self) -> Path:
-        return self.raw / "MANIFEST.json"
-
-    @property
-    def predictions(self) -> Path:
-        return self.root / "predictions.jsonl"
+    def logs(self) -> Path:
+        return self.root / "logs"
 
     @property
     def hypotheses(self) -> Path:
         return self.root / "hypotheses.jsonl"
 
-    @property
-    def offers(self) -> Path:
-        return self.root / "offers.jsonl"
-
-    @property
-    def forecasts(self) -> Path:
-        return self.root / "forecasts.jsonl"
-
     def ensure(self) -> Paths:
-        for directory in (self.raw, self.processed, self.runs):
+        for directory in (self.raw_pmu, self.audit, self.logs):
             directory.mkdir(parents=True, exist_ok=True)
         return self
 

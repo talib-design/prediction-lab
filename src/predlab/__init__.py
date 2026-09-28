@@ -1,3 +1,3 @@
-"""Prediction Lab: an experimental platform for honest predictive evaluation."""
+"""Prediction Lab: horse-racing prediction, evaluated honestly."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

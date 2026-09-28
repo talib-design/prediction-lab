@@ -6,31 +6,15 @@ __pycache__/
 .hypothesis/
 *.egg-info/
 .env
-
-# Data: raw archives and derived artefacts are reproducible, not source.
-data/raw/**/*.zip
-data/raw/**/*.csv
-data/processed/*.parquet
-data/runs/**/*.json
-data/runs/**/*.md
-
-# Provenance manifests and append-only ledgers ARE tracked on purpose.
-!data/raw/**/MANIFEST.json
-
-# So are the two open-licence reference series. The rule above exists for the FDJ
-# archives: large, and published with no licence statement, so not redistributable.
-# These are neither -- a few kilobytes each, under Licence Ouverte v2.0, and without
-# them a clone of this repository cannot reproduce a single backtest. Tracking them is
-# what makes the published results checkable by someone who was not here.
-!data/raw/dares/*.csv
-!data/raw/insee/*.csv
-
 .DS_Store
-data/runs/LATEST
 .coverage
 coverage.xml
 htmlcov/
-.tmp-artifact/
 
-# Expérience Loto 1 mois : l historique dérive de l archive FDJ (non redistribuable).
-experiments/loto-1-mois/historique.csv
+# Données brutes PMU : jamais commitées ni redistribuées (dépôt public, droits du
+# producteur de la base). Voir docs/DATA_SOURCES.md.
+data/raw/
+data/logs/
+
+# Suivis volontairement : data/audit/ (agrégats, aucune donnée brute) et
+# data/hypotheses.jsonl (registre append-only chaîné).

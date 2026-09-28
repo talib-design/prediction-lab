@@ -1,274 +1,70 @@
-# Status — Milestone 1 (Loto)
+# Statut — Phase 1 : migration et socle de données
 
-Last updated: 2026-09-19.
+Dernière mise à jour : 2026-09-28.
 
-## Headline result
+## Décisions actées (2026-09-28)
 
-Run on the official FDJ archive, 1 075 Loto draws (2019-11-06 → 2026-09-16), 875
-walk-forward evaluation draws:
+- Domaine unique : **courses hippiques, plat, hippodromes français.** Loterie et
+  emploi cadre retirés du produit, archivés sous le tag
+  `archive/loterie-emploi-2026-09-28`.
+- Projet **personnel, non commercial** ; objectif : apprendre à coder des agents et à
+  les rendre évolutifs.
+- Règles d'usage du flux PMU acceptées (docs/DATA_SOURCES.md).
+- Collecteur de cotes démarré dès la Phase 1.
+- Critère de réussite : battre le marché *calibré* (docs/METHODOLOGY.md §5),
+  ajustable après les premiers backtests.
 
-> **No statistically meaningful predictive signal was detected.**
+## Ce qui fonctionne
 
-Two details matter more than the headline.
+- Client PMU poli (1 req/s max, retries seulement sur erreurs réseau/429/5xx, échecs
+  rendus comme des résultats).
+- Stockage brut adressé par contenu, manifestes chaînés par jour, détection de
+  falsification des blobs et des manifestes.
+- Parser programme + partants, strict sur l'identité (chemin exact en cas d'échec),
+  tolérant sur le reste.
+- Collecteur en direct avec politique d'instantanés testée ; `--dry-run`.
+- Audit : volume estimé par année, complétude des champs, horodatage réel des cotes.
+- Installation `launchd` (toutes les 5 min).
+- Registre d'hypothèses, découpage chronologique, outils d'incertitude repris.
+- Tests, ruff, pyright au vert.
 
-**Every model that tried to use history scored *worse* than assuming fairness**, not
-merely no better — and significantly so (p = 0.0002, surviving FDR):
+## Ce qui n'a pas pu être vérifié ici
 
-| Model | log loss (main) | vs uniform |
-|---|---|---|
-| uniform / random | 0.32954 | reference |
-| frequency (all history) | 0.33060 | worse |
-| rolling frequency, 300 | 0.33133 | worse |
-| rolling frequency, 100 | 0.33411 | worse |
-| shrunk_frequency (James-Stein) | 0.32955 | indistinguishable in practice |
-| gap ("due numbers") | 0.38081 | much worse |
+- **Aucune requête réelle vers le PMU n'a été faite par ce code** : les environnements
+  Cowork sont bloqués par la politique réseau. Le parser a été écrit contre des
+  extraits verbatim lus le 2026-09-28 (tests/fixtures/pmu/README.md). La première
+  passe sur le Mac est le vrai test ; `predlab racing parse-check` le rejoue sur tout.
+- Le script `launchd` n'a pas été exécuté sur macOS.
+- Le PMU accepte-t-il un `User-Agent` non navigateur ? Inconnu jusqu'à la première
+  passe.
 
-That ordering is exactly what noise-fitting looks like: the shorter the window, the
-more noise is fitted, the worse the score. The "due number" heuristic is the worst
-model tested, by a wide margin.
+## Ce qui manque (phases suivantes)
 
-The exception proves the rule. `shrunk_frequency` is the same frequency model with
-James-Stein shrinkage, which estimates from the data how much of the observed spread
-to believe. On this history it estimates *none* — the spread of ball frequencies is
-smaller than binomial noise alone would produce — so the model collapses onto uniform
-and recovers essentially all the loss. Calibration error falls from 0.0105 to 0.0002.
-A model that knows how much to trust its own counts stops paying for the noise it
-fitted. See the audit in `docs/METHODOLOGY.md`.
+Stockage normalisé et identité (Phase 2) ; PointInTimeView, baselines, backtest,
+puissance (Phase 3) ; courses à venir et registre de prédictions (Phases 4-5) ;
+API et front (Phase 6) ; pipeline quotidien complet (Phase 7) ; modèles avancés et
+agents (Phase 8).
 
-**The null result is bounded by power, not by evidence of fairness.** With 1 075
-draws, a ball's inclusion probability would have to differ from 5/49 by **38.5%**
-(Bonferroni-corrected) before we could reliably detect it. Detecting a 5% bias would
-take roughly 60 000 draws — about 385 years at three draws a week. The uniformity test
-did not reject (p = 0.76 main, p = 0.91 chance), and that says far less than it looks
-like.
+## Prochaine étape — dans cet ordre
 
-## What works
+1. **Installer la collecte** (Terminal, dans le dossier du projet) :
+   `bash ops/install_collector.sh`. Le script fait une passe de test avant d'installer.
+2. **Lancer l'audit** : `uv run predlab racing audit` (2013 → hier, un jour sur 5,
+   ≈ 2 000 requêtes, 35-45 min à 1 req/s). Rapport dans `data/audit/`.
+3. Relire le rapport ensemble : il tranche la condition sur la discipline, fixe la
+   fenêtre de backtest et dit si l'horizon T-30 min est rétro-testable.
 
-- Ingestion of the official FDJ Loto archive, verified against the live source on
-  2026-09-19 and parsed byte-identically (SHA-256 `66a0f0a9…70e074`).
-- Strict parser: exact header match, and three cross-checks per row (the balls must
-  reproduce the source's own sorted-combination string; the stated weekday must match
-  the calendar; the date must be a draw day inside the era). All 1 075 real rows pass.
-- Append-only Parquet store that refuses to rewrite a recorded draw and reports
-  upstream mutations separately from new rows.
-- Causally truncated `HistoryView`: future rows are absent from the object a model
-  receives, and the invariant is property-tested over arbitrary cutoffs.
-- Five baselines: uniform, random ticket, historical frequency, rolling frequency,
-  gap. Two selection policies: top-k and proportional sampling.
-- Strictly chronological walk-forward backtest with a reproducible run record
-  (dataset fingerprint, model versions and configs, split, seed, code version).
-- Metrics: log loss, Brier, mass lift, match count, binned calibration error.
-- Uncertainty: moving-block bootstrap, paired block sign-flip permutation,
-  Benjamini-Yekutieli FDR control (the dependent form — these comparisons are not
-  independent).
-- Power analysis (detection floor, required sample size) and a Monte-Carlo uniformity
-  test whose own false-positive rate is verified at 5%.
-- Machine-readable and human-readable reports, power section first.
-- Immutable forward predictions in a hash-chained ledger; recording a prediction about
-  a past or already-recorded draw is refused.
-- Hypothesis registry with revisions; four Milestone 1 hypotheses recorded with their
-  real outcomes.
-- CLI covering all of the above.
-
-## What does not yet work
-
-- **EuroMillions and Keno.** Out of scope by design. `GameSpec` supports them; no
-  parser or verified spec exists.
-- **Older Loto eras** (1976, 2008, 2017, 2019-02). The archives are downloadable but
-  their mechanics are unverified, so `get_spec` refuses them rather than guessing.
-- **Synthetic benchmark suite: partially built.** All five case families from the
-  brief now generate, each carrying its own ground truth, and the weak-signal power
-  sweep has been run (see `docs/METHODOLOGY.md`). What is missing is running the
-  disappearing-signal, regime-change and seductive-false-pattern cases through the
-  full report pipeline and scoring the verdicts against their declared truth.
-- **Champion / challenger promotion.** Nothing blocks it architecturally; nothing
-  implements it.
-- **LLM agents.** Not started, by design.
-
-- **Automatic scoring of matured forward predictions into the report.** `predictions
-  score` prints them; they do not feed back into the evaluation yet.
-
-## Known limitations
-
-- Scoring is on **marginals only**. A model capturing dependence between numbers while
-  keeping the same marginals would score identically here.
-- Log loss is clipped at 1e-6, which caps the penalty for overconfidence.
-- Bootstrap uses the percentile method; BCa would be better for skewed statistics
-  (algorithm in Efron, *Exponential Families*, §5.4-5.6 — a specified task, not a wish).
-- Block length uses an `n**(1/3)` heuristic, not an estimated optimum. Block
-  resampling is the one methodological choice **not** covered by the project's
-  reference texts; see the Sources section of `docs/METHODOLOGY.md`.
-- The FDJ endpoint is undocumented and may change without notice. The parser fails
-  loudly rather than silently mis-parsing, which is the intended behaviour.
-- The archives carry no licence statement; raw files are git-ignored and not
-  redistributed.
-- FDJ changed the player return rate on 2026-05-04. Whether this touched draw
-  mechanics is **unverified** and it is a candidate regime boundary inside the era.
-- One game, one era, no replication.
-
-## How to run
+## Comment lancer
 
 ```bash
-cd "Prediction Lab"
-uv sync   # .python-version pins 3.12; uv fetches a native build
-
-uv run predlab data fetch                 # downloads the official archive
-uv run predlab data status
-uv run predlab data verify
-
-uv run predlab power                      # read this before the backtest
-uv run predlab backtest                   # writes data/runs/<id>/report.{json,md}
-uv run predlab report
-
-uv run predlab predict --target 2026-09-21
-uv run predlab predictions list
-uv run predlab predictions verify
-
+uv sync
+uv run predlab racing collect --dry-run
+uv run predlab racing collect
+uv run predlab racing today
+uv run predlab racing verify
+uv run predlab racing parse-check
+uv run predlab racing audit --start 2013-01-01
 uv run predlab hypothesis list
 ```
 
-If this machine cannot reach `sto.api.fdj.fr`, download the archive elsewhere and
-pass it with `--archive path/to.zip`; it goes through identical validation.
-
-Checks: `uv run ruff check . && uv run pyright && uv run pytest`.
-
-## Current data source
-
-Official FDJ archive, current era only.
-
-- `https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afp6`
-- ZIP containing `loto_201911.csv`; Windows-1252; `;`-separated; 50 columns with a
-  trailing separator; rows in descending date order.
-- 1 075 draws, 2019-11-06 → 2026-09-16. Balls 1–49 (5 per draw), chance 1–10.
-- Full provenance, quirks and integrity rules: `docs/DATA_SOURCES.md`.
-
-## Current models
-
-| Name | What it asserts |
-|---|---|
-| `uniform` | `p = k / size`. Correct if the mechanism is fair. The reference. |
-| `random` | A random ticket. Its probabilities are uniform — that is what "at random" means — so its score must equal `uniform`'s. Asserted in the tests as a harness check. |
-| `frequency` | Probability proportional to historical counts, Laplace-smoothed. |
-| `rolling_frequency_{100,300}` | The same over a recent window. |
-| `shrunk_frequency{,_300}` | The same counts, shrunk toward uniform by the James-Stein rule, with the shrinkage estimated from the data instead of a hand-picked smoothing constant. |
-| `gap` | The "due number" folk heuristic, implemented so it can be refuted. |
-
-## Current test coverage
-
-174 tests, 91% line coverage of `src/predlab`. Ruff and Pyright clean.
-
-Measure with `uv run --with pytest-cov pytest --cov=predlab --cov-report=term-missing`.
-
-The tests that matter most are not the unit tests:
-
-- `test_backtest.py::test_engine_never_shows_a_model_the_target_draw` — a
-  deliberately cheating model confirms the causal boundary holds.
-- `test_historyview.py` — the no-leakage invariant, property-tested over arbitrary
-  cutoffs rather than examples.
-- `test_report.py::test_fair_data_yields_an_explicit_null_result` — on fair data the
-  system must find nothing.
-- `test_report.py::test_a_planted_bias_is_found` — and on planted signal it must find
-  it. A system that only ever says "no" is broken, not careful.
-- `test_power.py::test_uniformity_test_has_the_right_false_positive_rate` — the
-  descriptive test rejects fair data 5% of the time, as a 5% test must.
-- `test_cli.py` — the full pipeline, archive to report, with nothing stubbed but the
-  network.
-
-Thinnest coverage: `cli.py` (72%, mostly error paths) and the downloader, which is
-untested because it is the one function that requires the network.
-
-## Next recommended step
-
-**Build the synthetic benchmark suite** (section 13 of the brief), before adding any
-new model.
-
-The reason is specific rather than tidy-minded. Every null result so far rests on the
-claim that this harness *could* have detected a signal if one existed. That claim is
-currently supported by exactly one positive control: a 60%-rate planted bias, far
-above the detection floor. That proves the harness is not inert. It does not show
-where its sensitivity actually ends.
-
-The valuable experiments are the ones near the boundary:
-
-1. **Weak hidden signal** at, just below, and just above the computed detection floor.
-   If the harness finds the one the power analysis says it should and misses the one
-   it says it should not, the power calculation is validated against behaviour instead
-   of being trusted as algebra.
-2. **Disappearing signal** — present for 500 draws, then gone. Does the rolling window
-   track it, and does the report avoid reporting a dead effect as live?
-3. **Seductive false pattern** — strong in-sample, absent out-of-sample. This is the
-   direct test of whether the chronological split and FDR control do their job. It is
-   the single most informative experiment available right now.
-
-Only after that does adding models make sense. Until the instrument is characterised,
-a new model's result cannot be interpreted.
-
-Secondary, cheap, and worth doing alongside: verify whether the 2026-05-04 rule change
-touched draw mechanics, and ingest the second-tirage block as a separate game — it
-would roughly double the sample available for uniformity testing, at no cost beyond a
-parser change.
-
-
----
-
-# Status — prévision de l'emploi cadre
-
-Dernière mise à jour : 2026-09-20.
-
-## Où en est ce volet
-
-Le moteur Loto répond « quels numéros ». Celui-ci répond « combien, et avec quelle
-certitude ». Ils partagent la discipline — troncature causale, évaluation
-chronologique, règles de score propres, baselines d'abord — et aucun code.
-
-### Ce qui fonctionne
-
-- **Collecte live** des offres cadre France Travail, quotidienne, via GitHub Actions.
-  Fenêtres journalières à lag fixe (`--lags 1,7,30,90`) : le lag est choisi par
-  construction, pas subi. Ledger chaîné, vérifié avant chaque ajout.
-- **Série DARES** ingérée : 367 mois, 1996-01 → 2026-07, sans trou, Licence Ouverte
-  v2.0. Parser strict qui refuse un résultat vide, un mois manquant, un doublon, une
-  valeur nulle ou négative, un en-tête modifié à la main.
-- **Vue causale** (`SeriesView`) : le modèle reçoit une série déjà tronquée avant la
-  période à prévoir. Invariant property-testé sur des coupures arbitraires, plus un
-  modèle qui tente activement de tricher.
-- **Prévision probabiliste** : cinq baselines, chacune produisant des quantiles issus
-  de ses propres erreurs relatives passées au même horizon, sur l'historique visible
-  uniquement.
-- **Métriques** : MASE (1,0 = aussi bon que le calendrier), pinball loss, couverture
-  des intervalles avec largeur moyenne. MAPE reporté pour la traduction, pas pour le
-  jugement.
-- **Backtest walk-forward** par horizon, jamais mutualisé.
-- **Rapport** en JSON, Markdown et HTML. `predlab forecast fetch | backtest | report`.
-
-### Résultat mesuré (2026-09-20)
-
-139 prévisions évaluées, entraînement ≤ 2014-12.
-
-| horizon 1 mois | MASE | MAPE | couv. 80 % |
-|---|---:|---:|---:|
-| `seasonal_naive_drift` | 1,643 | 14,3 % | 77,0 % — calibré |
-| `naive` | 1,776 | 15,1 % | 84,2 % — calibré |
-| `seasonal_naive` (réf) | 2,518 | 21,7 % | 63,3 % — trop confiant |
-
-À l'horizon 12, aucun modèle ne se distingue : tout converge vers MASE ≈ 2,66.
-
-### Deux corrections que la mesure a imposées
-
-1. **Les intervalles étaient tous faux.** Construits sur des résidus absolus, alors
-   que le niveau de la série varie d'un facteur 5. Passage aux résidus relatifs : les
-   trois meilleurs passent de « trop confiant » à calibré.
-2. **Le naïf saisonnier n'est pas la référence à battre.** Ce document l'affirmait à
-   partir de l'amplitude saisonnière. Le naïf simple le bat à tous les horizons :
-   atteindre le même mois l'an dernier coûte douze mois de dérive de niveau.
-
-### Ce qui ne fonctionne pas encore
-
-- **Aucun modèle au-delà des baselines.** C'est volontaire : tant que l'instrument
-  n'est pas caractérisé, un résultat de modèle n'est pas interprétable.
-- **Le lien entre la série DARES et les volumes internes Apec n'est pas mesuré.**
-  C'est le risque numéro un de ce volet et il n'est pas traité.
-- **Le collecteur live n'est pas encore confronté à la série DARES.** C'est le test
-  qui dira s'il mesure le marché ou un artefact de plateforme.
-- Pas de prévision forward enregistrée ni scorée à maturité pour cette série.
-- Pas d'intervalle corrigé de la quantification (arrondi à la centaine, 1,18 %).
+Vérifications : `uv run ruff check . && uv run pyright && uv run pytest`.

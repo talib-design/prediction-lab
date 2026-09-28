@@ -5,7 +5,7 @@ nothing is truly immutable. A user with a text editor can rewrite any file. What
 hash chain below provides is **tamper evidence**, not immutability -- an edited record
 breaks the chain and ``verify_chain`` says so. Committing the ledger to git after each
 forward prediction adds an independent timestamped anchor, which is what actually
-makes a "this was written before the draw" claim credible.
+makes a "this was written before the race" claim credible.
 """
 
 from __future__ import annotations

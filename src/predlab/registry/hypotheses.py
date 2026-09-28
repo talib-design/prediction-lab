@@ -1,8 +1,9 @@
 """A record of what has already been tried.
 
-Small on purpose. Its job in Milestone 1 is not to be a research platform but to stop
-the same dead end being rediscovered -- by a future agent, or by a future me at
-2 a.m. who has forgotten that rolling frequency was already tested and lost.
+Small on purpose. Its job is not to be a research platform but to stop the same dead
+end being rediscovered -- by a future agent, or by a future me at 2 a.m. who has
+forgotten that a feature was already tested and lost. Carried over unchanged from the
+lottery phase: nothing in it was lottery-specific.
 
 The statuses deliberately include INCONCLUSIVE. Most of what this project tests will
 land there rather than in REJECTED, because failing to detect an effect is not the

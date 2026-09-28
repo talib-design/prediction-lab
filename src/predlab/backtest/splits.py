@@ -1,7 +1,7 @@
 """Time-ordered splits.
 
 There is no shuffling anywhere in this module, and that is the point. A random split
-of draws would let a model be tuned on draws that happen after the ones it is tested
+of races would let a model be tuned on races that happen after the ones it is tested
 on, which for a time series is not a mild optimism -- it is the difference between
 measuring prediction and measuring memorisation.
 """
@@ -16,7 +16,7 @@ import numpy as np
 
 @dataclass(frozen=True, slots=True)
 class TimeSplit:
-    """Three consecutive, non-overlapping windows over the draw timeline.
+    """Three consecutive, non-overlapping windows over the race timeline.
 
     ``train`` is what a model may learn from, ``validation`` is where free parameters
     (a window length, a smoothing constant) are chosen, and ``test`` is looked at once.
@@ -59,7 +59,7 @@ def proportional_split(dates: np.ndarray, train: float = 0.6, validation: float 
         raise ValueError("train and validation must be positive fractions summing below 1")
     n = len(dates)
     if n < 3:
-        raise ValueError("need at least 3 draws to form three windows")
+        raise ValueError("need at least 3 dates to form three windows")
     i_train = max(0, int(n * train) - 1)
     i_val = max(i_train + 1, int(n * (train + validation)) - 1)
     i_val = min(i_val, n - 2)

@@ -1,13 +1,15 @@
 """Uncertainty around a score difference.
 
-The naive approach -- resample per-draw scores independently -- is wrong here, and
-wrong in the dangerous direction. A frequency model's forecast barely changes from one
-draw to the next, so its per-draw scores are strongly autocorrelated. An i.i.d.
-bootstrap treats those correlated observations as independent evidence and returns an
-interval that is too narrow, which manufactures significance.
+Carried over from the lottery phase, where it was written for per-draw scores. The
+reasoning transfers to races with one change of emphasis. Resampling scores as if
+they were independent is wrong in the dangerous direction: it returns intervals that
+are too narrow and manufactures significance. For races the dependence comes from
+shared conditions -- same day, same going, same weather, same market -- so the unit
+to resample is a *block of consecutive races* (sorted by off time), never a single
+race. A race-day cluster bootstrap is planned for Phase 3.
 
-So: moving-block resampling, which keeps neighbouring draws together, and a *paired*
-permutation test that flips the sign of whole blocks rather than single draws.
+Tools: moving-block resampling, a *paired* permutation test that flips the sign of
+whole blocks, and Benjamini-Hochberg / Benjamini-Yekutieli FDR control.
 
 Interval method: percentile. Efron's BCa would correct for bias and skew and is the
 better tool when a statistic is visibly skewed; it is noted as a deliberate future
