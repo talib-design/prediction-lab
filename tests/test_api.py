@@ -107,3 +107,22 @@ def test_status_reports_and_horse(lab: Paths) -> None:
     horse = client.get("/api/horses/EAST AND WEST-LIVINGINAFANTASY-TERRITORIES").json()
     assert horse["horse"]["sire"] == "TERRITORIES" and len(horse["runs"]) == 1
     assert client.get("/api/hypotheses").json() == {"hypotheses": []}
+
+
+def test_dashboard_skips_a_port_held_by_another_app() -> None:
+    import socket
+
+    from predlab.cli import bind_loopback
+
+    other = bind_loopback(8765)  # stands in for the app already on the port
+    other.listen()
+    try:
+        ours = bind_loopback(other.getsockname()[1])
+        try:
+            assert ours.getsockname()[1] != other.getsockname()[1]
+            assert ours.getsockname()[0] == "127.0.0.1"
+        finally:
+            ours.close()
+    finally:
+        other.close()
+    assert isinstance(other, socket.socket)

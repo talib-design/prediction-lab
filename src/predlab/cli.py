@@ -7,6 +7,7 @@ and its log must be readable by a person.
 from __future__ import annotations
 
 import json
+import socket
 from datetime import date, timedelta
 from typing import Annotated
 
@@ -383,9 +384,26 @@ def version() -> None:
     typer.echo(__version__)
 
 
+def bind_loopback(first_port: int, tries: int = 20) -> socket.socket:
+    """A socket bound on 127.0.0.1 at the first free port from ``first_port``.
+
+    Binding before announcing the URL means the browser can only ever open *this*
+    server -- never another local app that already holds the port.
+    """
+    for port in range(first_port, first_port + tries):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            sock.bind(("127.0.0.1", port))
+        except OSError:
+            sock.close()
+            continue
+        return sock
+    raise OSError(f"aucun port libre entre {first_port} et {first_port + tries - 1}")
+
+
 @app.command("dashboard")
 def dashboard(
-    port: int = typer.Option(8765, help="Port local."),
+    port: int = typer.Option(8765, help="Premier port essayé (le suivant libre sinon)."),
     open_browser: bool = typer.Option(True, "--open/--no-open", help="Ouvrir le navigateur."),
 ) -> None:
     """Tableau de bord en lecture seule sur http://127.0.0.1:PORT (Ctrl+C pour arrêter)."""
@@ -398,9 +416,18 @@ def dashboard(
 
     if not WEB_DIST.exists():
         typer.echo(f"Interface absente ({WEB_DIST}) : seule l'API est servie, doc sur /api/docs.")
-    url = f"http://127.0.0.1:{port}/"
-    typer.echo(f"Tableau de bord : {url}  (Ctrl+C pour arrêter)")
+    # Loopback only: the dashboard is personal and must never be exposed on the network.
+    try:
+        sock = bind_loopback(port)
+    except OSError as exc:
+        typer.echo(f"Impossible de démarrer : {exc}. Essayez --port 9100.")
+        raise typer.Exit(code=1) from exc
+    actual = sock.getsockname()[1]
+    if actual != port:
+        typer.echo(f"Port {port} déjà pris par une autre application : j'utilise {actual}.")
+    url = f"http://127.0.0.1:{actual}/"
+    typer.echo(f"Tableau de bord Prediction Lab : {url}  (Ctrl+C pour arrêter)")
     if open_browser:
         threading.Timer(1.0, lambda: webbrowser.open(url)).start()
-    # Loopback only: the dashboard is personal and must never be exposed on the network.
-    uvicorn.run(create_app(default_paths()), host="127.0.0.1", port=port, log_level="warning")
+    server = uvicorn.Server(uvicorn.Config(create_app(default_paths()), log_level="warning"))
+    server.run(sockets=[sock])
