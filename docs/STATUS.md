@@ -1,10 +1,11 @@
-# Statut — Phase 3 : baselines, backtest et paris fictifs
+# Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
 Dernière mise à jour : 2026-09-28.
 
 ## Décisions actées (2026-09-28)
 
-- Domaine unique : **courses hippiques, plat, hippodromes français.** Loterie et
+- Domaine unique : **courses hippiques, hippodromes français** : plat, puis trot attelé et
+  trot monté (ajoutés le 2026-09-28). Loterie et
   emploi cadre retirés du produit, archivés sous le tag
   `archive/loterie-emploi-2026-09-28`.
 - Projet **personnel, non commercial** ; objectif : apprendre à coder des agents et à
@@ -59,9 +60,24 @@ parser (`parse-check` : 2 012 OK, 3 échecs = les programmes 2013 ci-dessus).
 ## Ce qui manque (phases suivantes)
 
 Premier modèle fondamental combiné au marché, historiques jockey / entraîneur
-(Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; API et
-tableau de bord (avancé : v0 possible dès maintenant) ; pipeline quotidien complet
+(Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; pipeline quotidien complet
 (Phase 7) ; modèles avancés et agents (Phase 8).
+
+## Tableau de bord v0 et trot — livrés le 2026-09-28
+
+- **Trot attelé et monté** : collectés en direct (même politique d'instantanés), rattrapés
+  depuis 2017 après le plat (`--plan PLAT:2015-01-01,ATTELE:2017-01-01,MONTE:2017-01-01`),
+  champs propres au trot (ferrure, distance de handicap, réduction kilométrique — cette
+  dernière est un résultat), `--discipline` sur `backtest` et `simulate`. Volume : ~74 000
+  courses de trot depuis 2017, soit ~150 000 requêtes : **8 à 10 nuits de plus** après le plat.
+- **Tableau de bord** `uv run predlab dashboard` → http://127.0.0.1:8765 : programme du
+  jour par réunion (filtres discipline, Quinté+), fiche course (marché brut / calibré,
+  probabilité de place, évolution des cotes, historique antérieur au jour, arrivée et
+  rapports), fiche cheval, performance (backtests et paris fictifs par discipline),
+  données (collecte, rattrapage, base), recherche (hypothèses). API en lecture seule
+  (docs/ARCHITECTURE.md). Vérifié sur les données réelles du 2026-09-28.
+- Limite connue : la fiche course calcule le marché sur la **dernière** cote avant le
+  départ (souvent T-2 min), pas sur l'horizon T-25 du backtest ; c'est affiché.
 
 ## Paris fictifs — livrés le 2026-09-28 (décision de Chris : simuler comme pour le Loto)
 
@@ -153,6 +169,8 @@ uv run predlab racing build                # reconstruit data/racing.duckdb
 uv run predlab racing synthetic-check      # le banc trouve-t-il ce qu'il doit trouver ?
 uv run predlab racing backtest             # baselines sur données réelles, T-25 min
 uv run predlab racing simulate             # paris fictifs réglés aux rapports officiels
+uv run predlab racing backtest --discipline ATTELE   # idem trot attelé (MONTE : trot monté)
+uv run predlab dashboard                   # tableau de bord local
 uv run predlab hypothesis list
 ```
 

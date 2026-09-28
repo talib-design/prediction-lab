@@ -1,6 +1,6 @@
 # Prediction Lab
 
-Laboratoire personnel de prédiction de **courses hippiques** (plat, hippodromes
+Laboratoire personnel de prédiction de **courses hippiques** (plat et trot, hippodromes
 français), construit pour apprendre à coder des agents et à les faire évoluer — avec
 une règle qui ne bouge pas : ne jamais se raconter d'histoires sur la performance.
 
@@ -12,7 +12,7 @@ PMU. Le projet lit des données publiques et mesure des probabilités.
 
 ## Où en est-on
 
-Phase 2 — historique et base normalisée. Voir [`docs/STATUS.md`](docs/STATUS.md).
+Phase 3 — banc de backtest, paris fictifs, tableau de bord v0. Voir [`docs/STATUS.md`](docs/STATUS.md).
 
 ## Démarrage
 
@@ -20,7 +20,8 @@ Phase 2 — historique et base normalisée. Voir [`docs/STATUS.md`](docs/STATUS.
 uv sync
 uv run predlab racing collect --dry-run   # ce que le collecteur ferait maintenant
 uv run predlab racing collect             # une passe réelle
-uv run predlab racing today               # courses de plat du jour et instantanés pris
+uv run predlab racing today               # courses du jour et instantanés pris
+uv run predlab dashboard                  # tableau de bord sur http://127.0.0.1:8765
 uv run predlab racing audit               # audit de l'historique (≈ 30-45 min)
 bash ops/install_collector.sh             # collecte automatique toutes les 5 min (macOS)
 bash ops/install_backfill.sh              # rattrapage de l'historique, une tranche par nuit

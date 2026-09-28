@@ -79,6 +79,11 @@ class Race(BaseModel, frozen=True):
     is_final: bool = False
     finish_order: list[list[int]] | None = None
     incidents: list[dict[str, object]] = Field(default_factory=list)
+    bet_types: tuple[str, ...] = ()
+
+    @property
+    def has_quinte(self) -> bool:
+        return "QUINTE_PLUS" in self.bet_types
 
     @property
     def race_id(self) -> str:
@@ -117,6 +122,10 @@ class Runner(BaseModel, frozen=True):
     finish_position: int | None = None
     odds_reference: OddsQuote | None = None
     odds_direct: OddsQuote | None = None
+    # Trot only.
+    shoeing: str | None = None  # "deferre": which feet are unshod -- a pre-race decision
+    handicap_distance: int | None = None  # metres this runner covers (distance handicap)
+    reduction_km_ms: int | None = None  # post-race: time per km in ms -- history, never input
 
     @property
     def identity_key(self) -> str | None:

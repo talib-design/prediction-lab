@@ -24,3 +24,4 @@ the Mac (`predlab racing parse-check` validates the parser against every capture
 
 `dividendePourUnEuro` is in euro cents per 1 € staked, stake included (760 = 7,60 €).
 For the Quinté+, `dividende` is per base stake of 2 € while `dividendePourUnEuro` stays per 1 €.
+| `participants_2026-09-27_R1C1_trot_first_runner.json` | Verbatim first runner of a Vincennes attelé race (web fetch, 2026-09-28), wrapped in `{"participants": [...]}` |

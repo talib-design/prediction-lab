@@ -71,6 +71,7 @@ RACE_SCHEMA: dict[str, Any] = {
     "sky": pl.Utf8,
     "is_final": pl.Boolean,
     "finish_order": pl.Utf8,
+    "has_quinte": pl.Boolean,
     "retrieved_at": pl.Datetime("us", "UTC"),
 }
 
@@ -101,6 +102,9 @@ RUNNER_SCHEMA: dict[str, Any] = {
     "career_places": pl.Int32,
     "earnings_raw": pl.Int64,
     "finish_position": pl.Int32,
+    "shoeing": pl.Utf8,
+    "handicap_distance": pl.Int32,
+    "reduction_km_ms": pl.Int64,
     "retrieved_at": pl.Datetime("us", "UTC"),
 }
 
@@ -207,6 +211,7 @@ def build(store: RawStore, out_dir: Path, db_path: Path) -> BuildReport:
                     "sky": r.weather.sky if r.weather else None,
                     "is_final": r.is_final,
                     "finish_order": json.dumps(r.finish_order) if r.finish_order else None,
+                    "has_quinte": r.has_quinte,
                     "retrieved_at": cap.retrieved_at,
                 }
             )
@@ -270,6 +275,9 @@ def build(store: RawStore, out_dir: Path, db_path: Path) -> BuildReport:
                             "career_places": x.career_places,
                             "earnings_raw": x.earnings_raw,
                             "finish_position": x.finish_position,
+                            "shoeing": x.shoeing,
+                            "handicap_distance": x.handicap_distance,
+                            "reduction_km_ms": x.reduction_km_ms,
                             "retrieved_at": cap.retrieved_at,
                         }
                     )

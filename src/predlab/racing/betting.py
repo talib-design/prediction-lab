@@ -44,6 +44,7 @@ from predlab.racing.backtest import BacktestResult
 from predlab.racing.domain import Dividend
 from predlab.racing.events import RaceEvent
 from predlab.racing.orders import most_likely_order, places_paid, top_k_probabilities
+from predlab.racing.report import discipline_label
 
 VALUE_THRESHOLD = 1.10
 SIMPLE_WIN, SIMPLE_PLACE, TIERCE, QUINTE = "SIMPLE_GAGNANT", "SIMPLE_PLACE", "TIERCE", "QUINTE_PLUS"
@@ -356,11 +357,13 @@ def build_simulation_report(
     *,
     n_races_with_dividends: int,
     generated_at: str,
+    discipline: str = "PLAT",
 ) -> dict[str, Any]:
     phases = sorted({p for led in ledgers.values() for p in led.phases})
     decision = "test" if "test" in phases else "all"
     return {
         "generated_at": generated_at,
+        "discipline": discipline,
         "code_version": result.code_version,
         "horizon_minutes": result.horizon_minutes,
         "dataset_fingerprint": result.dataset_fingerprint,
@@ -382,7 +385,7 @@ def _has_model(result: BacktestResult, name: str) -> bool:
 def render_simulation_markdown(report: dict[str, Any]) -> str:
     phase = report["decision_phase"]
     lines = [
-        "# Simulation de paris fictifs — plat, hippodromes français",
+        f"# Simulation de paris fictifs — {discipline_label(report.get('discipline'))}, hippodromes français",
         "",
         "**Aucun pari réel.** Des tickets imaginaires, décidés à l'horizon, réglés avec les "
         "rapports officiels du PMU.",

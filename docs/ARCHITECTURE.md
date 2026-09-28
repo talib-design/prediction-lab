@@ -8,16 +8,18 @@ PMU turfinfo ─► collecteur ─► STOCKAGE BRUT (blobs + manifestes chaîné
                                    ▼
                          STOCKAGE NORMALISÉ (Parquet + DuckDB)                 ← Phase 2 ✔
                                    ▼
-                  PointInTimeView ─► features ─► modèles (champion / challengers) ← Phase 3+
+                  RaceCard (sans résultat) ─► baselines ─► backtest walk-forward   ← Phase 3 ✔
                                    ▼
-                  registre de prédictions ─► notation ─► rapports
+                  rapports (data/runs) + paris fictifs réglés aux rapports PMU     ✔
                                    ▼
-                        API FastAPI ─► front React + TS + Vite                ← Phases 5-6
+                        API FastAPI (lecture seule) ─► front React + TS + Vite    ← v0 ✔
+                                   ▼
+                  registre de prédictions ─► notation en conditions réelles        ← Phases 4-5
                                    ▼
                   agents LLM (analyste, sceptique, qualité des données…)      ← Phase 8
 ```
 
-## Ce qui existe (Phases 1-2)
+## Ce qui existe (Phases 1-3 + tableau de bord v0)
 
 ```
 src/predlab/
@@ -34,10 +36,40 @@ src/predlab/
     collect.py       collecteur en direct + politique d'instantanés
     backfill.py      rattrapage historique borné et reprenable
     audit.py         audit volume / complétude / horodatage des cotes
-  cli.py       predlab racing {collect,audit,today,verify,parse-check}, predlab hypothesis …
+    events.py, knowledge.py, models.py, backtest.py, report.py   banc walk-forward
+    orders.py, betting.py   modèle d'ordre (Harville), paris fictifs
+  api/app.py   API HTTP en lecture seule pour le tableau de bord (voir ci-dessous)
+  cli.py       predlab racing {collect,backfill,build,backtest,simulate,…}, predlab dashboard, predlab hypothesis …
+web/           front React + TypeScript + Vite ; web/dist (compilé) est commité
 ops/           install_{collector,backfill}.sh / uninstall_… (launchd, macOS)
-tests/         77+ tests, fixtures PMU (voir tests/fixtures/pmu/README.md)
+tests/         117 tests, fixtures PMU (voir tests/fixtures/pmu/README.md)
 ```
+
+## Tableau de bord (v0, 2026-09-28)
+
+`uv run predlab dashboard` sert, sur `127.0.0.1:8765` uniquement, l'API et le front
+compilé. Le front ne lit aucun fichier : il appelle l'API, qui a trois sources, chacune
+pour ce qu'elle fait bien :
+
+| Endpoint | Source | Pourquoi |
+|---|---|---|
+| `GET /api/races?day=` | brut (dernier programme capturé) | toujours à jour, sans attendre la reconstruction nocturne |
+| `GET /api/races/{jour}/{RxCy}` | brut (partants, toutes les cotes, rapports) + DuckDB (historique antérieur au jour) + dernier rapport de backtest (α) | la course telle qu'on la voit maintenant, et ce qu'on savait avant |
+| `GET /api/horses/{id}` | DuckDB | carrière |
+| `GET /api/reports`, `/api/reports/{id}` | `data/runs/*/report.json` | backtests et simulations |
+| `GET /api/status` | manifestes, checkpoints, journaux, DuckDB | santé de la collecte |
+| `GET /api/hypotheses` | registre | recherche |
+
+Documentation interactive : `/api/docs`. Aucune route n'écrit.
+
+Langage visuel : chaque chiffre porte son **statut épistémique** — fait observé,
+feature, association, prévision, information de marché — et la couleur ne code jamais
+« gagnant / perdant ». Pas de bibliothèque de graphiques : SVG écrits à la main
+(évolution de la probabilité implicite, diagramme de fiabilité, intervalles). Pas de
+Tailwind : jetons CSS dans `web/src/styles/app.css`, clair d'abord, sombre en miroir.
+
+Développer le front : `cd web && npm install && npm run dev` (proxy vers l'API
+lancée par `predlab dashboard`), puis `npm run build` pour régénérer `web/dist`.
 
 ## Quatre décisions structurantes
 
@@ -78,6 +110,8 @@ urgentes d'abord, dans une limite de requêtes par passe.
 | Parquet + DuckDB | ~50 000 courses, ~550 000 partants, jointures temporelles constantes : le seuil où une base analytique se justifie. Parquet écrit par polars (pas de pyarrow), DuckDB le lit |
 | `launchd` plutôt que tâches planifiées Cowork | Cowork n'atteint pas le PMU ; `launchd` tourne toutes les 5 min sur le Mac |
 | pydantic pour le domaine | déjà utilisé ; validation et sérialisation gratuites |
+| FastAPI + uvicorn | API typée, doc générée ; servie en local seulement |
+| `web/dist` commité | Chris n'a pas besoin de Node pour ouvrir le tableau de bord |
 
 ## Les agents, plus tard — et pourquoi l'ordre compte
 

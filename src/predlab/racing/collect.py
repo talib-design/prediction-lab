@@ -14,6 +14,9 @@ Each run:
 3. fetches the most urgent tasks first, up to a per-run cap, and records every
    response -- or failure -- in the raw store.
 
+Target races: French flat and trot (attelé, monté) races, each discipline later
+modelled separately.
+
 Snapshot policy for a target race, with ``m`` = minutes until the scheduled off:
 
 =====================  ==========================================================
@@ -49,7 +52,7 @@ PROGRAMME = "programme"
 @dataclass(frozen=True)
 class CollectConfig:
     countries: frozenset[str] = frozenset({"FRA"})
-    disciplines: frozenset[str] = frozenset({"PLAT"})
+    disciplines: frozenset[str] = frozenset({"PLAT", "ATTELE", "MONTE"})
     near_window_min: float = 120.0
     near_interval_min: float = 4.0
     far_interval_min: float = 60.0
@@ -59,6 +62,8 @@ class CollectConfig:
     other_programme_interval_min: float = 180.0
     stale_yesterday_interval_min: float = 60.0
     max_requests: int = 60
+    failed_retry_min: float = 10.0
+    history_retry_min: float = 60.0
 
     def is_target(self, race: Race) -> bool:
         return race.country_code in self.countries and race.discipline in self.disciplines
@@ -88,6 +93,13 @@ def _due(last: Capture | None, now: datetime, interval_min: float) -> bool:
     return last is None or minutes_between(last.retrieved_at, now) >= interval_min
 
 
+def _missing(captures: list[Capture], purpose: str, now: datetime, retry_min: float) -> bool:
+    """A one-off capture still needed: never succeeded, and not attempted too recently."""
+    if _last(captures, purpose, ok_only=True) is not None:
+        return False
+    return _due(_last(captures, purpose), now, retry_min)
+
+
 def plan_race_tasks(
     now: datetime,
     races: Iterable[Race],
@@ -107,12 +119,12 @@ def plan_race_tasks(
         runners_caps = index.get(runners_key, [])
 
         if race.is_final:
-            if _last(runners_caps, RESULT, ok_only=True) is None:
+            if _missing(runners_caps, RESULT, now, config.failed_retry_min):
                 tasks.append(Task(50.0, runners_key, Endpoint.PARTICIPANTS, RESULT, **ids))
             div_key = capture_key(
                 Endpoint.RAPPORTS, race.day, race.meeting_number, race.race_number
             )
-            if _last(index.get(div_key, []), RESULT, ok_only=True) is None:
+            if _missing(index.get(div_key, []), RESULT, now, config.failed_retry_min):
                 tasks.append(Task(51.0, div_key, Endpoint.RAPPORTS, RESULT, **ids))
             continue
 
@@ -132,7 +144,7 @@ def plan_race_tasks(
             perf_key = capture_key(
                 Endpoint.PERFORMANCES, race.day, race.meeting_number, race.race_number
             )
-            if _last(index.get(perf_key, []), HISTORY, ok_only=True) is None:
+            if _missing(index.get(perf_key, []), HISTORY, now, config.history_retry_min):
                 tasks.append(Task(1000.0 + m, perf_key, Endpoint.PERFORMANCES, HISTORY, **ids))
     return sorted(tasks)
 

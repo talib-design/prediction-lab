@@ -150,3 +150,7 @@ simulation :
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
 - 2026-09-28 — découpage pré-enregistré, horizon T-25 min, règle d'éligibilité, niveau 1 atteint.
 - 2026-09-28 — §9 : simulation de paris fictifs (simple, tiercé, quinté), règles fixées avant tout résultat.
+- 2026-09-28 — trot attelé et trot monté ajoutés (décision de Chris). Chaque discipline est
+  évaluée **séparément** (backtest, simulation, calibration du marché, découpage identique) ;
+  aucun résultat d'une discipline ne vaut pour une autre. Au trot, la question du §1 se
+  lit « course de trot » ; la réduction kilométrique d'une course est un résultat, jamais une entrée.

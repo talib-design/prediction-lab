@@ -158,3 +158,13 @@ def test_build_is_reproducible(tmp_path: Path) -> None:
     assert (tmp_path / "n1" / "odds.parquet").read_bytes() == (
         tmp_path / "n2" / "odds.parquet"
     ).read_bytes()
+
+
+def test_backfill_plan_is_parsed_in_priority_order() -> None:
+    from predlab.racing.backfill import DEFAULT_PLAN, parse_plan
+
+    plan = parse_plan(DEFAULT_PLAN)
+    assert [d for d, _ in plan] == ["PLAT", "ATTELE", "MONTE"]
+    assert plan[0][1] == date(2015, 1, 1)
+    with pytest.raises(ValueError):
+        parse_plan("PLAT")

@@ -195,6 +195,15 @@ def _race(
         is_final=bool(course.get("arriveeDefinitive") or course.get("isArriveeDefinitive")),
         finish_order=finish_order,
         incidents=incidents,
+        bet_types=tuple(
+            sorted(
+                {
+                    b["typePari"]
+                    for b in course.get("paris") or []
+                    if isinstance(b, dict) and isinstance(b.get("typePari"), str)
+                }
+            )
+        ),
     )
 
 
@@ -253,6 +262,9 @@ def parse_participants(raw: bytes | str | dict[str, Any], race_id: str) -> list[
                 finish_position=_opt(p, "ordreArrivee", int),
                 odds_reference=_quote(p.get("dernierRapportReference")),
                 odds_direct=_quote(p.get("dernierRapportDirect")),
+                shoeing=_opt(p, "deferre", str),
+                handicap_distance=_opt(p, "handicapDistance", int),
+                reduction_km_ms=_opt(p, "reductionKilometrique", int),
             )
         )
     return runners

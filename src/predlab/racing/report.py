@@ -24,6 +24,14 @@ from predlab.eval.uncertainty import (
 from predlab.racing.backtest import BacktestResult, ModelRun, calibration_error, calibration_table
 
 REFERENCE = "market_calibrated"
+
+DISCIPLINE_LABELS = {"PLAT": "plat", "ATTELE": "trot attelé", "MONTE": "trot monté"}
+
+
+def discipline_label(code: str | None) -> str:
+    return DISCIPLINE_LABELS.get(code or "PLAT", (code or "").lower())
+
+
 Z_POWER = 1.96 + 0.84  # two-sided 5 %, 80 % power
 
 
@@ -141,7 +149,7 @@ def _f(x: Any, digits: int = 4) -> str:
 def render_markdown(report: dict[str, Any]) -> str:
     phase = report["decision_phase"]
     lines = [
-        "# Backtest — plat, hippodromes français",
+        f"# Backtest — {discipline_label(report.get('discipline'))}, hippodromes français",
         "",
         f"Généré le {report['generated_at']} · horizon **T-{report['horizon_minutes']:g} min** · "
         f"code {report['code_version']} · empreinte `{report['dataset_fingerprint'][:12]}`",
@@ -228,7 +236,8 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 def write_report(report: dict[str, Any], directory: Path) -> tuple[Path, Path]:
     stamp = report["generated_at"].replace(":", "").replace("-", "").replace("+0000", "Z")
-    out = directory / f"backtest_T{report['horizon_minutes']:g}_{stamp}"
+    disc = report.get("discipline", "PLAT")
+    out = directory / f"backtest_{disc}_T{report['horizon_minutes']:g}_{stamp}"
     out.mkdir(parents=True, exist_ok=True)
     md, js = out / "report.md", out / "report.json"
     md.write_text(render_markdown(report), encoding="utf-8")

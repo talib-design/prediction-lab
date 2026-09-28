@@ -61,7 +61,7 @@ def purposes(tasks: list) -> set[tuple[str, str]]:
 
 def test_non_target_races_are_ignored() -> None:
     now = OFF - timedelta(minutes=30)
-    assert plan_race_tasks(now, [race(discipline="ATTELE"), race(country_code="GB")], {}, CFG) == []
+    assert plan_race_tasks(now, [race(discipline="HAIE"), race(country_code="GB")], {}, CFG) == []
 
 
 def test_near_the_off_every_run_takes_a_snapshot() -> None:
@@ -102,11 +102,16 @@ def test_official_result_triggers_one_result_capture() -> None:
     assert plan_race_tasks(now, [done], index, CFG) == []
 
 
-def test_a_failed_result_capture_is_retried() -> None:
+def test_a_failed_result_capture_is_retried_but_not_hammered() -> None:
     now = OFF + timedelta(minutes=20)
-    index = {KEY: [cap(KEY, RESULT, now, ok=False)]}
-    tasks = plan_race_tasks(now, [race(is_final=True)], index, CFG)
-    assert ("participants", RESULT) in purposes(tasks)
+    recent = {KEY: [cap(KEY, RESULT, now - timedelta(minutes=2), ok=False)]}
+    old = {KEY: [cap(KEY, RESULT, now - timedelta(minutes=11), ok=False)]}
+    assert ("participants", RESULT) not in purposes(
+        plan_race_tasks(now, [race(is_final=True)], recent, CFG)
+    )
+    assert ("participants", RESULT) in purposes(
+        plan_race_tasks(now, [race(is_final=True)], old, CFG)
+    )
 
 
 def test_history_is_fetched_once_within_24h() -> None:
@@ -151,8 +156,9 @@ def test_a_collect_run_stores_programme_snapshot_and_history(tmp_path: Path, t0:
     )
     assert ("participants/2026-09-28/R2C1", SNAPSHOT, True) in keys
     assert ("performances/2026-09-28/R2C1", HISTORY, True) in keys
-    assert not any("R1C1" in c.key for c in store.captures()), "trot race must not be collected"
-    assert report.target_races == 1
+    # Trot is a target too (decision 2026-09-28); R1C1 is an attelé race 5 h away.
+    assert ("participants/2026-09-28/R1C1", SNAPSHOT, False) in keys, "404 in the fake feed"
+    assert report.target_races == 2
     assert store.verify() == len(store.captures())
 
     # Two minutes later: nothing is due, nothing is fetched.

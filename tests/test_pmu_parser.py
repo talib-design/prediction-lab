@@ -133,3 +133,14 @@ def test_a_quote_without_timestamp_is_dropped() -> None:
     }
     [runner] = parse_participants(doc, "r")
     assert runner.odds_direct is None
+
+
+def test_trot_runner_fields() -> None:
+    [runner] = parse_participants(
+        fixture_bytes("participants_2026-09-27_R1C1_trot_first_runner.json"), "2026-09-27/R1C1"
+    )
+    assert runner.breed == "TROTTEUR ETRANGER"
+    assert runner.shoeing == "DEFERRE_ANTERIEURS_POSTERIEURS"
+    assert runner.handicap_distance == 2850
+    assert runner.reduction_km_ms == 74600, "post-race field: history only, never an input"
+    assert runner.jockey == "N. BAZIRE"

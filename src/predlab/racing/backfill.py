@@ -97,7 +97,8 @@ def run_backfill(
     # v2: a day is complete only once its dividends are stored too (needed by the
     # betting simulation). Days closed under v1 are rescanned; their programmes and
     # runners are cached, so only the dividends are fetched.
-    checkpoint = store.root / "backfill_done_v2.json"
+    suffix = "" if discipline == "PLAT" else f"_{discipline}"
+    checkpoint = store.root / f"backfill_done_v2{suffix}.json"
     done = _load_checkpoint(checkpoint)
     index = store.index()
     before = client.requests_made
@@ -202,3 +203,56 @@ def run_backfill(
     report.requests = client.requests_made - before
     _save_checkpoint(checkpoint, done)
     return report
+
+
+DEFAULT_PLAN = "PLAT:2015-01-01,ATTELE:2017-01-01,MONTE:2017-01-01"
+
+
+def parse_plan(text: str) -> list[tuple[str, date]]:
+    """``"PLAT:2015-01-01,ATTELE:2017-01-01"`` -> [("PLAT", date), ...], in priority order."""
+    plan = []
+    for part in text.split(","):
+        discipline, _, start = part.strip().partition(":")
+        if not discipline or not start:
+            raise ValueError(f"plan entry {part!r}: expected DISCIPLINE:AAAA-MM-JJ")
+        plan.append((discipline.strip().upper(), date.fromisoformat(start.strip())))
+    return plan
+
+
+def run_backfill_plan(
+    client: PmuClient,
+    store: RawStore,
+    *,
+    plan: list[tuple[str, date]],
+    end: date,
+    now: Callable[[], datetime],
+    max_requests: int = 20_000,
+    deadline: datetime | None = None,
+    progress: Callable[[str], None] | None = None,
+) -> list[tuple[str, BackfillReport]]:
+    """Disciplines one after the other: the first is completed before the next starts.
+
+    Flat racing first (the project's first model), then trot. The request budget and
+    the deadline are shared by the whole plan.
+    """
+    reports = []
+    used = 0
+    for discipline, start in plan:
+        if used >= max_requests or (deadline is not None and now() >= deadline):
+            break
+        report = run_backfill(
+            client,
+            store,
+            start=start,
+            end=end,
+            now=now,
+            max_requests=max_requests - used,
+            deadline=deadline,
+            discipline=discipline,
+            progress=progress,
+        )
+        used += report.requests
+        reports.append((discipline, report))
+        if report.stopped_by != "done":
+            break
+    return reports

@@ -18,7 +18,7 @@ from predlab.core.dotenv import load_dotenv
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import default_paths
 from predlab.racing.audit import run_audit, write_report
-from predlab.racing.backfill import run_backfill
+from predlab.racing.backfill import DEFAULT_PLAN, parse_plan, run_backfill_plan
 from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES, PREREGISTERED_SPLIT, run_backtest
 from predlab.racing.betting import (
     build_simulation_report,
@@ -123,7 +123,10 @@ def audit(
 
 @racing_app.command("backfill")
 def backfill(
-    start: Annotated[str, typer.Option(help="Jour le plus ancien, AAAA-MM-JJ.")] = "2015-01-01",
+    plan: Annotated[
+        str,
+        typer.Option(help="Disciplines et premier jour, par priorité : PLAT:2015-01-01,ATTELE:…"),
+    ] = DEFAULT_PLAN,
     end: Annotated[
         str | None, typer.Option(help="Jour le plus récent (défaut : avant-hier).")
     ] = None,
@@ -131,30 +134,28 @@ def backfill(
     max_requests: Annotated[
         int, typer.Option(help="Plafond de requêtes pour ce passage.")
     ] = 20_000,
-    with_performances: Annotated[
-        bool, typer.Option(help="Récupérer aussi les performances.")
-    ] = False,
     then_build: Annotated[
         bool, typer.Option("--build", help="Reconstruire la base après.")
     ] = False,
 ) -> None:
-    """Fetch past French flat races, newest first, in a bounded, resumable slice."""
+    """Fetch past French races, discipline by discipline, newest first, resumable."""
     paths = default_paths().ensure()
     started = utcnow()
     last = date.fromisoformat(end) if end else paris_day(started) - timedelta(days=2)
-    report = run_backfill(
+    reports = run_backfill_plan(
         PmuClient(),
         RawStore(paths.raw_pmu),
-        start=date.fromisoformat(start),
+        plan=parse_plan(plan),
         end=last,
         now=utcnow,
         max_requests=max_requests,
         deadline=started + timedelta(hours=hours),
-        with_performances=with_performances,
         progress=typer.echo,
     )
-    typer.echo(report.summary())
-    _log_line(f"{started.isoformat(timespec='seconds')} | {report.summary()}")
+    for discipline, report in reports:
+        line = f"{discipline} — {report.summary()}"
+        typer.echo(line)
+        _log_line(f"{started.isoformat(timespec='seconds')} | {line}")
     if then_build:
         build_db()
 
@@ -174,19 +175,25 @@ def backtest(
     horizon: Annotated[
         float, typer.Option(help="Minutes avant le départ.")
     ] = DEFAULT_HORIZON_MINUTES,
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
 ) -> None:
     """Walk-forward backtest of the baselines on the normalized database."""
     paths = default_paths().ensure()
     if not paths.database.exists():
         typer.echo("Base absente : lancez d'abord `predlab racing build`.")
         raise typer.Exit(code=1)
-    events = load_events(paths.database, horizon_minutes=horizon)
-    typer.echo(f"{len(events)} courses chargées, évaluation en cours…")
+    events = load_events(paths.database, horizon_minutes=horizon, discipline=discipline)
+    typer.echo(f"{len(events)} courses chargées ({discipline}), évaluation en cours…")
     models = default_models()
     result = run_backtest(events, models, horizon_minutes=horizon, split=PREREGISTERED_SPLIT)
     calibrated = next(m for m in models if isinstance(m, CalibratedMarketModel))
     report = build_report(
-        result, {"alpha": calibrated.alpha, "alpha_refits": len(calibrated.history)}
+        result,
+        {
+            "alpha": calibrated.alpha,
+            "alpha_refits": len(calibrated.history),
+            "discipline": discipline,
+        },
     )
     md, _ = write_backtest_report(report, paths.runs)
     typer.echo(f"{result.n_eligible} courses évaluées. Rapport : {md}")
@@ -197,13 +204,14 @@ def simulate_bets(
     horizon: Annotated[
         float, typer.Option(help="Minutes avant le départ.")
     ] = DEFAULT_HORIZON_MINUTES,
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
 ) -> None:
     """Fictitious bets (simple, tiercé, quinté) settled against official dividends."""
     paths = default_paths().ensure()
     if not paths.database.exists():
         typer.echo("Base absente : lancez d'abord `predlab racing build`.")
         raise typer.Exit(code=1)
-    events = load_events(paths.database, horizon_minutes=horizon)
+    events = load_events(paths.database, horizon_minutes=horizon, discipline=discipline)
     dividends = load_dividends(paths.database)
     result = run_backtest(
         events,
@@ -218,9 +226,12 @@ def simulate_bets(
     settled = sum(1 for e in result.scored_events if e.card.race_id in dividends)
     stamp = utcnow().isoformat(timespec="seconds")
     report = build_simulation_report(
-        result, ledgers, n_races_with_dividends=settled, generated_at=stamp
+        result, ledgers, n_races_with_dividends=settled, generated_at=stamp, discipline=discipline
     )
-    out = paths.runs / f"simulation_T{horizon:g}_{stamp.replace(':', '').replace('-', '')[:15]}Z"
+    out = (
+        paths.runs
+        / f"simulation_{discipline}_T{horizon:g}_{stamp.replace(':', '').replace('-', '')[:15]}Z"
+    )
     out.mkdir(parents=True, exist_ok=True)
     (out / "report.md").write_text(render_simulation_markdown(report), encoding="utf-8")
     (out / "report.json").write_text(
@@ -370,3 +381,26 @@ def hypothesis_update(
 @app.command("version")
 def version() -> None:
     typer.echo(__version__)
+
+
+@app.command("dashboard")
+def dashboard(
+    port: int = typer.Option(8765, help="Port local."),
+    open_browser: bool = typer.Option(True, "--open/--no-open", help="Ouvrir le navigateur."),
+) -> None:
+    """Tableau de bord en lecture seule sur http://127.0.0.1:PORT (Ctrl+C pour arrêter)."""
+    import threading
+    import webbrowser
+
+    import uvicorn
+
+    from predlab.api.app import WEB_DIST, create_app
+
+    if not WEB_DIST.exists():
+        typer.echo(f"Interface absente ({WEB_DIST}) : seule l'API est servie, doc sur /api/docs.")
+    url = f"http://127.0.0.1:{port}/"
+    typer.echo(f"Tableau de bord : {url}  (Ctrl+C pour arrêter)")
+    if open_browser:
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+    # Loopback only: the dashboard is personal and must never be exposed on the network.
+    uvicorn.run(create_app(default_paths()), host="127.0.0.1", port=port, log_level="warning")
