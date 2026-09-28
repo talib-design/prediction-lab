@@ -1,0 +1,187 @@
+"""Historical backfill: every French flat race since 2015, fetched once, politely.
+
+Scale, from the audit: ~4 000 target races a year, so ~51 000 requests for programmes
+and runners since 2015 -- about 15 hours at one request per second. It therefore runs
+in bounded slices (a request cap and a deadline), typically a few hours a night, and
+resumes where it stopped. There is no progress file to trust: the raw store *is* the
+state. A day is done when its programme and every target race's post-race runners
+capture are stored; a small checkpoint only remembers fully closed days so later runs
+skip them without re-reading their programmes.
+
+Order: newest first. The most recent seasons are the ones a test window will use, so
+they become usable soonest.
+
+Past performances (``performances-detaillees``) are opt-in: the runners of every race
+since 2015 already give each horse's French flat history from 2015 on; performances
+add older and non-flat runs at the cost of one more request per race.
+"""
+
+from __future__ import annotations
+
+import json
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
+from pathlib import Path
+
+from predlab.racing.domain import Race
+from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key, url_for
+from predlab.racing.sources.pmu.parser import PmuFormatError, parse_programme_detailed
+from predlab.racing.store.raw import Capture, RawStore
+
+BACKFILL = "backfill"
+RESULT_DELAY = timedelta(hours=1)
+
+
+@dataclass
+class BackfillReport:
+    days_seen: int = 0
+    days_completed: int = 0
+    races_fetched: int = 0
+    requests: int = 0
+    failures: list[str] = field(default_factory=list)
+    stopped_by: str = "done"
+    oldest_day_reached: date | None = None
+
+    def summary(self) -> str:
+        return (
+            f"backfill: {self.requests} requêtes, {self.races_fetched} courses, "
+            f"{self.days_completed} jours complétés, jusqu'au {self.oldest_day_reached}, "
+            f"arrêt : {self.stopped_by}, échecs : {len(self.failures)}"
+        )
+
+
+def _has_post_race_capture(captures: list[Capture], race: Race) -> bool:
+    return any(c.ok and c.retrieved_at >= race.off_time + RESULT_DELAY for c in captures)
+
+
+def _is_target(race: Race, country: str, discipline: str) -> bool:
+    return (
+        race.country_code == country
+        and race.discipline == discipline
+        and "ANNULEE" not in (race.status or "")
+    )
+
+
+def _load_checkpoint(path: Path) -> set[str]:
+    if not path.exists():
+        return set()
+    return set(json.loads(path.read_text(encoding="utf-8")))
+
+
+def _save_checkpoint(path: Path, done: set[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(sorted(done)), encoding="utf-8")
+    tmp.replace(path)
+
+
+def run_backfill(
+    client: PmuClient,
+    store: RawStore,
+    *,
+    start: date,
+    end: date,
+    now: Callable[[], datetime],
+    max_requests: int = 20_000,
+    deadline: datetime | None = None,
+    with_performances: bool = False,
+    country: str = "FRA",
+    discipline: str = "PLAT",
+    progress: Callable[[str], None] | None = None,
+) -> BackfillReport:
+    report = BackfillReport()
+    checkpoint = store.root / "backfill_done.json"
+    done = _load_checkpoint(checkpoint)
+    index = store.index()
+    before = client.requests_made
+
+    def budget_left() -> bool:
+        if client.requests_made - before >= max_requests:
+            report.stopped_by = "plafond de requêtes"
+            return False
+        if deadline is not None and now() >= deadline:
+            report.stopped_by = "heure limite"
+            return False
+        return True
+
+    def fetch(
+        endpoint: Endpoint, day: date, meeting: int | None = None, race: int | None = None
+    ) -> Capture:
+        key = capture_key(endpoint, day, meeting, race)
+        cap = store.record(
+            client.fetch(url_for(endpoint, day, meeting, race)),
+            key=key,
+            endpoint=endpoint,
+            purpose=BACKFILL,
+        )
+        index.setdefault(key, []).append(cap)
+        if not cap.ok:
+            report.failures.append(f"{key}: {cap.error}")
+        return cap
+
+    day = end
+    while day >= start:
+        if day.isoformat() in done:
+            day -= timedelta(days=1)
+            continue
+        if not budget_left():
+            break
+        report.days_seen += 1
+        report.oldest_day_reached = day
+
+        prog_key = capture_key(Endpoint.PROGRAMME, day)
+        ok_progs = [c for c in index.get(prog_key, []) if c.ok]
+        # A programme captured before the day was over lacks the results: refetch.
+        closed = [c for c in ok_progs if c.retrieved_at.date() > day]
+        cap = (
+            max(closed, key=lambda c: c.retrieved_at) if closed else fetch(Endpoint.PROGRAMME, day)
+        )
+        if not cap.ok:
+            day -= timedelta(days=1)
+            continue
+        try:
+            parsed = parse_programme_detailed(store.read(cap))
+        except PmuFormatError as exc:
+            report.failures.append(f"{prog_key}: {exc}")
+            day -= timedelta(days=1)
+            continue
+
+        complete = True
+        for race in (r for r in parsed.races if _is_target(r, country, discipline)):
+            key = capture_key(
+                Endpoint.PARTICIPANTS, race.day, race.meeting_number, race.race_number
+            )
+            if not _has_post_race_capture(index.get(key, []), race):
+                if not budget_left():
+                    complete = False
+                    break
+                if fetch(Endpoint.PARTICIPANTS, race.day, race.meeting_number, race.race_number).ok:
+                    report.races_fetched += 1
+                else:
+                    complete = False
+            if with_performances:
+                perf_key = capture_key(
+                    Endpoint.PERFORMANCES, race.day, race.meeting_number, race.race_number
+                )
+                if not any(c.ok for c in index.get(perf_key, [])):
+                    if not budget_left():
+                        complete = False
+                        break
+                    complete &= fetch(
+                        Endpoint.PERFORMANCES, race.day, race.meeting_number, race.race_number
+                    ).ok
+        if not complete:
+            if report.stopped_by == "done":
+                report.stopped_by = "échec réseau (reprise au prochain passage)"
+            break
+        if day < now().date() - timedelta(days=2):
+            done.add(day.isoformat())
+            report.days_completed += 1
+        if progress and report.days_seen % 30 == 0:
+            progress(f"{day} — {client.requests_made - before} requêtes")
+        day -= timedelta(days=1)
+
+    report.requests = client.requests_made - before
+    _save_checkpoint(checkpoint, done)
+    return report

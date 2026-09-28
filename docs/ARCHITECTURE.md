@@ -6,7 +6,7 @@
 PMU turfinfo ─► collecteur ─► STOCKAGE BRUT (blobs + manifestes chaînés)      ← Phase 1 ✔
                                    │ parser versionné, échec bruyant
                                    ▼
-                         STOCKAGE NORMALISÉ (DuckDB, bitemporel)               ← Phase 2
+                         STOCKAGE NORMALISÉ (Parquet + DuckDB)                 ← Phase 2 ✔
                                    ▼
                   PointInTimeView ─► features ─► modèles (champion / challengers) ← Phase 3+
                                    ▼
@@ -17,7 +17,7 @@ PMU turfinfo ─► collecteur ─► STOCKAGE BRUT (blobs + manifestes chaîné
                   agents LLM (analyste, sceptique, qualité des données…)      ← Phase 8
 ```
 
-## Ce qui existe (Phase 1)
+## Ce qui existe (Phases 1-2)
 
 ```
 src/predlab/
@@ -30,10 +30,12 @@ src/predlab/
     domain.py        Race, Runner, OddsQuote, GoingMeasure, WeatherForecast
     sources/pmu/     client (HTTP poli, retries), parser (strict/lenient)
     store/raw.py     stockage brut adressé par contenu + manifestes par jour
+    store/normalized.py  tables typées reconstruites depuis le brut (Parquet + DuckDB)
     collect.py       collecteur en direct + politique d'instantanés
+    backfill.py      rattrapage historique borné et reprenable
     audit.py         audit volume / complétude / horodatage des cotes
   cli.py       predlab racing {collect,audit,today,verify,parse-check}, predlab hypothesis …
-ops/           install_collector.sh / uninstall_collector.sh (launchd, macOS)
+ops/           install_{collector,backfill}.sh / uninstall_… (launchd, macOS)
 tests/         77+ tests, fixtures PMU (voir tests/fixtures/pmu/README.md)
 ```
 
@@ -73,7 +75,7 @@ urgentes d'abord, dans une limite de requêtes par passe.
 | Choix | Raison |
 |---|---|
 | `urllib` (stdlib) plutôt que `httpx` | quatre GET JSON ; zéro dépendance ajoutée |
-| pas encore de DuckDB | la Phase 1 ne stocke que du brut ; DuckDB arrive avec la normalisation (Phase 2) |
+| Parquet + DuckDB | ~50 000 courses, ~550 000 partants, jointures temporelles constantes : le seuil où une base analytique se justifie. Parquet écrit par polars (pas de pyarrow), DuckDB le lit |
 | `launchd` plutôt que tâches planifiées Cowork | Cowork n'atteint pas le PMU ; `launchd` tourne toutes les 5 min sur le Mac |
 | pydantic pour le domaine | déjà utilisé ; validation et sérialisation gratuites |
 

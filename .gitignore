@@ -15,6 +15,9 @@ htmlcov/
 # producteur de la base). Voir docs/DATA_SOURCES.md.
 data/raw/
 data/logs/
+data/normalized/
+data/*.duckdb
+data/*.duckdb.wal
 
 # Suivis volontairement : data/audit/ (agrégats, aucune donnée brute) et
 # data/hypotheses.jsonl (registre append-only chaîné).

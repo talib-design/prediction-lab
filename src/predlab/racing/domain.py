@@ -119,6 +119,20 @@ class Runner(BaseModel, frozen=True):
     odds_direct: OddsQuote | None = None
 
     @property
+    def identity_key(self) -> str | None:
+        """Stable horse identity: PMU's ``idCheval`` when published, else rebuilt.
+
+        PMU's key is ``NAME-DAM-SIRE``. It is absent before 2025 but the audit of
+        2026-09-28 found it equal to that concatenation in 1 836 of 1 836 checked
+        runners, with dam and sire present in every year since 2013.
+        """
+        if self.horse_key:
+            return self.horse_key
+        if self.name and self.dam and self.sire:
+            return f"{self.name}-{self.dam}-{self.sire}"
+        return None
+
+    @property
     def weight_kg(self) -> float | None:
         """Inferred unit: PMU publishes tenths of a kilogram (580 -> 58.0). [hypothesis]"""
         return None if self.weight_raw is None else self.weight_raw / 10.0

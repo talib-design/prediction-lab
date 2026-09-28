@@ -27,6 +27,15 @@ class Paths:
         return self.raw / "pmu"
 
     @property
+    def normalized(self) -> Path:
+        """Typed tables rebuilt from raw. Contain PMU data: never committed."""
+        return self.root / "normalized"
+
+    @property
+    def database(self) -> Path:
+        return self.root / "racing.duckdb"
+
+    @property
     def audit(self) -> Path:
         return self.root / "audit"
 

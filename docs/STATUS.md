@@ -1,4 +1,4 @@
-# Statut — Phase 1 : migration et socle de données
+# Statut — Phase 2 : historique et base normalisée
 
 Dernière mise à jour : 2026-09-28.
 
@@ -63,12 +63,40 @@ puissance (Phase 3) ; courses à venir et registre de prédictions (Phases 4-5) 
 API et front (Phase 6) ; pipeline quotidien complet (Phase 7) ; modèles avancés et
 agents (Phase 8).
 
-## Prochaine étape
+## Phase 2 — en cours (démarrée le 2026-09-28)
 
-Phase 1 terminée (collecte installée le 2026-09-28, audit fait). Phase 2 : ingestion
-historique complète du plat français 2015 → aujourd'hui (tous les jours, partants,
-performances, rapports), stockage normalisé DuckDB, identité par clé
-`NOM-MÈRE-PÈRE`, tolérance par réunion dans le parser.
+Livré :
+
+- **Rattrapage historique** `predlab racing backfill` : plat français, du plus récent
+  au plus ancien jusqu'à 2015, par tranches bornées (5 h, 20 000 requêtes), reprise
+  automatique, un passage par nuit (`ops/install_backfill.sh`). ~51 000 requêtes au
+  total, soit 3 à 4 nuits. Les performances détaillées sont en option.
+- **Base normalisée** `predlab racing build` : `data/racing.duckdb` (tables `races`,
+  `runners`, `runners_enriched`, `odds`, `horses`), reconstruite entièrement depuis le
+  brut, reproductible, jamais commitée.
+- **Identité** : `horse_id` = `idCheval` publié, sinon `NOM-MÈRE-PÈRE` reconstruit.
+- **Parser tolérant par réunion** : une réunion mal formée est isolée et signalée, le
+  reste de la journée est gardé.
+- **Verrou sur les manifestes** : collecteur et rattrapage peuvent écrire en même temps
+  sans casser la chaîne de hash.
+
+Point de vigilance, **mesuré le 2026-09-28** : les partants rétro-chargés viennent de
+captures prises après la course ; leurs champs « d'avant-course » incluent-ils la
+course elle-même ?
+
+- **Musique : non.** Si elle incluait la course, son premier caractère égalerait la
+  place d'arrivée ~100 % du temps. Mesuré : 9 à 11 % selon l'année (≈ 9 400 partants,
+  2013-2026), soit le niveau du hasard.
+- **Compteurs de carrière et gains :** identiques entre le dernier instantané
+  d'avant-course et la capture de résultat sur les 23 partants comparés
+  (2 courses du jour). Probablement figés à l'avant-course ; à confirmer sur un
+  échantillon plus large avant d'en faire des entrées de modèle.
+
+La colonne `captured_after_off` reste dans la base pour ce contrôle.
+
+Reste en Phase 2 : remplacer les fixtures de test par des captures réelles ;
+confirmer les compteurs de carrière sur plus de courses ; historique jockey /
+entraîneur.
 
 ## Comment lancer
 
@@ -80,6 +108,8 @@ uv run predlab racing today
 uv run predlab racing verify
 uv run predlab racing parse-check
 uv run predlab racing audit --start 2013-01-01
+uv run predlab racing backfill --hours 1   # une tranche à la main
+uv run predlab racing build                # reconstruit data/racing.duckdb
 uv run predlab hypothesis list
 ```
 

@@ -1,0 +1,53 @@
+#!/bin/bash
+# Installe le rattrapage historique (2015 → avant-hier) : un passage de 5 h maximum
+# chaque nuit à 1 h 30, qui reprend là où le précédent s'est arrêté, puis
+# reconstruit la base. Un premier passage démarre tout de suite.
+#
+# Usage : bash ops/install_backfill.sh      Désinstaller : bash ops/uninstall_backfill.sh
+#
+# Mac en veille à 1 h 30 : launchd lance le passage manqué au réveil.
+# Une fois tout l'historique récupéré, chaque passage ne fait plus que
+# reconstruire la base (quelques minutes).
+set -euo pipefail
+
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+LABEL="fr.predictionlab.backfill"
+PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+LOGS="$REPO/data/logs"
+UV="$(command -v uv || true)"
+[ -z "$UV" ] && { echo "uv est introuvable."; exit 1; }
+mkdir -p "$LOGS" "$HOME/Library/LaunchAgents"
+
+cat > "$PLIST" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$LABEL</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$UV</string><string>run</string><string>--project</string><string>$REPO</string>
+    <string>predlab</string><string>racing</string><string>backfill</string>
+    <string>--hours</string><string>5</string><string>--build</string>
+  </array>
+  <key>WorkingDirectory</key><string>$REPO</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>$(dirname "$UV"):/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>PREDLAB_DATA_DIR</key><string>$REPO/data</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>1</integer><key>Minute</key><integer>30</integer></dict>
+  <key>RunAtLoad</key><true/>
+  <key>LowPriorityIO</key><true/>
+  <key>Nice</key><integer>10</integer>
+  <key>StandardOutPath</key><string>$LOGS/backfill.out.log</string>
+  <key>StandardErrorPath</key><string>$LOGS/backfill.err.log</string>
+</dict>
+</plist>
+PLIST
+
+launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
+launchctl bootstrap "gui/$(id -u)" "$PLIST"
+echo "Rattrapage installé : premier passage en cours (5 h maximum), puis chaque nuit à 1 h 30."
+echo "Suivi : tail -f \"$LOGS/backfill.out.log\""

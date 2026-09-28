@@ -21,11 +21,13 @@ from "never tried".
 
 from __future__ import annotations
 
+import fcntl
 import gzip
 import hashlib
 import os
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -108,8 +110,25 @@ class RawStore:
             "blob": blob_rel,
             "collector_version": __version__,
         }
-        self._ledger(result.retrieved_at.date()).append(payload)
+        with self._manifest_lock():
+            self._ledger(result.retrieved_at.date()).append(payload)
         return Capture.from_record(payload)
+
+    @contextmanager
+    def _manifest_lock(self) -> Iterator[None]:
+        """Serialise appends across processes.
+
+        The live collector and the nightly backfill can run at the same moment. Two
+        appends reading the same chain head would fork the hash chain, so every
+        append holds an exclusive advisory lock (POSIX ``flock``; macOS and Linux).
+        """
+        self.manifests.mkdir(parents=True, exist_ok=True)
+        with (self.manifests / ".lock").open("a") as fh:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 
     @staticmethod
     def _write_blob(path: Path, body: bytes) -> None:

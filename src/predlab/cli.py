@@ -17,9 +17,15 @@ from predlab.core.dotenv import load_dotenv
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import default_paths
 from predlab.racing.audit import run_audit, write_report
+from predlab.racing.backfill import run_backfill
 from predlab.racing.collect import PROGRAMME, SNAPSHOT, CollectConfig, run_collect
 from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key
-from predlab.racing.sources.pmu.parser import PmuFormatError, parse_participants, parse_programme
+from predlab.racing.sources.pmu.parser import (
+    PmuFormatError,
+    parse_participants,
+    parse_programme_detailed,
+)
+from predlab.racing.store.normalized import build
 from predlab.racing.store.raw import RawStore
 from predlab.registry.hypotheses import Hypothesis, HypothesisRegistry, Origin, Status
 
@@ -100,6 +106,54 @@ def audit(
     typer.echo(f"{result.requests} requêtes, {len(result.failures)} échecs. Rapport : {md}")
 
 
+@racing_app.command("backfill")
+def backfill(
+    start: Annotated[str, typer.Option(help="Jour le plus ancien, AAAA-MM-JJ.")] = "2015-01-01",
+    end: Annotated[
+        str | None, typer.Option(help="Jour le plus récent (défaut : avant-hier).")
+    ] = None,
+    hours: Annotated[float, typer.Option(help="Durée maximale de ce passage.")] = 5.0,
+    max_requests: Annotated[
+        int, typer.Option(help="Plafond de requêtes pour ce passage.")
+    ] = 20_000,
+    with_performances: Annotated[
+        bool, typer.Option(help="Récupérer aussi les performances.")
+    ] = False,
+    then_build: Annotated[
+        bool, typer.Option("--build", help="Reconstruire la base après.")
+    ] = False,
+) -> None:
+    """Fetch past French flat races, newest first, in a bounded, resumable slice."""
+    paths = default_paths().ensure()
+    started = utcnow()
+    last = date.fromisoformat(end) if end else paris_day(started) - timedelta(days=2)
+    report = run_backfill(
+        PmuClient(),
+        RawStore(paths.raw_pmu),
+        start=date.fromisoformat(start),
+        end=last,
+        now=utcnow,
+        max_requests=max_requests,
+        deadline=started + timedelta(hours=hours),
+        with_performances=with_performances,
+        progress=typer.echo,
+    )
+    typer.echo(report.summary())
+    _log_line(f"{started.isoformat(timespec='seconds')} | {report.summary()}")
+    if then_build:
+        build_db()
+
+
+@racing_app.command("build")
+def build_db() -> None:
+    """Rebuild the normalized tables and the DuckDB database from the raw store."""
+    paths = default_paths().ensure()
+    report = build(RawStore(paths.raw_pmu), paths.normalized, paths.database)
+    typer.echo(f"Base reconstruite ({paths.database}) : {report.summary()}")
+    for error in report.errors[:10]:
+        typer.echo(f"  {error}")
+
+
 @racing_app.command("today")
 def today() -> None:
     """Today's target races from the latest stored programme, with snapshot counts."""
@@ -116,7 +170,7 @@ def today() -> None:
         typer.echo("Aucun programme stocké pour aujourd'hui. Lancez `predlab racing collect`.")
         raise typer.Exit(code=1)
     config = CollectConfig()
-    races = [r for r in parse_programme(store.read(caps[-1])) if config.is_target(r)]
+    races = [r for r in parse_programme_detailed(store.read(caps[-1])).races if config.is_target(r)]
     typer.echo(f"{day} — {len(races)} course(s) cible(s)")
     for r in sorted(races, key=lambda r: r.off_time):
         key = capture_key(Endpoint.PARTICIPANTS, r.day, r.meeting_number, r.race_number)
@@ -143,14 +197,17 @@ def verify() -> None:
 def parse_check() -> None:
     """Re-parse every stored programme and runners capture with the current parser."""
     store = _store()
-    ok = bad = 0
+    ok = bad = partial = 0
     for cap in store.captures():
         if not cap.ok or cap.endpoint not in (Endpoint.PROGRAMME, Endpoint.PARTICIPANTS):
             continue
         try:
             body = store.read(cap)
             if cap.endpoint == Endpoint.PROGRAMME:
-                parse_programme(body)
+                errors = parse_programme_detailed(body).errors
+                if errors:
+                    partial += 1
+                    typer.echo(f"  PARTIEL {cap.key}: {errors[0]}")
             else:
                 parse_participants(body, cap.key)
             ok += 1
@@ -159,7 +216,7 @@ def parse_check() -> None:
             typer.echo(
                 f"  ÉCHEC {cap.key} @ {cap.retrieved_at.isoformat(timespec='seconds')}: {exc}"
             )
-    typer.echo(f"{ok} captures parsées, {bad} en échec.")
+    typer.echo(f"{ok} captures parsées (dont {partial} partielles), {bad} en échec.")
     if bad:
         raise typer.Exit(code=1)
 

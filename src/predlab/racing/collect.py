@@ -37,7 +37,7 @@ from datetime import date, datetime, timedelta
 from predlab.core.clock import minutes_between, paris_day
 from predlab.racing.domain import Race
 from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key, url_for
-from predlab.racing.sources.pmu.parser import PmuFormatError, parse_programme
+from predlab.racing.sources.pmu.parser import PmuFormatError, parse_programme_detailed
 from predlab.racing.store.raw import Capture, RawStore
 
 SNAPSHOT = "snapshot"
@@ -164,9 +164,15 @@ def _latest_programme(
     if last is None:
         return None, None
     try:
-        return parse_programme(store.read(last)), None
+        parsed = parse_programme_detailed(store.read(last))
     except PmuFormatError as exc:
         return None, f"programme {day} could not be parsed (raw kept): {exc}"
+    note = None
+    if parsed.errors:
+        note = (
+            f"programme {day}: {len(parsed.errors)} meeting(s)/race(s) skipped: {parsed.errors[0]}"
+        )
+    return parsed.races, note
 
 
 def run_collect(

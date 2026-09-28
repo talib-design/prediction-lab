@@ -12,7 +12,7 @@ PMU. Le projet lit des données publiques et mesure des probabilités.
 
 ## Où en est-on
 
-Phase 1 — socle de données. Voir [`docs/STATUS.md`](docs/STATUS.md).
+Phase 2 — historique et base normalisée. Voir [`docs/STATUS.md`](docs/STATUS.md).
 
 ## Démarrage
 
@@ -23,6 +23,8 @@ uv run predlab racing collect             # une passe réelle
 uv run predlab racing today               # courses de plat du jour et instantanés pris
 uv run predlab racing audit               # audit de l'historique (≈ 30-45 min)
 bash ops/install_collector.sh             # collecte automatique toutes les 5 min (macOS)
+bash ops/install_backfill.sh              # rattrapage de l'historique, une tranche par nuit
+uv run predlab racing build               # reconstruit la base data/racing.duckdb
 ```
 
 Vérifications : `uv run ruff check . && uv run pyright && uv run pytest`.

@@ -30,7 +30,11 @@ from typing import Any
 from predlab.core.clock import minutes_between
 from predlab.racing.domain import Race, Runner
 from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key, url_for
-from predlab.racing.sources.pmu.parser import PmuFormatError, parse_participants, parse_programme
+from predlab.racing.sources.pmu.parser import (
+    PmuFormatError,
+    parse_participants,
+    parse_programme_detailed,
+)
 from predlab.racing.store.raw import Capture, RawStore
 
 AUDIT = "audit"
@@ -201,10 +205,12 @@ def run_audit(
         if body is None:
             continue
         try:
-            races = parse_programme(body)
+            parsed = parse_programme_detailed(body)
         except PmuFormatError as exc:
             parse_errors.append(f"programme {day}: {exc}")
             continue
+        parse_errors.extend(f"programme {day} (partial): {e}" for e in parsed.errors)
+        races = parsed.races
         stats.sampled_days += 1
         for r in races:
             stats.races[f"{'FRA' if r.country_code == 'FRA' else 'other'}/{r.discipline}"] += 1

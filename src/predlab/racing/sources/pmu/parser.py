@@ -16,6 +16,7 @@ over every stored capture whenever this file changes (``predlab racing parse-che
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass, field
 from typing import Any
 
 from predlab.core.clock import from_epoch_ms, paris_day
@@ -82,24 +83,59 @@ def _decimal(text: object) -> float | None:
 # --------------------------------------------------------------------------- programme
 
 
+@dataclass(frozen=True)
+class ProgrammeParse:
+    """Races that parsed, and one error per meeting or race that did not."""
+
+    races: list[Race]
+    errors: list[str] = field(default_factory=list)
+
+
 def parse_programme(raw: bytes | str | dict[str, Any]) -> list[Race]:
-    """All races of one programme day, every country and discipline."""
+    """All races of one programme day, every country and discipline.
+
+    Strict: any malformed meeting fails the whole day. Use
+    :func:`parse_programme_detailed` to keep the healthy meetings.
+    """
+    result = parse_programme_detailed(raw)
+    if result.errors:
+        raise PmuFormatError(result.errors[0])
+    return result.races
+
+
+def parse_programme_detailed(raw: bytes | str | dict[str, Any]) -> ProgrammeParse:
+    """Like :func:`parse_programme`, but a malformed meeting or race is isolated.
+
+    The audit found early-2013 days where one (foreign) meeting had no ``hippodrome``;
+    rejecting the whole day lost the French races with it. The document-level fields
+    (``programme``, ``date``, ``reunions``) stay strictly required: without them there
+    is no day to salvage.
+    """
     doc = _load(raw)
     programme = _req(doc, "programme", dict, "$")
     day = paris_day(from_epoch_ms(_req(programme, "date", int, "$.programme")))
     reunions = _req(programme, "reunions", list, "$.programme")
 
     races: list[Race] = []
+    errors: list[str] = []
     for i, reunion in enumerate(reunions):
         rpath = f"$.programme.reunions[{i}]"
-        if not isinstance(reunion, dict):
-            raise PmuFormatError(f"{rpath}: not an object")
-        hippodrome = _req(reunion, "hippodrome", dict, rpath)
-        pays = _req(reunion, "pays", dict, rpath)
+        try:
+            if not isinstance(reunion, dict):
+                raise PmuFormatError(f"{rpath}: not an object")
+            hippodrome = _req(reunion, "hippodrome", dict, rpath)
+            pays = _req(reunion, "pays", dict, rpath)
+            courses = _req(reunion, "courses", list, rpath)
+        except PmuFormatError as exc:
+            errors.append(str(exc))
+            continue
         weather = _weather(reunion.get("meteo"))
-        for j, course in enumerate(_req(reunion, "courses", list, rpath)):
-            races.append(_race(course, f"{rpath}.courses[{j}]", day, hippodrome, pays, weather))
-    return races
+        for j, course in enumerate(courses):
+            try:
+                races.append(_race(course, f"{rpath}.courses[{j}]", day, hippodrome, pays, weather))
+            except PmuFormatError as exc:
+                errors.append(str(exc))
+    return ProgrammeParse(races, errors)
 
 
 def _race(
