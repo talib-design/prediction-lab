@@ -1,7 +1,11 @@
 #!/bin/bash
-# Installe le rattrapage historique (2023 → avant-hier) : un passage de 5 h maximum
-# chaque nuit à 1 h 30, qui reprend là où le précédent s'est arrêté, puis
-# reconstruit la base. Un premier passage démarre tout de suite.
+# Installe la passe de nuit, chaque nuit à 1 h 30, sans intervention :
+#   1. rattrapage de l'historique (2023 → avant-hier), 5 h maximum, reprise automatique ;
+#   2. reconstruction de la base ;
+#   3. backtest et paris fictifs pour chaque discipline assez fournie ;
+#   4. commit + push de data/carnet.jsonl et data/runs (nos décisions et rapports,
+#      jamais de données PMU) : la date GitHub prouve que le carnet précède les courses.
+# Un premier passage démarre tout de suite.
 #
 # Usage : bash ops/install_backfill.sh      Désinstaller : bash ops/uninstall_backfill.sh
 #
@@ -27,8 +31,8 @@ cat > "$PLIST" <<PLIST
   <key>ProgramArguments</key>
   <array>
     <string>$UV</string><string>run</string><string>--project</string><string>$REPO</string>
-    <string>predlab</string><string>racing</string><string>backfill</string>
-    <string>--hours</string><string>5</string><string>--build</string>
+    <string>predlab</string><string>racing</string><string>nightly</string>
+    <string>--hours</string><string>5</string>
   </array>
   <key>WorkingDirectory</key><string>$REPO</string>
   <key>EnvironmentVariables</key>
@@ -49,5 +53,5 @@ PLIST
 
 launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-echo "Rattrapage installé : premier passage en cours (5 h maximum), puis chaque nuit à 1 h 30."
+echo "Passe de nuit installée : premier passage en cours (5 h maximum + analyses), puis chaque nuit à 1 h 30."
 echo "Suivi : tail -f \"$LOGS/backfill.out.log\""

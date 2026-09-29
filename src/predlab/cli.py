@@ -7,8 +7,10 @@ and its log must be readable by a person.
 from __future__ import annotations
 
 import json
+import os
 import socket
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -213,6 +215,80 @@ def backfill(
         _log_line(f"{started.isoformat(timespec='seconds')} | {line}")
     if then_build:
         build_db()
+
+
+NIGHTLY_MIN_RACES = 300  # below this, a backtest says nothing: skip the discipline
+
+
+@racing_app.command("nightly")
+def nightly(
+    hours: Annotated[float, typer.Option(help="Durée maximale du rattrapage.")] = 5.0,
+    publish: Annotated[
+        bool, typer.Option("--publish/--no-publish", help="Commiter et pousser carnet et rapports.")
+    ] = True,
+) -> None:
+    """La passe de nuit, sans personne : rattrapage, base, backtests et paris fictifs par
+    discipline, puis carnet et rapports datés dans git. Lancée chaque nuit par launchd."""
+    started = utcnow()
+    stamp = started.isoformat(timespec="seconds")
+    backfill(plan=DEFAULT_PLAN, end=None, hours=hours, max_requests=20_000, then_build=True)
+    paths = default_paths().ensure()
+    for discipline in ("PLAT", "ATTELE", "MONTE"):
+        events = load_events(
+            paths.database, horizon_minutes=DEFAULT_HORIZON_MINUTES, discipline=discipline
+        )
+        usable = sum(1 for e in events if e.card.market_complete)
+        if usable < NIGHTLY_MIN_RACES:
+            _log_line(
+                f"{stamp} | nuit {discipline} : {usable} courses exploitables, analyse reportée"
+            )
+            continue
+        try:
+            backtest(horizon=DEFAULT_HORIZON_MINUTES, discipline=discipline)
+            simulate_bets(horizon=DEFAULT_HORIZON_MINUTES, discipline=discipline)
+            _log_line(
+                f"{stamp} | nuit {discipline} : backtest et paris fictifs sur {usable} courses"
+            )
+        except Exception as exc:
+            _log_line(f"{stamp} | nuit {discipline} ERREUR {exc!r}")
+    if publish:
+        _log_line(f"{stamp} | nuit git : {_publish(paths.root, started)}")
+
+
+def _publish(data_dir: Path, when: datetime) -> str:
+    """Commit the carnet and the reports (our own outputs, never PMU data) and push.
+
+    The commit's date on GitHub is the outside anchor that makes "written before the
+    race" checkable. Best effort: a failure is logged, never raised.
+    """
+    import subprocess
+
+    env = {**os.environ, "GIT_TERMINAL_PROMPT": "0"}
+
+    def git(*args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", *args], cwd=data_dir, env=env, capture_output=True, text=True, timeout=120
+        )
+
+    top = git("rev-parse", "--show-toplevel")
+    if top.returncode != 0:
+        return "pas un dépôt git"
+    targets = [str(p) for p in (data_dir / "carnet.jsonl", data_dir / "runs") if p.exists()]
+    if not targets:
+        return "rien à publier"
+    git("add", "--", *targets)
+    if git("diff", "--cached", "--quiet", "--", *targets).returncode == 0:
+        return "rien de nouveau"
+    msg = f"Nuit du {paris_day(when).isoformat()} : carnet et rapports"
+    commit = git("commit", "-m", msg, "--", *targets)
+    if commit.returncode != 0:
+        return f"commit refusé : {commit.stderr.strip()[:200]}"
+    push = git("push")
+    return (
+        "commité et poussé"
+        if push.returncode == 0
+        else f"commité, push refusé : {push.stderr.strip()[:200]}"
+    )
 
 
 @racing_app.command("build")

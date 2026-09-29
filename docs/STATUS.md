@@ -63,6 +63,13 @@ Premier modèle fondamental combiné au marché, historiques jockey / entraîneu
 (Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; pipeline quotidien complet
 (Phase 7) ; modèles avancés et agents (Phase 8).
 
+## Passe de nuit automatique — 2026-09-29
+
+`predlab racing nightly` (launchd, 1 h 30, `ops/install_backfill.sh`) : rattrapage,
+reconstruction de la base, backtest et paris fictifs par discipline (≥ 300 courses
+exploitables), puis commit + push du carnet et des rapports. Plus aucune commande à
+lancer à la main ; le tableau de bord est un service (`ops/install_dashboard.sh`).
+
 ## Première simulation réelle — 2026-09-29
 
 Plat, test ≥ 2025, 1 051 courses réglées (sur ~10 000 : rapports encore manquants) :
