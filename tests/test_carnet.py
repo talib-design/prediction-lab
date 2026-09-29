@@ -32,7 +32,7 @@ def _participants(late_odds_on_1: bool = False) -> bytes:
     doc = json.loads(fixture_bytes("participants_2026-09-28_R2C1_excerpt.json"))
     base = doc["participants"][0]
     runners: list[dict[str, Any]] = []
-    for number, odds in ((1, 8.0), (2, 4.0), (3, 12.0), (4, 2.0)):
+    for number, odds in ((1, 5.0), (2, 3.2), (3, 8.0), (4, 1.9)):  # overround 1.16
         r = copy.deepcopy(base)
         r["numPmu"] = number
         r["nom"] = f"CHEVAL {number}"
@@ -124,3 +124,22 @@ def test_settlement_uses_the_official_dividends_and_keeps_the_chain(tmp_path: Pa
     rows = {r["strategy"]: r for r in summarise_entries(entries(ledger))}
     assert rows["SG favori"]["races"] == 1 and abs(rows["SG favori"]["roi"] - 6.6) < 1e-9
     assert _run(store, ledger, later + timedelta(minutes=10)).settled == [], "settled once only"
+
+
+def test_no_ticket_on_an_incoherent_market(tmp_path: Path) -> None:
+    store, ledger = RawStore(tmp_path / "raw"), AppendOnlyLedger(tmp_path / "carnet.jsonl")
+    _record(store, _programme(), "programme/2026-09-28", "programme", OFF - timedelta(hours=3))
+    doc = json.loads(_participants())
+    for r in doc[
+        "participants"
+    ]:  # every quote doubled: 1/odds sums to 0.58, no pool looks like that
+        r["dernierRapportReference"]["rapport"] *= 2
+    _record(
+        store,
+        json.dumps(doc).encode(),
+        "participants/2026-09-28/R2C1",
+        "participants",
+        OFF - timedelta(minutes=8),
+    )
+    rep = _run(store, ledger, OFF - timedelta(minutes=5))
+    assert rep.frozen == [] and rep.waiting_market == ["2026-09-28/R2C1"]

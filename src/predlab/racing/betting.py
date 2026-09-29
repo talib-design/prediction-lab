@@ -15,7 +15,9 @@ Rules fixed before the first simulation (docs/METHODOLOGY.md §9):
   the Quinté+; no staking plan, no bankroll management;
 * a ticket is only imagined on a bet type the PMU offered on that race (known from the
   dividend table: its presence carries no information about the result);
-* a refunded bet type returns the stake.
+* a refunded bet type returns the stake;
+* no ticket on a race whose quotes do not form one market (``RaceCard.market_coherent``,
+  rule added 2026-09-29).
 
 Strategies (every one gets a *favourite* and a *random* control on the same races):
 
@@ -207,6 +209,8 @@ def simulate(
         race_divs = dividends.get(event.card.race_id)
         if not race_divs:
             continue  # no official payout stored: the race cannot be settled
+        if not event.card.market_coherent:
+            continue  # quotes from a pool not yet formed: no decision is imagined
         offered = {d.bet_type for d in race_divs}
         forecasts = result.forecasts[event.card.race_id]
         phase = split.phase_of(event.card.day) if split else "all"
@@ -393,7 +397,7 @@ def render_simulation_markdown(report: dict[str, Any]) -> str:
         f"Généré le {report['generated_at']} · horizon **T-{report['horizon_minutes']:g} min** · "
         f"code {report['code_version']} · empreinte `{report['dataset_fingerprint'][:12]}` · "
         f"courses évaluées : {report['n_eligible']}, dont {report['n_races_with_dividends']} avec "
-        f"rapports officiels · seuil « valeur » : p × cote ≥ {report['value_threshold']:.2f}.",
+        f"rapports officiels et un marché cohérent · seuil « valeur » : p × cote ≥ {report['value_threshold']:.2f}.",
         "",
         "Lecture : **ROI** = gains / mises − 1 (−20 % = on récupère 80 centimes par euro). "
         "L'intervalle à 95 % vient d'un bootstrap par blocs de courses consécutives. "

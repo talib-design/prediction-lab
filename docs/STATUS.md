@@ -63,6 +63,15 @@ Premier modèle fondamental combiné au marché, historiques jockey / entraîneu
 (Phase 3 bis) ; courses à venir et registre de prédictions (Phases 4-5) ; pipeline quotidien complet
 (Phase 7) ; modèles avancés et agents (Phase 8).
 
+## Première simulation réelle — 2026-09-29
+
+Plat, test ≥ 2025, 1 051 courses réglées (sur ~10 000 : rapports encore manquants) :
+favori simple gagnant −14 %, favori placé −10 %, placé au hasard −25 %, modèles naïfs
+−21 à −35 % ; toutes en perte significative, comme annoncé (prélèvement ~16 %).
+Corrigé le même jour : le rattrapage s'arrêtait au premier échec réseau (il saute
+désormais le jour et continue, arrêt après 20 échecs d'affilée) ; la stratégie
+« valeur » pariait sur des marchés incohérents (règle du marché cohérent, METHODOLOGY §9).
+
 ## Historique depuis 2023 et carnet en direct — 2026-09-28
 
 - **Rattrapage limité à 2023** pour toutes les disciplines (décision de Chris : garder

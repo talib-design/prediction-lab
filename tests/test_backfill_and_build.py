@@ -168,3 +168,34 @@ def test_backfill_plan_is_parsed_in_priority_order() -> None:
     assert all(start == date(2023, 1, 1) for _, start in plan)
     with pytest.raises(ValueError):
         parse_plan("PLAT")
+
+
+def test_a_failed_request_leaves_its_day_open_and_the_backfill_goes_on(tmp_path: Path) -> None:
+    transport = _transport()
+    transport.routes["/R1/C1/rapports-definitifs"] = (500, b"")
+    report = run_backfill(
+        make_client(transport, LATER),
+        RawStore(tmp_path),
+        start=date(2026, 9, 25),
+        end=date(2026, 9, 27),
+        now=Clock(LATER),
+        discipline="ATTELE",
+    )
+    assert report.days_completed == 0, "the day with a missing dividend stays open"
+    assert report.stopped_by == "done", "one failure no longer ends the run"
+    assert any("/programme/25092026" in u for u in transport.calls), "older days still visited"
+
+
+def test_the_backfill_stops_when_the_network_is_down(tmp_path: Path) -> None:
+    from predlab.racing.backfill import MAX_CONSECUTIVE_FAILURES
+
+    transport = FakeTransport({})  # every request fails
+    report = run_backfill(
+        make_client(transport, LATER),
+        RawStore(tmp_path),
+        start=date(2026, 1, 1),
+        end=date(2026, 9, 27),
+        now=Clock(LATER),
+    )
+    assert report.stopped_by.startswith("réseau indisponible")
+    assert len(transport.calls) <= MAX_CONSECUTIVE_FAILURES * 4  # client retries included

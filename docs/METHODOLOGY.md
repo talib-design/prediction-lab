@@ -144,6 +144,12 @@ simulation :
 - **Verdict** sur la phase de test : ROI avec IC 95 % par bootstrap en blocs ;
   « gain significatif » seulement si l'IC entier est au-dessus de 0. La part du plus
   gros gain est publiée : un ROI porté par un coup n'est pas un résultat.
+- **Marché cohérent** (ajouté le 2026-09-29, après la première simulation) : aucun ticket
+  sur une course dont les cotes à l'horizon ne forment pas un marché, c.-à-d.
+  Σ 1/cote hors de [1,05 ; 1,60]. Un pool PMU formé est vers 1,19 ; sous 1,05 les cotes
+  sont d'un pool encore vide et tous les chevaux paraissent « valeur » (1,4 % des courses
+  de plat 2025-2026 à T-25). Constaté sur « SG valeur marché calibré » : 11 tickets par
+  course sur 28 courses. La règle vaut aussi pour le carnet (§9 bis).
 - **Critère de réussite financier** (en plus du §5) : une stratégie à gain significatif
   sur le test, **puis** confirmée sur des courses futures enregistrées avant le départ.
   Résultat attendu, dit à l'avance : une perte pour toutes, le prélèvement étant retenu
@@ -173,6 +179,7 @@ Le niveau 4 du §5 : des décisions écrites **avant** la course.
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
 - 2026-09-28 — découpage pré-enregistré, horizon T-25 min, règle d'éligibilité, niveau 1 atteint.
 - 2026-09-28 — §9 : simulation de paris fictifs (simple, tiercé, quinté), règles fixées avant tout résultat.
+- 2026-09-29 — §9 : règle du marché cohérent ; le backtest (log loss) n'est pas modifié.
 - 2026-09-28 — historique limité à 2023 (décision de Chris : chevaux encore en activité) ;
   découpage révisé en conséquence (train 2023, validation 2024, test ≥ 2025), avant tout
   challenger. §9 bis : carnet en direct.

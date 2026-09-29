@@ -32,6 +32,10 @@ from predlab.racing.store.raw import Capture, RawStore
 
 BACKFILL = "backfill"
 RESULT_DELAY = timedelta(hours=1)
+# A failed request no longer ends the night: its day is left open (retried next run)
+# and the backfill moves on. Only this many failures in a row -- the network is down,
+# or the Mac is asleep -- stop it.
+MAX_CONSECUTIVE_FAILURES = 20
 
 
 @dataclass
@@ -101,8 +105,12 @@ def run_backfill(
     done = _load_checkpoint(checkpoint)
     index = store.index()
     before = client.requests_made
+    streak = 0
 
     def budget_left() -> bool:
+        if streak >= MAX_CONSECUTIVE_FAILURES:
+            report.stopped_by = f"réseau indisponible ({streak} échecs d'affilée)"
+            return False
         if client.requests_made - before >= max_requests:
             report.stopped_by = "plafond de requêtes"
             return False
@@ -121,9 +129,13 @@ def run_backfill(
             endpoint=endpoint,
             purpose=BACKFILL,
         )
+        nonlocal streak
         index.setdefault(key, []).append(cap)
         if not cap.ok:
             report.failures.append(f"{key}: {cap.error}")
+            streak += 1
+        else:
+            streak = 0
         return cap
 
     day = end
@@ -144,6 +156,8 @@ def run_backfill(
             max(closed, key=lambda c: c.retrieved_at) if closed else fetch(Endpoint.PROGRAMME, day)
         )
         if not cap.ok:
+            if not budget_left():
+                break
             day -= timedelta(days=1)
             continue
         try:
@@ -154,13 +168,14 @@ def run_backfill(
             continue
 
         complete = True
+        out_of_budget = False
         for race in (r for r in parsed.races if _is_target(r, country, discipline)):
             key = capture_key(
                 Endpoint.PARTICIPANTS, race.day, race.meeting_number, race.race_number
             )
             if not _has_post_race_capture(index.get(key, []), race):
                 if not budget_left():
-                    complete = False
+                    complete, out_of_budget = False, True
                     break
                 if fetch(Endpoint.PARTICIPANTS, race.day, race.meeting_number, race.race_number).ok:
                     report.races_fetched += 1
@@ -172,7 +187,7 @@ def run_backfill(
                 )
                 if not any(c.ok for c in index.get(div_key, [])):
                     if not budget_left():
-                        complete = False
+                        complete, out_of_budget = False, True
                         break
                     complete &= fetch(
                         Endpoint.RAPPORTS, race.day, race.meeting_number, race.race_number
@@ -183,16 +198,14 @@ def run_backfill(
                 )
                 if not any(c.ok for c in index.get(perf_key, [])):
                     if not budget_left():
-                        complete = False
+                        complete, out_of_budget = False, True
                         break
                     complete &= fetch(
                         Endpoint.PERFORMANCES, race.day, race.meeting_number, race.race_number
                     ).ok
-        if not complete:
-            if report.stopped_by == "done":
-                report.stopped_by = "échec réseau (reprise au prochain passage)"
+        if out_of_budget:
             break
-        if day < now().date() - timedelta(days=2):
+        if complete and day < now().date() - timedelta(days=2):
             done.add(day.isoformat())
             report.days_completed += 1
         if progress and report.days_seen % 30 == 0:

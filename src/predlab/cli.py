@@ -278,7 +278,9 @@ def simulate_bets(
     chosen = ["market_calibrated", "horse_win_rate", "form"]
     strategies = {**simple_strategies(chosen), **exotic_strategies(chosen)}
     ledgers = simulate(result, dividends, strategies)
-    settled = sum(1 for e in result.scored_events if e.card.race_id in dividends)
+    settled = sum(
+        1 for e in result.scored_events if e.card.race_id in dividends and e.card.market_coherent
+    )
     stamp = utcnow().isoformat(timespec="seconds")
     report = build_simulation_report(
         result, ledgers, n_races_with_dividends=settled, generated_at=stamp, discipline=discipline

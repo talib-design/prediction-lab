@@ -42,6 +42,10 @@ class Starter:
     odds_reported_at: datetime | None
 
 
+MIN_OVERROUND = 1.05
+MAX_OVERROUND = 1.60
+
+
 @dataclass(frozen=True, slots=True)
 class RaceCard:
     race_id: str
@@ -61,6 +65,24 @@ class RaceCard:
     @property
     def market_complete(self) -> bool:
         return all(s.odds is not None and s.odds > 1.0 for s in self.starters)
+
+    @property
+    def overround(self) -> float | None:
+        """Sum of 1/odds. A formed PMU win pool sits near 1.19 (it returns ~84 %)."""
+        if not self.market_complete:
+            return None
+        return float(sum(1.0 / s.odds for s in self.starters))  # type: ignore[operator]
+
+    @property
+    def market_coherent(self) -> bool:
+        """Quotes that describe one market (docs/METHODOLOGY.md §9, rule of 2026-09-29).
+
+        Below 1.05 the quotes cannot all be from a formed pool -- measured on 2025-2026
+        flat races: 1.4 % of them at T-25, typically REFERENCE quotes taken while the
+        pool was still thin. Every starter then looks like "value"; no bet is imagined.
+        """
+        o = self.overround
+        return o is not None and MIN_OVERROUND <= o <= MAX_OVERROUND
 
 
 @dataclass(frozen=True, slots=True)

@@ -269,7 +269,8 @@ def _run_carnet(
             continue
         key = capture_key(Endpoint.PARTICIPANTS, race.day, race.meeting_number, race.race_number)
         built = _card_at_horizon(store, index.get(key, []), race, now, horizon)
-        if built is None or not built[0].starters or not built[0].market_complete:
+        if built is None or not built[0].starters or not built[0].market_coherent:
+            # Incomplete or incoherent quotes: retried at the next pass until the off.
             report.waiting_market.append(race.race_id)
             continue
         try:
