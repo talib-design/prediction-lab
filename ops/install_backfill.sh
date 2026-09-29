@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installe le rattrapage historique (2015 → avant-hier) : un passage de 5 h maximum
+# Installe le rattrapage historique (2023 → avant-hier) : un passage de 5 h maximum
 # chaque nuit à 1 h 30, qui reprend là où le précédent s'est arrêté, puis
 # reconstruit la base. Un premier passage démarre tout de suite.
 #

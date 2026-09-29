@@ -461,6 +461,9 @@ def bind_loopback(first_port: int, tries: int = 20) -> socket.socket:
 def dashboard(
     port: int = typer.Option(8765, help="Premier port essayé (le suivant libre sinon)."),
     open_browser: bool = typer.Option(True, "--open/--no-open", help="Ouvrir le navigateur."),
+    strict_port: bool = typer.Option(
+        False, "--strict-port", help="Échouer si le port est pris (mode service : adresse fixe)."
+    ),
 ) -> None:
     """Tableau de bord en lecture seule sur http://127.0.0.1:PORT (Ctrl+C pour arrêter)."""
     import threading
@@ -474,7 +477,7 @@ def dashboard(
         typer.echo(f"Interface absente ({WEB_DIST}) : seule l'API est servie, doc sur /api/docs.")
     # Loopback only: the dashboard is personal and must never be exposed on the network.
     try:
-        sock = bind_loopback(port)
+        sock = bind_loopback(port, tries=1 if strict_port else 20)
     except OSError as exc:
         typer.echo(f"Impossible de démarrer : {exc}. Essayez --port 9100.")
         raise typer.Exit(code=1) from exc

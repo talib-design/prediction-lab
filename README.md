@@ -21,7 +21,7 @@ uv sync
 uv run predlab racing collect --dry-run   # ce que le collecteur ferait maintenant
 uv run predlab racing collect             # une passe réelle
 uv run predlab racing today               # courses du jour et instantanés pris
-uv run predlab dashboard                  # tableau de bord sur http://127.0.0.1:8765
+bash ops/install_dashboard.sh             # tableau de bord permanent : http://127.0.0.1:8790
 uv run predlab racing audit               # audit de l'historique (≈ 30-45 min)
 bash ops/install_collector.sh             # collecte automatique toutes les 5 min (macOS)
 bash ops/install_backfill.sh              # rattrapage de l'historique, une tranche par nuit

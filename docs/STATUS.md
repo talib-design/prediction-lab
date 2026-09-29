@@ -191,7 +191,7 @@ uv run predlab racing synthetic-check      # le banc trouve-t-il ce qu'il doit t
 uv run predlab racing backtest             # baselines sur données réelles, T-25 min
 uv run predlab racing simulate             # paris fictifs réglés aux rapports officiels
 uv run predlab racing backtest --discipline ATTELE   # idem trot attelé (MONTE : trot monté)
-uv run predlab dashboard                   # tableau de bord local
+bash ops/install_dashboard.sh               # tableau de bord en service : http://127.0.0.1:8790
 uv run predlab racing carnet               # bilan du carnet en direct (--verify : chaîne)
 uv run predlab hypothesis list
 ```
