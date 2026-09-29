@@ -4,37 +4,26 @@ import { Card, DisciplineBadge, Empty, Failure, Kpi, Loading, PageHead } from ".
 import { api, type CarnetEntry, type CarnetTicket } from "../lib/api";
 import { euros, int, longDay, pct, shortDay, signedPct, time } from "../lib/format";
 import { href, useApi } from "../lib/hooks";
-
-const BET_SHORT: Record<string, string> = {
-  SIMPLE_GAGNANT: "SG",
-  SIMPLE_PLACE: "SP",
-  TIERCE: "Tiercé",
-  QUINTE_PLUS: "Quinté+",
-};
+import { ticketTitle } from "../lib/tickets";
 
 export function TicketList({ tickets, settled }: { tickets: CarnetTicket[]; settled: boolean }) {
   if (tickets.length === 0) return <span className="muted small">aucun ticket (paris non proposés)</span>;
   return (
-    <table className="tickets">
-      <tbody>
-        {tickets.map((t, i) => {
-          const won = settled && (t.returned ?? 0) > 0;
-          return (
-            <tr key={`${t.strategy}-${i}`}>
-              <td className="small">{t.label}</td>
-              <td className="small muted">{BET_SHORT[t.bet_type] ?? t.bet_type}</td>
-              <td className="num" style={{ fontWeight: 600 }}>
-                {t.numbers.join("-")}
-              </td>
-              <td className="r num small muted">{euros(t.stake)}</td>
-              <td className="r num small" style={{ fontWeight: won ? 650 : 400, color: won ? "var(--ink)" : "var(--ink-3)" }}>
-                {settled ? euros(t.returned) : "en attente"}
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div className="row" style={{ gap: 6 }}>
+      {tickets.map((t, i) => {
+        const won = settled && (t.returned ?? 0) > 0;
+        return (
+          <span
+            key={`${t.strategy}-${i}`}
+            className={`chip ${!settled ? "played" : won ? "won" : "lost"}`}
+            title={`Mise ${euros(t.stake)}`}
+          >
+            {ticketTitle(t)} · n°{t.numbers.join("-")}
+            {settled && (won ? ` · ${euros(t.returned)}` : " · perdu")}
+          </span>
+        );
+      })}
+    </div>
   );
 }
 
@@ -72,6 +61,44 @@ function EntryCard({ e }: { e: CarnetEntry }) {
   );
 }
 
+function DaySummary({ entries }: { entries: CarnetEntry[] }) {
+  const settled = entries.filter((e) => e.settled);
+  const stake = settled.reduce((a, e) => a + e.tickets.reduce((b, t) => b + t.stake, 0), 0);
+  const back = settled.reduce((a, e) => a + e.tickets.reduce((b, t) => b + (t.returned ?? 0), 0), 0);
+  const fav = settled.flatMap((e) => e.tickets.filter((t) => t.strategy === "SG favori"));
+  const favWins = fav.filter((t) => (t.returned ?? 0) > 0).length;
+  return (
+    <div className="carnet-entry" style={{ background: "var(--surface-2)" }}>
+      <div className="row" style={{ gap: 24 }}>
+        <span>
+          <strong className="num">{entries.length}</strong> <span className="muted">courses jouées</span>
+        </span>
+        <span>
+          <strong className="num">{settled.length}</strong> <span className="muted">réglées</span>
+        </span>
+        <span>
+          <span className="muted">misé</span> <strong className="num">{euros(stake)}</strong>
+        </span>
+        <span>
+          <span className="muted">rapporté</span> <strong className="num">{euros(back)}</strong>
+        </span>
+        <span>
+          <span className="muted">net</span>{" "}
+          <strong className="num">
+            {back - stake >= 0 ? "+" : "−"}
+            {euros(Math.abs(back - stake))}
+          </strong>
+        </span>
+        {fav.length > 0 && (
+          <span className="muted small">
+            le favori a gagné {favWins} fois sur {fav.length}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function Carnet() {
   const load = useApi(() => api.carnet(), "carnet", 60_000);
   const [day, setDay] = useState<string | undefined>();
@@ -90,6 +117,32 @@ export function Carnet() {
         lead="Chaque ticket est figé 25 minutes avant le départ, avec les seules cotes connues à ce moment, puis réglé au rapport officiel. Aucune mise réelle. Rien n'est jamais réécrit : c'est la seule preuve qui ne dépend pas du passé."
       />
       <div className="stack">
+        <Card
+          title={current ? <span style={{ textTransform: "capitalize" }}>{longDay(current)}</span> : "Aujourd'hui"}
+          aside={
+            c.days.length > 1 ? (
+              <select className="btn" value={current} onChange={(e) => setDay(e.target.value)} aria-label="Choisir un jour">
+                {c.days.map((d) => (
+                  <option key={d} value={d}>
+                    {shortDay(d)}
+                  </option>
+                ))}
+              </select>
+            ) : undefined
+          }
+          flush
+        >
+          {shown.length > 0 && <DaySummary entries={shown} />}
+          {shown.length === 0 ? (
+            <Empty title="Aucun ticket figé pour l'instant">
+              <p className="small">
+                Le premier sera écrit par le collecteur dans la fenêtre des 25 minutes avant le prochain départ.
+              </p>
+            </Empty>
+          ) : (
+            shown.map((e) => <EntryCard key={e.race_id} e={e} />)
+          )}
+        </Card>
         {c.integrity_error ? (
           <div className="note warn">
             <span>
@@ -179,31 +232,6 @@ export function Carnet() {
           )}
         </Card>
 
-        <Card
-          title={current ? <span style={{ textTransform: "capitalize" }}>{longDay(current)}</span> : "Journal"}
-          aside={
-            c.days.length > 1 ? (
-              <select className="btn" value={current} onChange={(e) => setDay(e.target.value)} aria-label="Choisir un jour">
-                {c.days.map((d) => (
-                  <option key={d} value={d}>
-                    {shortDay(d)}
-                  </option>
-                ))}
-              </select>
-            ) : undefined
-          }
-          flush
-        >
-          {shown.length === 0 ? (
-            <Empty title="Aucun ticket figé pour l'instant">
-              <p className="small">
-                Le premier sera écrit par le collecteur dans la fenêtre des 25 minutes avant le prochain départ.
-              </p>
-            </Empty>
-          ) : (
-            shown.map((e) => <EntryCard key={e.race_id} e={e} />)
-          )}
-        </Card>
       </div>
     </>
   );

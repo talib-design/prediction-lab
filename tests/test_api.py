@@ -145,3 +145,11 @@ def test_status_survives_a_base_built_by_an_older_version(lab: Paths) -> None:
     con.close()
     db = TestClient(create_app(lab)).get("/api/status").json()["database"]
     assert db["dividends"] is None and db["missing_tables"] == ["dividends"]
+
+
+def test_day_list_tells_what_the_lab_played(lab: Paths) -> None:
+    body = TestClient(create_app(lab)).get("/api/races", params={"day": "2026-09-28"}).json()
+    states = {r["rc"]: r["carnet"] for r in body["races"]}
+    r2c1 = states["R2C1"]
+    assert r2c1["state"] == "missed", "run long after the day: no ticket was frozen"
+    assert r2c1["freeze_at"] < r2c1.get("frozen_at", "9999") or "frozen_at" not in r2c1

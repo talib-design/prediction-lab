@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
-import { api, type Discipline, type RaceSummary } from "../lib/api";
-import { longDay, minutesUntil, relative, shiftDay, todayParis } from "../lib/format";
+import { api, type CarnetState, type Discipline, type RaceSummary } from "../lib/api";
+import { euros, longDay, minutesUntil, relative, shiftDay, time, todayParis } from "../lib/format";
+import { BET_LABEL, rule } from "../lib/tickets";
 import { href, useApi } from "../lib/hooks";
 
 type Filter = "ALL" | Discipline;
@@ -13,6 +14,30 @@ function statusOf(r: RaceSummary): { label: string; cls: string } {
   if (m < 0) return { label: "Courue", cls: "outline" };
   if (m < 60) return { label: relative(m), cls: "k-market" };
   return { label: "À venir", cls: "outline" };
+}
+
+/** One line: what the lab played on this race, or when it will. */
+function CarnetChip({ c }: { c?: CarnetState }) {
+  if (!c) return null;
+  if (c.state === "upcoming") return <span className="chip muted">tickets figés à {time(c.freeze_at)}</span>;
+  if (c.state === "open") return <span className="chip muted">tickets en cours…</span>;
+  if (c.state === "missed") return <span className="chip muted" title="Aucun ticket figé avant le départ (Mac en veille ou marché incomplet)">non jouée</span>;
+  if (c.state === "cancelled") return null;
+  const simple = (c.tickets ?? []).filter((t) => t.bet_type === "SIMPLE_GAGNANT" && rule(t.strategy) === "favori")[0];
+  const played = simple ? `n°${simple.numbers.join("-")}` : `${(c.tickets ?? []).length} tickets`;
+  if (c.state === "frozen")
+    return (
+      <span className="chip played" title={(c.tickets ?? []).map((t) => `${BET_LABEL[t.bet_type] ?? t.bet_type} ${rule(t.strategy)} : ${t.numbers.join("-")}`).join("\n")}>
+        joué · {played} favori
+      </span>
+    );
+  const net = (c.returned ?? 0) - (c.stake ?? 0);
+  return (
+    <span className={`chip ${net >= 0 ? "won" : "lost"}`} title={`Misé ${euros(c.stake)}, rapporté ${euros(c.returned)}`}>
+      {played} favori · net {net >= 0 ? "+" : "−"}
+      {euros(Math.abs(net))}
+    </span>
+  );
 }
 
 export function Today({ day }: { day?: string }) {
@@ -143,6 +168,7 @@ export function Today({ day }: { day?: string }) {
                   </span>
                 </span>
                 <span className="race-meta">
+                  <CarnetChip c={r.carnet} />
                   {r.has_quinte && <span className="badge k-assoc">Quinté+</span>}
                   <DisciplineBadge d={r.discipline} />
                   <span className={`badge ${st.cls}`}>{st.label}</span>

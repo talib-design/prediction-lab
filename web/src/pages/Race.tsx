@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { OddsSparkline, ProbBar } from "../components/charts";
-import { TicketList } from "./Carnet";
-import { Card, DisciplineBadge, Empty, Failure, KindBadge, Kpi, Loading, PageHead } from "../components/ui";
-import { api, type RaceDetail, type RunnerRow, type Tally } from "../lib/api";
+import { Card, DisciplineBadge, Empty, Failure, KindBadge, Kpi, Loading, PageHead, Segmented } from "../components/ui";
+import { api, type CarnetTicket, type RaceDetail, type RunnerRow, type Tally } from "../lib/api";
+import { BET_LABEL, RULE_HELP, rule, ticketTitle } from "../lib/tickets";
 import { euros, euros0, fmt, int, longDay, minutesUntil, odds, pct, relative, time } from "../lib/format";
 import { href, useApi } from "../lib/hooks";
 
@@ -23,9 +24,15 @@ const tally = (t: Tally | null) =>
     </span>
   ) : null;
 
-function History({ r }: { r: RunnerRow }) {
-  if (!r.history) return <span className="muted small">aucune course en base</span>;
+function History({ r, lab }: { r: RunnerRow; lab: boolean }) {
+  if (!r.history) return <span className="muted small">{lab ? "aucune course en base" : "—"}</span>;
   const h = r.history;
+  if (!lab)
+    return (
+      <span className="mono small" title={`${h.runs} courses, ${h.wins} victoires, ${h.places} places (5 dernières, la plus récente à gauche)`}>
+        {h.last5.map((p) => (p === "-" ? "·" : p)).join(" ")}
+      </span>
+    );
   return (
     <div className="small">
       <span className="num">
@@ -38,8 +45,25 @@ function History({ r }: { r: RunnerRow }) {
   );
 }
 
-function RunnersTable({ data }: { data: RaceDetail }) {
+type Played = Map<number, CarnetTicket[]>;
+
+function playedMap(data: RaceDetail): Played {
+  const m: Played = new Map();
+  for (const t of data.carnet?.tickets ?? []) {
+    if (t.bet_type !== "SIMPLE_GAGNANT" && t.bet_type !== "SIMPLE_PLACE") continue;
+    for (const n of t.numbers) m.set(n, [...(m.get(n) ?? []), t]);
+  }
+  return m;
+}
+
+function RunnersTable({ data, lab, played }: { data: RaceDetail; lab: boolean; played: Played }) {
   const trot = data.race.discipline !== "PLAT";
+  const K = ({ k }: { k: Parameters<typeof KindBadge>[0]["kind"] }) =>
+    lab ? (
+      <span className="th-kind">
+        <KindBadge kind={k} short />
+      </span>
+    ) : null;
   const maxP = Math.max(0.01, ...data.runners.map((r) => r.calibrated_p ?? r.market_p ?? 0));
   const showResult = data.race.is_final;
   return (
@@ -50,9 +74,13 @@ function RunnersTable({ data }: { data: RaceDetail }) {
             {showResult && <th className="r">Arr.</th>}
             <th className="r">N°</th>
             <th>
-              Cheval<span className="th-kind"><KindBadge kind="fact" short /></span>
+              Cheval
+              <K k="fact" />
             </th>
-            <th>{data.race.discipline === "ATTELE" ? "Driver" : "Jockey"} · Entraîneur<span className="th-kind"><KindBadge kind="feature" short /></span></th>
+            <th>
+              {data.race.discipline === "ATTELE" ? "Driver" : "Jockey"} · Entraîneur
+              <K k="feature" />
+            </th>
             {trot ? (
               <>
                 <th className="r">Distance</th>
@@ -65,30 +93,40 @@ function RunnersTable({ data }: { data: RaceDetail }) {
               </>
             )}
             <th className="r">
-              Cote<span className="th-kind"><KindBadge kind="market" short /></span>
+              Cote
+              <K k="market" />
             </th>
-            <th>
-              Marché brut<span className="th-kind"><KindBadge kind="market" short /></span>
+            {lab && (
+              <th>
+                Marché brut
+                <K k="market" />
+              </th>
+            )}
+            <th title="Chance de gagner selon les parieurs, corrigée du biais favori–outsider">
+              {lab ? "Marché calibré" : "Chance de gagner"}
+              <K k="market" />
             </th>
-            <th title="Marché corrigé du biais favori–outsider (loi de puissance ajustée en backtest)">
-              Marché calibré<span className="th-kind"><KindBadge kind="market" short /></span>
-            </th>
-            <th title="Probabilité d'être placé, déduite du marché calibré par le modèle d'ordre de Harville">
-              Placé (Harville)<span className="th-kind"><KindBadge kind="market" short /></span>
-            </th>
+            {lab && (
+              <th title="Probabilité d'être placé, déduite du marché calibré par le modèle d'ordre de Harville">
+                Placé (Harville)
+                <K k="market" />
+              </th>
+            )}
             <th title="Probabilité implicite (1/cote) dans le temps. Pointillé : départ programmé. Après : cotes de clôture, jamais utilisées par un modèle.">
               Évolution
             </th>
-            <th>
-              Historique<span className="th-kind"><KindBadge kind="feature" short /></span>
+            <th title="Places des 5 dernières courses en base, la plus récente à gauche">
+              {lab ? "Historique" : "Dernières places"}
+              <K k="feature" />
             </th>
           </tr>
         </thead>
         <tbody>
           {data.runners.map((r) => {
             const out = r.status !== "PARTANT";
+            const mine = played.get(r.number);
             return (
-              <tr key={r.number} className={out ? "dim" : undefined}>
+              <tr key={r.number} className={out ? "dim" : mine ? "is-played" : undefined}>
                 {showResult && (
                   <td className="r num" style={{ fontWeight: 600 }}>
                     {r.finish_position ?? (out ? "NP" : "—")}
@@ -101,13 +139,22 @@ function RunnersTable({ data }: { data: RaceDetail }) {
                     {[r.sex && (SEX[r.sex] ?? r.sex), r.age && `${r.age} ans`].filter(Boolean).join(" · ")}
                     {out && <span className="badge warn" style={{ marginLeft: 6 }}>Non-partant</span>}
                   </div>
+                  {mine && (
+                    <div className="played-mark">
+                      {mine.map((t) => (
+                        <span key={t.strategy} className="chip played" title={RULE_HELP[rule(t.strategy)]}>
+                          joué · {ticketTitle(t)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </td>
                 <td>
                   <div className="row" style={{ gap: 6 }}>
-                    {r.jockey ?? "—"} {tally(r.jockey_stats)}
+                    {r.jockey ?? "—"} {lab && tally(r.jockey_stats)}
                   </div>
                   <div className="row muted small" style={{ gap: 6 }}>
-                    {r.trainer ?? "—"} {tally(r.trainer_stats)}
+                    {r.trainer ?? "—"} {lab && tally(r.trainer_stats)}
                   </div>
                 </td>
                 {trot ? (
@@ -124,20 +171,24 @@ function RunnersTable({ data }: { data: RaceDetail }) {
                 <td className="r num" style={{ fontWeight: 600 }}>
                   {odds(r.odds)}
                 </td>
+                {lab && (
+                  <td>
+                    <ProbBar p={r.market_p} scale={maxP} />
+                  </td>
+                )}
                 <td>
-                  <ProbBar p={r.market_p} scale={maxP} />
+                  <ProbBar p={r.calibrated_p ?? r.market_p} scale={maxP} />
                 </td>
-                <td>
-                  <ProbBar p={r.calibrated_p} scale={maxP} />
-                </td>
-                <td>
-                  <ProbBar p={r.place_p} />
-                </td>
+                {lab && (
+                  <td>
+                    <ProbBar p={r.place_p} />
+                  </td>
+                )}
                 <td>
                   <OddsSparkline series={r.odds_series} offTime={data.race.off_time} />
                 </td>
                 <td>
-                  <History r={r} />
+                  <History r={r} lab={lab} />
                 </td>
               </tr>
             );
@@ -146,6 +197,91 @@ function RunnersTable({ data }: { data: RaceDetail }) {
       </table>
     </div>
   );
+}
+
+function horseName(data: RaceDetail, n: number): string {
+  return data.runners.find((r) => r.number === n)?.name ?? "";
+}
+
+/** The first thing on the page: what the lab played, and what it paid. */
+function PlayedBlock({ data }: { data: RaceDetail }) {
+  const c = data.carnet;
+  const m = minutesUntil(data.race.off_time);
+  if (!c) {
+    const at = new Date(new Date(data.race.off_time).getTime() - 25 * 60000).toISOString();
+    return (
+      <Card title="Ce que le labo a joué">
+        <p className="small muted" style={{ margin: 0 }}>
+          {m > 25
+            ? `Les tickets seront figés automatiquement à ${time(at)}, 25 min avant le départ, avec les cotes connues à ce moment-là.`
+            : m > 0
+              ? "Les tickets sont en train d'être figés (prochaine passe du collecteur)."
+              : "Course non jouée : aucun ticket n'a été figé avant le départ (Mac en veille, marché incomplet, ou course antérieure au carnet). Elle n'est jamais rattrapée."}
+        </p>
+      </Card>
+    );
+  }
+  const stake = c.tickets.reduce((a, t) => a + t.stake, 0);
+  const back = c.tickets.reduce((a, t) => a + (t.returned ?? 0), 0);
+  return (
+    <Card
+      title="Ce que le labo a joué"
+      aside={
+        <span className="small muted">
+          figé à {time(c.frozen_at)} avec les cotes de {time(c.odds_as_of)}
+          {c.settled && (
+            <>
+              {" "}
+              · misé {euros(stake)} · rapporté <strong style={{ color: "var(--ink)" }}>{euros(back)}</strong>
+            </>
+          )}
+        </span>
+      }
+    >
+      <div className="stack">
+        <div className="lab-bet">
+          {c.tickets.map((t, i) => {
+            const won = c.settled && (t.returned ?? 0) > 0;
+            return (
+              <div key={`${t.strategy}-${i}`} className={`ticket ${won ? "won" : ""}`} title={RULE_HELP[rule(t.strategy)]}>
+                <div className="ticket-head">
+                  <span>
+                    {BET_LABEL[t.bet_type] ?? t.bet_type} · {rule(t.strategy)}
+                  </span>
+                  <span className="num">{euros(t.stake)}</span>
+                </div>
+                <div className="ticket-horse num">
+                  {t.numbers.length === 1 ? `n°${t.numbers[0]} ${horseName(data, t.numbers[0]!)}` : t.numbers.join(" – ")}
+                </div>
+                <div className="ticket-result">
+                  {!c.settled ? (
+                    <span className="muted">en attente de l'arrivée</span>
+                  ) : won ? (
+                    <strong>rapporte {euros(t.returned)}</strong>
+                  ) : (
+                    <span className="muted">perdu</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <p className="small muted" style={{ margin: 0 }}>
+          Ce sont des <strong>témoins</strong>, pas des pronostics : aucun modèle n'a encore battu le marché, donc le labo
+          joue le favori et le hasard pour mesurer ce que coûte « suivre la foule ». Aucune mise réelle.
+          {c.note && ` ${c.note}.`}
+        </p>
+      </div>
+    </Card>
+  );
+}
+
+function readView(): "simple" | "labo" {
+  try {
+    return localStorage.getItem("predlab.view") === "labo" ? "labo" : "simple";
+  } catch {
+    return "simple";
+  }
 }
 
 function Result({ data }: { data: RaceDetail }) {
@@ -199,6 +335,15 @@ function Result({ data }: { data: RaceDetail }) {
 export function Race({ day, rc }: { day: string; rc: string }) {
   const upcomingPoll = 60_000;
   const load = useApi(() => api.race(day, rc), `${day}/${rc}`, upcomingPoll);
+  const [view, setViewState] = useState<"simple" | "labo">(readView);
+  const setView = (v: "simple" | "labo") => {
+    setViewState(v);
+    try {
+      localStorage.setItem("predlab.view", v);
+    } catch {
+      /* private mode: the choice just isn't remembered */
+    }
+  };
 
   if (load.state === "loading") return <Loading rows={8} />;
   if (load.state === "error") return <Failure error={load.error} />;
@@ -232,13 +377,15 @@ export function Race({ day, rc }: { day: string; rc: string }) {
       />
 
       <div className="stack">
+        <PlayedBlock data={data} />
+
         <div className="kpis">
           <Kpi label="Distance" value={r.distance_m ? `${int(r.distance_m)} m` : "—"} kind="fact" sub={data.conditions.handedness === "LEFT" ? "Corde à gauche" : data.conditions.handedness === "RIGHT" ? "Corde à droite" : undefined} />
           <Kpi label="Partants" value={data.runners.filter((x) => x.status === "PARTANT").length || "—"} kind="fact" sub={`${r.declared_runners ?? "?"} déclarés`} />
           <Kpi label="Terrain" value={r.going ? r.going.toLowerCase() : "—"} kind="fact" sub={r.going_value ? `pénétromètre ${fmt(r.going_value, 1)}` : undefined} />
           <Kpi label="Allocation" value={euros0(data.conditions.prize_eur)} kind="fact" sub={w ? `Prévision : ${w.temperature_c ?? "?"} °C, ${w.sky?.toLowerCase() ?? ""}` : undefined} />
           <Kpi
-            label="Cotes à"
+            label="Dernières cotes"
             value={data.market_as_of ? time(data.market_as_of) : "—"}
             kind="market"
             sub={
@@ -252,11 +399,24 @@ export function Race({ day, rc }: { day: string; rc: string }) {
         <Card
           title="Partants"
           aside={
-            <span className="muted small">
-              {data.calibration_alpha != null
-                ? `Calibration α = ${fmt(data.calibration_alpha, 2)} (dernier backtest ${r.discipline_label.toLowerCase()})`
-                : "Pas encore de backtest : marché calibré indisponible"}
-            </span>
+            <div className="row">
+              {view === "labo" && (
+                <span className="muted small">
+                  {data.calibration_alpha != null
+                    ? `Calibration α = ${fmt(data.calibration_alpha, 2)} (dernier backtest ${r.discipline_label.toLowerCase()})`
+                    : "Pas encore de backtest : marché calibré indisponible"}
+                </span>
+              )}
+              <Segmented
+                label="Niveau de détail"
+                value={view}
+                onChange={setView}
+                options={[
+                  { value: "simple", label: "Vue simple" },
+                  { value: "labo", label: "Vue labo" },
+                ]}
+              />
+            </div>
           }
           flush
         >
@@ -265,10 +425,11 @@ export function Race({ day, rc }: { day: string; rc: string }) {
               <p className="small">Le collecteur les prend dès la veille, puis toutes les 5 min dans l'heure du départ.</p>
             </Empty>
           ) : (
-            <RunnersTable data={data} />
+            <RunnersTable data={data} lab={view === "labo"} played={playedMap(data)} />
           )}
         </Card>
 
+        {view === "labo" && (
         <div className="grid-2">
           <Card title="Prévision du laboratoire" aside={<KindBadge kind="forecast" />}>
             <div className="empty" style={{ padding: "12px 0" }}>
@@ -294,27 +455,7 @@ export function Race({ day, rc }: { day: string; rc: string }) {
             </ul>
           </Card>
         </div>
-
-        <Card
-          title="Carnet de paris fictifs"
-          aside={
-            data.carnet ? (
-              <span className="muted small">
-                figé à {time(data.carnet.frozen_at)} · cotes de {time(data.carnet.odds_as_of)}
-              </span>
-            ) : undefined
-          }
-        >
-          {data.carnet ? (
-            <TicketList tickets={data.carnet.tickets} settled={data.carnet.settled} />
-          ) : (
-            <p className="small muted" style={{ margin: 0 }}>
-              {m > 25
-                ? "Les tickets seront figés automatiquement dans les 25 minutes avant le départ."
-                : "Pas de ticket pour cette course : elle n'a pas été figée avant le départ (collecteur arrêté, marché incomplet, ou course antérieure au carnet)."}
-            </p>
-          )}
-        </Card>
+        )}
 
         <Result data={data} />
       </div>

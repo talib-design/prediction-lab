@@ -32,6 +32,7 @@ from predlab.core.clock import PARIS, minutes_between, paris_day, utcnow
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import Paths, default_paths
 from predlab.core.probability import implied_probabilities
+from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES
 from predlab.racing.carnet import entries as carnet_entries
 from predlab.racing.carnet import summarise_entries
 from predlab.racing.domain import Race, Runner
@@ -174,10 +175,15 @@ def create_app(paths: Paths | None = None) -> FastAPI:
         items, cap = lab.programme(d)
         index = lab.cache.get()
         targets = [r for r in items if r.country_code == "FRA" and r.discipline in TARGETS]
+        carnet = _carnet_by_race(lab)
+        now = utcnow()
         return {
             "day": d.isoformat(),
             "programme_retrieved_at": _iso(cap.retrieved_at) if cap else None,
-            "races": [_race_summary(r, index) for r in sorted(targets, key=lambda r: r.off_time)],
+            "races": [
+                {**_race_summary(r, index), "carnet": _carnet_state(r, carnet.get(r.race_id), now)}
+                for r in sorted(targets, key=lambda r: r.off_time)
+            ],
             "other_races": len(items) - len(targets),
         }
 
@@ -481,6 +487,45 @@ def _histories(lab: Lab, race: Race, runners: list[Runner]) -> dict[str, dict[st
     finally:
         con.close()
     return out
+
+
+def _carnet_by_race(lab: Lab) -> dict[str, dict[str, Any]]:
+    try:
+        return {e["race_id"]: e for e in carnet_entries(AppendOnlyLedger(lab.paths.carnet))}
+    except (KeyError, ValueError, TypeError):
+        return {}
+
+
+def _carnet_state(race: Race, entry: dict[str, Any] | None, now: datetime) -> dict[str, Any]:
+    """What the lab did (or will do) on this race, in one line for the day's list.
+
+    upcoming: tickets will be frozen at ``freeze_at``; open: inside the window, the next
+    collection pass freezes them; frozen: tickets written, result pending; settled:
+    paid at the official dividends; missed: the off passed without tickets;
+    cancelled: race cancelled.
+    """
+    freeze_at = race.off_time - timedelta(minutes=DEFAULT_HORIZON_MINUTES)
+    base: dict[str, Any] = {"freeze_at": _iso(freeze_at)}
+    if entry is not None:
+        tickets = [
+            {k: t[k] for k in ("strategy", "bet_type", "numbers", "stake", "returned")}
+            for t in entry["tickets"]
+        ]
+        stake = sum(t["stake"] for t in tickets)
+        returned = sum(t["returned"] or 0 for t in tickets) if entry["settled"] else None
+        return {
+            **base,
+            "state": "settled" if entry["settled"] else "frozen",
+            "frozen_at": entry["frozen_at"],
+            "tickets": tickets,
+            "stake": stake,
+            "returned": returned,
+        }
+    if "ANNULEE" in (race.status or ""):
+        return {**base, "state": "cancelled"}
+    if now >= race.off_time:
+        return {**base, "state": "missed"}
+    return {**base, "state": "open" if now >= freeze_at else "upcoming"}
 
 
 def _carnet_entry(lab: Lab, race_id: str) -> dict[str, Any] | None:

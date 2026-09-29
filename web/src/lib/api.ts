@@ -25,6 +25,16 @@ export interface RaceSummary {
   going: string | null;
   going_value: number | null;
   snapshots: number;
+  carnet?: CarnetState;
+}
+
+export interface CarnetState {
+  state: "upcoming" | "open" | "frozen" | "settled" | "missed" | "cancelled";
+  freeze_at: string;
+  frozen_at?: string;
+  tickets?: { strategy: string; bet_type: string; numbers: number[]; stake: number; returned: number | null }[];
+  stake?: number;
+  returned?: number | null;
 }
 
 export interface DayResponse {
