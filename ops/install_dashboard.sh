@@ -47,9 +47,19 @@ cat > "$PLIST" <<PLIST
 PLIST
 
 launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
+# Let the previous instance release the port before the new one binds it.
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 || break
+  sleep 1
+done
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-sleep 4
-if curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null; then
+echo "Démarrage du tableau de bord…"
+ok=""
+for _ in $(seq 1 40); do
+  if curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1; then ok=1; break; fi
+  sleep 1
+done
+if [ -n "$ok" ]; then
   echo "Tableau de bord actif : http://127.0.0.1:$PORT  (ouvert automatiquement à chaque session)"
   open "http://127.0.0.1:$PORT/" || true
 else
