@@ -414,6 +414,14 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "entries": sorted(shown, key=lambda e: e["off_time"], reverse=True),
         }
 
+    @app.get("/api/carnet/periods")
+    def carnet_periods() -> dict[str, Any]:
+        """Stake, returns and net of the fictitious bets: today, this week, month, all."""
+        return {
+            "today": paris_day(utcnow()).isoformat(),
+            "periods": _periods(lab, paris_day(utcnow())),
+        }
+
     @app.get("/api/hypotheses")
     def hypotheses() -> dict[str, Any]:
         reg = HypothesisRegistry(AppendOnlyLedger(lab.paths.hypotheses))
@@ -486,6 +494,39 @@ def _histories(lab: Lab, race: Race, runners: list[Runner]) -> dict[str, dict[st
                 out[label][name] = {"runs": runs, "wins": wins}
     finally:
         con.close()
+    return out
+
+
+def _periods(lab: Lab, today: date) -> list[dict[str, Any]]:
+    items = list(_carnet_by_race(lab).values())
+    first = min((date.fromisoformat(e["day"]) for e in items), default=today)
+    spans = [
+        ("day", "Aujourd'hui", today),
+        ("week", "Cette semaine", today - timedelta(days=today.weekday())),
+        ("month", "Ce mois", today.replace(day=1)),
+        ("all", "Depuis le début", first),
+    ]
+    out = []
+    for key, label, start in spans:
+        chosen = [e for e in items if start <= date.fromisoformat(e["day"]) <= today]
+        settled = [e for e in chosen if e["settled"]]
+        stake = sum(t["stake"] for e in settled for t in e["tickets"])
+        returned = sum((t["returned"] or 0) for e in settled for t in e["tickets"])
+        pending = sum(t["stake"] for e in chosen if not e["settled"] for t in e["tickets"])
+        out.append(
+            {
+                "key": key,
+                "label": label,
+                "start": start.isoformat(),
+                "races": len(chosen),
+                "settled": len(settled),
+                "stake": stake,
+                "returned": returned,
+                "net": returned - stake,
+                "roi": (returned / stake - 1) if stake else None,
+                "pending_stake": pending,
+            }
+        )
     return out
 
 

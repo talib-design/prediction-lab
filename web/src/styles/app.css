@@ -774,3 +774,57 @@ tr.is-played td {
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------------------------------------------------------------- bets overview */
+
+.overview {
+  margin-bottom: var(--s5);
+}
+.overview-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s2);
+}
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s3);
+}
+.overview-card {
+  display: block;
+  padding: var(--s3) var(--s4);
+  color: var(--ink);
+}
+.overview-card:hover {
+  text-decoration: none;
+  border-color: var(--line-strong);
+}
+.overview-net {
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 2px 0 6px;
+}
+.overview-net.neg {
+  color: var(--ink-2);
+}
+.overview-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 12px;
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+.overview-facts dt {
+  color: var(--ink-3);
+}
+.overview-facts dd {
+  margin: 0;
+  text-align: right;
+}
+@media (max-width: 900px) {
+  .overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

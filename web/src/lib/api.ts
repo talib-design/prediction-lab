@@ -37,6 +37,19 @@ export interface CarnetState {
   returned?: number | null;
 }
 
+export interface PeriodTotals {
+  key: "day" | "week" | "month" | "all";
+  label: string;
+  start: string;
+  races: number;
+  settled: number;
+  stake: number;
+  returned: number;
+  net: number;
+  roi: number | null;
+  pending_stake: number;
+}
+
 export interface DayResponse {
   day: string;
   programme_retrieved_at: string | null;
@@ -343,6 +356,7 @@ export const api = {
   reports: () => get<{ reports: ReportListItem[] }>("/reports"),
   report: <T>(id: string) => get<T>(`/reports/${encodeURIComponent(id)}`),
   status: () => get<StatusResponse>("/status"),
+  periods: () => get<{ today: string; periods: PeriodTotals[] }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),
 };

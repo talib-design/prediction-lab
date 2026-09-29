@@ -153,3 +153,10 @@ def test_day_list_tells_what_the_lab_played(lab: Paths) -> None:
     r2c1 = states["R2C1"]
     assert r2c1["state"] == "missed", "run long after the day: no ticket was frozen"
     assert r2c1["freeze_at"] < r2c1.get("frozen_at", "9999") or "frozen_at" not in r2c1
+
+
+def test_carnet_periods_are_consistent(lab: Paths) -> None:
+    body = TestClient(create_app(lab)).get("/api/carnet/periods").json()
+    assert [p["key"] for p in body["periods"]] == ["day", "week", "month", "all"]
+    for p in body["periods"]:
+        assert p["net"] == p["returned"] - p["stake"]

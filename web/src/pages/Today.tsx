@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
 import { api, type CarnetState, type Discipline, type RaceSummary } from "../lib/api";
-import { euros, longDay, minutesUntil, relative, shiftDay, time, todayParis } from "../lib/format";
+import { euros, longDay, minutesUntil, relative, shiftDay, shortDay, time, todayParis } from "../lib/format";
 import { BET_LABEL, rule } from "../lib/tickets";
 import { href, useApi } from "../lib/hooks";
 
@@ -14,6 +14,52 @@ function statusOf(r: RaceSummary): { label: string; cls: string } {
   if (m < 0) return { label: "Courue", cls: "outline" };
   if (m < 60) return { label: relative(m), cls: "k-market" };
   return { label: "À venir", cls: "outline" };
+}
+
+const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
+
+/** Where the fictitious bets stand: today, this week, this month, since the start. */
+function BetsOverview() {
+  const load = useApi(() => api.periods(), "periods", 120_000);
+  if (load.state !== "ready") return null;
+  const periods = load.data.periods;
+  if (periods.every((p) => p.races === 0)) return null;
+  return (
+    <section className="overview" aria-label="Bilan des paris fictifs">
+      <div className="overview-head">
+        <h2>Bilan des paris fictifs</h2>
+        <a href="#/carnet" className="small">
+          voir le carnet →
+        </a>
+      </div>
+      <div className="overview-grid">
+        {periods.map((p) => (
+          <a key={p.key} href="#/carnet" className="card overview-card">
+            <div className="kpi-label">
+              {p.label}
+              {p.key === "all" && <span className="muted"> ({shortDay(p.start)})</span>}
+            </div>
+            <div className={`overview-net num ${p.net >= 0 ? "pos" : "neg"}`}>{p.settled ? signed(p.net) : "—"}</div>
+            <dl className="overview-facts">
+              <dt>Misé</dt>
+              <dd className="num">{euros(p.stake)}</dd>
+              <dt>Rapporté</dt>
+              <dd className="num">{euros(p.returned)}</dd>
+              <dt>Retour</dt>
+              <dd className="num">{p.roi == null ? "—" : `${p.roi >= 0 ? "+" : "−"}${Math.abs(p.roi * 100).toFixed(0)} %`}</dd>
+            </dl>
+            <div className="small muted">
+              {p.settled} course{p.settled > 1 ? "s" : ""} réglée{p.settled > 1 ? "s" : ""}
+              {p.pending_stake > 0 && ` · ${euros(p.pending_stake)} en attente`}
+            </div>
+          </a>
+        ))}
+      </div>
+      <p className="small muted" style={{ margin: "6px 0 0" }}>
+        Paris imaginaires, jamais placés : le favori et le hasard, 1 € par ticket (2 € au Quinté+).
+      </p>
+    </section>
+  );
 }
 
 /** One line: what the lab played on this race, or when it will. */
@@ -109,6 +155,8 @@ export function Today({ day }: { day?: string }) {
           </div>
         }
       />
+
+      <BetsOverview />
 
       <div className="row" style={{ justifyContent: "space-between", marginBottom: 16 }}>
         <Segmented<Filter>
