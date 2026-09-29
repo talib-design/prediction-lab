@@ -158,5 +158,15 @@ def test_day_list_tells_what_the_lab_played(lab: Paths) -> None:
 def test_carnet_periods_are_consistent(lab: Paths) -> None:
     body = TestClient(create_app(lab)).get("/api/carnet/periods").json()
     assert [p["key"] for p in body["periods"]] == ["day", "week", "month", "all"]
+    assert set(body["streak"]) == {"current", "best", "days_played"} and "days" in body
     for p in body["periods"]:
         assert p["net"] == p["returned"] - p["stake"]
+
+
+def test_streak_counts_consecutive_positive_days() -> None:
+    from predlab.api.app import _streak
+
+    days = [{"net": n} for n in (1.0, 2.0, -1.0, 3.0, 0.5, 0.2, -0.1, 4.0)]
+    assert _streak(days) == {"current": 1, "best": 3, "days_played": 8}
+    assert _streak([]) == {"current": 0, "best": 0, "days_played": 0}
+    assert _streak([{"net": 0.0}])["current"] == 0, "break-even is not a positive day"

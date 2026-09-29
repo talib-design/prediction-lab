@@ -782,9 +782,38 @@ tr.is-played td {
 }
 .overview-head {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  gap: var(--s4);
+  flex-wrap: wrap;
   margin-bottom: var(--s2);
+}
+.overview-head h2 {
+  margin-right: auto;
+}
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+}
+.streak-days {
+  display: inline-flex;
+  gap: 3px;
+}
+.streak-days i {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.streak-days i.pos {
+  background: var(--ink);
+}
+.streak-days i.neg {
+  box-shadow: inset 0 0 0 1.5px var(--line-strong);
 }
 .overview-grid {
   display: grid;

@@ -417,9 +417,13 @@ def create_app(paths: Paths | None = None) -> FastAPI:
     @app.get("/api/carnet/periods")
     def carnet_periods() -> dict[str, Any]:
         """Stake, returns and net of the fictitious bets: today, this week, month, all."""
+        today = paris_day(utcnow())
+        days = _daily(lab)
         return {
-            "today": paris_day(utcnow()).isoformat(),
-            "periods": _periods(lab, paris_day(utcnow())),
+            "today": today.isoformat(),
+            "periods": _periods(lab, today),
+            "streak": _streak(days),
+            "days": days[-14:],
         }
 
     @app.get("/api/hypotheses")
@@ -495,6 +499,36 @@ def _histories(lab: Lab, race: Race, runners: list[Runner]) -> dict[str, dict[st
     finally:
         con.close()
     return out
+
+
+def _daily(lab: Lab) -> list[dict[str, Any]]:
+    """Net of the settled fictitious bets, one row per day that has any, oldest first."""
+    by_day: dict[str, dict[str, Any]] = {}
+    for e in _carnet_by_race(lab).values():
+        if not e["settled"]:
+            continue
+        d = by_day.setdefault(
+            e["day"], {"day": e["day"], "races": 0, "stake": 0.0, "returned": 0.0}
+        )
+        d["races"] += 1
+        d["stake"] += sum(t["stake"] for t in e["tickets"])
+        d["returned"] += sum((t["returned"] or 0) for t in e["tickets"])
+    rows = [by_day[k] for k in sorted(by_day)]
+    for r in rows:
+        r["net"] = r["returned"] - r["stake"]
+    return rows
+
+
+def _streak(days: list[dict[str, Any]]) -> dict[str, int]:
+    """Consecutive positive days among the days played (a day without bets is skipped).
+
+    ``current`` ends at the latest day with results -- today included, as it stands.
+    """
+    best = run = 0
+    for d in days:
+        run = run + 1 if d["net"] > 0 else 0
+        best = max(best, run)
+    return {"current": run, "best": best, "days_played": len(days)}
 
 
 def _periods(lab: Lab, today: date) -> list[dict[str, Any]]:

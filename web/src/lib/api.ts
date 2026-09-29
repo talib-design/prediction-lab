@@ -356,7 +356,13 @@ export const api = {
   reports: () => get<{ reports: ReportListItem[] }>("/reports"),
   report: <T>(id: string) => get<T>(`/reports/${encodeURIComponent(id)}`),
   status: () => get<StatusResponse>("/status"),
-  periods: () => get<{ today: string; periods: PeriodTotals[] }>("/carnet/periods"),
+  periods: () =>
+    get<{
+      today: string;
+      periods: PeriodTotals[];
+      streak: { current: number; best: number; days_played: number };
+      days: { day: string; races: number; stake: number; returned: number; net: number }[];
+    }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),
 };

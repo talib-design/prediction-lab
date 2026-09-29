@@ -22,12 +22,31 @@ const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
 function BetsOverview() {
   const load = useApi(() => api.periods(), "periods", 120_000);
   if (load.state !== "ready") return null;
-  const periods = load.data.periods;
+  const { periods, streak, days } = load.data;
   if (periods.every((p) => p.races === 0)) return null;
+  const plural = (n: number) => (n > 1 ? "s" : "");
   return (
     <section className="overview" aria-label="Bilan des paris fictifs">
       <div className="overview-head">
         <h2>Bilan des paris fictifs</h2>
+        <div
+          className="streak"
+          title="Jours consécutifs terminés en positif, parmi les jours joués (un jour sans pari est ignoré). Aujourd'hui compte tel qu'il est à cette heure."
+        >
+          <span className="streak-label">
+            Série positive <strong className="num">{streak.current} jour{plural(streak.current)}</strong>
+            <span className="muted"> · record {streak.best}</span>
+          </span>
+          <span className="streak-days" aria-hidden>
+            {days.map((d) => (
+              <i
+                key={d.day}
+                className={d.net > 0 ? "pos" : "neg"}
+                title={`${shortDay(d.day)} : ${signed(d.net)} (${d.races} courses)`}
+              />
+            ))}
+          </span>
+        </div>
         <a href="#/carnet" className="small">
           voir le carnet →
         </a>
