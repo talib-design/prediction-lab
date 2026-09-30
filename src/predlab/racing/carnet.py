@@ -58,6 +58,7 @@ from predlab.racing.store.raw import Capture, RawStore
 CARNET_VERSION = "1"
 TARGETS = ("PLAT", "ATTELE", "MONTE")
 MODEL = "market_calibrated"
+PLUS = "marche_plus"  # racing/marketplus.py, added 2026-09-30
 
 # Only strategies that differ from one another: with the market as the only model,
 # "top market" is the favourite and the most likely order is the favourites' order.
@@ -71,18 +72,31 @@ STRATEGIES = (
     "Tiercé hasard",
     "Quinté favoris",
     "Quinté hasard",
+    # Added 2026-09-30, before their first ticket: the Marché+ model's own picks.
+    f"SG top {PLUS}",
+    f"SP top {PLUS}",
+    f"SG valeur {PLUS}",
 )
 
-STRATEGY_LABELS = {"SG valeur market_calibrated": "SG valeur (marché calibré)"}
+STRATEGY_LABELS = {
+    "SG valeur market_calibrated": "SG valeur (marché calibré)",
+    f"SG top {PLUS}": "SG modèle",
+    f"SP top {PLUS}": "SP modèle",
+    f"SG valeur {PLUS}": "SG valeur (modèle)",
+}
+
+# Given the race, its card at the horizon and the starters' details: the model's win
+# probabilities in card order, and the id of the report its parameters come from.
+ModelFor = Callable[[Race, RaceCard, list[Runner]], tuple[np.ndarray, str] | None]
 
 
 def strategy_label(name: str) -> str:
     return STRATEGY_LABELS.get(name, name)
 
 
-def _strategies() -> dict[str, Any]:
-    every = {**simple_strategies([MODEL]), **exotic_strategies([MODEL])}
-    return {name: every[name] for name in STRATEGIES}
+def _strategies(with_model: bool = False) -> dict[str, Any]:
+    every = {**simple_strategies([MODEL, PLUS]), **exotic_strategies([MODEL])}
+    return {n: every[n] for n in STRATEGIES if with_model or PLUS not in n}
 
 
 @dataclass
@@ -125,7 +139,7 @@ def _is_target(race: Race) -> bool:
 
 def _card_at_horizon(
     store: RawStore, captures: list[Capture], race: Race, now: datetime, horizon: timedelta
-) -> tuple[RaceCard, list[str]] | None:
+) -> tuple[RaceCard, list[str], list[Runner]] | None:
     """Starters as last seen by ``now``; odds as quoted by the horizon (backtest rule)."""
     usable = sorted(
         (c for c in captures if c.ok and c.retrieved_at <= now), key=lambda c: c.retrieved_at
@@ -176,7 +190,7 @@ def _card_at_horizon(
         category=race.category,
         starters=starters,
     )
-    return card, sorted(used)
+    return card, sorted(used), [x for x in runners if x.is_runner]
 
 
 def _ticket_dict(strategy: str, t: Ticket) -> dict[str, Any]:
@@ -189,7 +203,13 @@ def _ticket_dict(strategy: str, t: Ticket) -> dict[str, Any]:
 
 
 def freeze_race(
-    race: Race, card: RaceCard, alpha: float | None, now: datetime, capture_hashes: list[str]
+    race: Race,
+    card: RaceCard,
+    alpha: float | None,
+    now: datetime,
+    capture_hashes: list[str],
+    model: tuple[np.ndarray, str] | None = None,
+    model_error: str | None = None,
 ) -> dict[str, Any]:
     odds = np.array([s.odds for s in card.starters], dtype=float)
     q = implied_probabilities(odds)
@@ -197,13 +217,27 @@ def freeze_race(
     p = np.power(q, a)
     p = p / p.sum()
     forecasts = {"market": q, MODEL: p}
+    if model is not None:
+        forecasts[PLUS] = model[0]
     event = RaceEvent(card=card, outcome=RaceOutcome(card.race_id, {}), known_at=race.off_time)
     offered = set(race.bet_types)
     tickets = [
         _ticket_dict(name, t)
-        for name, strategy in _strategies().items()
+        for name, strategy in _strategies(with_model=model is not None).items()
         for t in strategy(event, forecasts, offered)
     ]
+    extra: dict[str, Any] = {}
+    if model is not None:
+        extra["model"] = {
+            "name": PLUS,
+            "report": model[1],
+            "probabilities": {
+                str(s.number): round(float(x), 6)
+                for s, x in zip(card.starters, model[0], strict=True)
+            },
+        }
+    elif model_error:
+        extra["model_error"] = model_error
     return {
         "kind": "freeze",
         "carnet_version": CARNET_VERSION,
@@ -225,6 +259,7 @@ def freeze_race(
         },
         "source_captures": capture_hashes,
         "tickets": tickets,
+        **extra,
     }
 
 
@@ -235,13 +270,14 @@ def run_carnet(
     now: datetime,
     alpha_for: Callable[[str], float | None],
     horizon_minutes: float = DEFAULT_HORIZON_MINUTES,
+    model_for: ModelFor | None = None,
 ) -> CarnetReport:
     """One pass, holding an exclusive lock: the collector and a manual run never interleave."""
     ledger.path.parent.mkdir(parents=True, exist_ok=True)
     with ledger.path.open("a") as fh:  # lock the ledger file itself: no stray lock file
         fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
         try:
-            return _run_carnet(store, ledger, now, alpha_for, horizon_minutes)
+            return _run_carnet(store, ledger, now, alpha_for, horizon_minutes, model_for)
         finally:
             fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 
@@ -252,6 +288,7 @@ def _run_carnet(
     now: datetime,
     alpha_for: Callable[[str], float | None],
     horizon_minutes: float,
+    model_for: ModelFor | None = None,
 ) -> CarnetReport:
     report = CarnetReport()
     records = ledger.records()
@@ -273,9 +310,17 @@ def _run_carnet(
             # Incomplete or incoherent quotes: retried at the next pass until the off.
             report.waiting_market.append(race.race_id)
             continue
+        model, model_error = None, None
+        if model_for is not None:
+            try:
+                model = model_for(race, built[0], built[2])
+            except Exception as exc:  # the model never blocks the other tickets
+                model_error = f"{type(exc).__name__}: {exc}"
         try:
             rec = ledger.append(
-                freeze_race(race, built[0], alpha_for(race.discipline), now, built[1])
+                freeze_race(
+                    race, built[0], alpha_for(race.discipline), now, built[1], model, model_error
+                )
             )
         except (ValueError, PmuFormatError) as exc:
             report.errors.append(f"{race.race_id}: {exc}")
@@ -403,6 +448,7 @@ def entries(ledger: AppendOnlyLedger) -> list[dict[str, Any]]:
                 "frozen_at": r["frozen_at"],
                 "odds_as_of": r["odds_as_of"],
                 "alpha": r["alpha"],
+                "model_probabilities": (r.get("model") or {}).get("probabilities"),
                 "tickets": tickets,
                 "settled": s is not None,
                 "settled_at": s["settled_at"] if s else None,

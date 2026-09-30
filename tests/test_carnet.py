@@ -143,3 +143,59 @@ def test_no_ticket_on_an_incoherent_market(tmp_path: Path) -> None:
     )
     rep = _run(store, ledger, OFF - timedelta(minutes=5))
     assert rep.frozen == [] and rep.waiting_market == ["2026-09-28/R2C1"]
+
+
+def test_model_tickets_are_frozen_with_the_model_probabilities(tmp_path: Path) -> None:
+    import numpy as np
+
+    store, ledger = RawStore(tmp_path / "raw"), AppendOnlyLedger(tmp_path / "carnet.jsonl")
+    _record(store, _programme(), "programme/2026-09-28", "programme", OFF - timedelta(hours=3))
+    _record(
+        store,
+        _participants(),
+        "participants/2026-09-28/R2C1",
+        "participants",
+        OFF - timedelta(minutes=8),
+    )
+    seen: list[list[int]] = []
+
+    def model_for(race, card, runners):  # the outsider no. 3 is the model's pick
+        seen.append([x.number for x in runners])
+        assert [s.number for s in card.starters] == seen[-1], "same order as the card"
+        return np.array([0.2, 0.2, 0.5, 0.1]), "model_PLAT_x"
+
+    run_carnet(
+        store,
+        ledger,
+        now=OFF - timedelta(minutes=5),
+        alpha_for=lambda d: 1.0,
+        model_for=model_for,
+    )
+    (entry,) = entries(ledger)
+    got = {t["strategy"]: t["numbers"] for t in entry["tickets"]}
+    assert got["SG top marche_plus"] == [3] and got["SG favori"] == [4]
+    assert got["SG valeur marche_plus"] == [3], "0.5 x 8.0 >= 1.10"
+    assert ledger.records()[0]["model"]["probabilities"]["3"] == 0.5
+
+
+def test_a_failing_model_never_blocks_the_other_tickets(tmp_path: Path) -> None:
+    store, ledger = RawStore(tmp_path / "raw"), AppendOnlyLedger(tmp_path / "carnet.jsonl")
+    _record(store, _programme(), "programme/2026-09-28", "programme", OFF - timedelta(hours=3))
+    _record(
+        store,
+        _participants(),
+        "participants/2026-09-28/R2C1",
+        "participants",
+        OFF - timedelta(minutes=8),
+    )
+
+    def broken(race, card, runners):
+        raise RuntimeError("base en reconstruction")
+
+    rep = run_carnet(
+        store, ledger, now=OFF - timedelta(minutes=5), alpha_for=lambda d: 1.0, model_for=broken
+    )
+    assert rep.frozen == ["2026-09-28/R2C1"]
+    rec = ledger.records()[0]
+    assert "base en reconstruction" in rec["model_error"]
+    assert not any("marche_plus" in t["strategy"] for t in rec["tickets"])

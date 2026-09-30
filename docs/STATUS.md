@@ -2,6 +2,20 @@
 
 Dernière mise à jour : 2026-09-30.
 
+## Profil des vainqueurs et modèle Marché+ — 2026-09-30
+
+- **Profil des vainqueurs** (`predlab racing profile`) : pour chaque condition de course
+  et chaque profil de partant, effet sur la cote et sur le résultat, IC 95 %, correction
+  pour tests multiples, stabilité 2024 → 2026. Dans le tableau de bord : une modale
+  « Profil des vainqueurs », depuis l'accueil et depuis chaque course (onglet « Cette
+  course » : les conditions du jour et chaque partant dans ces conditions).
+- **Marché+ v1** (`predlab racing model`) : la cote corrigée par 11 facteurs fixés à
+  l'avance. Plat, test 2025-2026 : prévoit un peu mieux que le marché calibré (log loss
+  −0,0037, IC [−0,0056 ; −0,0018]) mais ne gagne pas aux paris fictifs (SG −12,5 %).
+- **Carnet** : trois témoins de plus (SG modèle, SP modèle, SG valeur modèle), figés à T-25.
+- **Nuit** : profil et modèle recalculés avant les backtests, pour chaque discipline
+  ayant au moins 300 courses exploitables (le trot suivra le rattrapage).
+
 ## Historique limité à 2024 — 2026-09-30
 
 - **Rattrapage arrêté au 1er janvier 2024** pour toutes les disciplines (décision de Chris :

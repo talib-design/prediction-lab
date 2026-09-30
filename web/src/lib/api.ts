@@ -92,6 +92,7 @@ export interface RunnerRow {
   odds: number | null;
   market_p: number | null;
   calibrated_p: number | null;
+  model_p: number | null;
   place_p: number | null;
   finish_position: number | null;
   odds_series: OddsPoint[];
@@ -129,6 +130,7 @@ export interface CarnetEntry {
   frozen_at: string;
   odds_as_of: string;
   alpha: number;
+  model_probabilities: Record<string, number> | null;
   tickets: CarnetTicket[];
   settled: boolean;
   settled_at: string | null;
@@ -164,6 +166,7 @@ export interface RaceDetail {
   market_as_of: string | null;
   minutes_before_off: number | null;
   calibration_alpha: number | null;
+  model: { report: string; fitted_through: string } | null;
   finish_order: number[][] | null;
   runners: RunnerRow[];
   dividends: DividendRow[];
@@ -310,6 +313,125 @@ export interface StatusResponse {
   };
 }
 
+/** A ratio with its 95 % interval; verdict after the multiple-testing correction. */
+export interface Ratio {
+  value: number | null;
+  low: number | null;
+  high: number | null;
+  p: number | null;
+  verdict: "+" | "−" | "=" | "?";
+}
+
+export interface Stability {
+  avant_2025: { ratio: number | null; expected: number };
+  depuis_2025: { ratio: number | null; expected: number };
+  verdict: string;
+}
+
+export interface RaceLevel {
+  level: string;
+  races: number;
+  share: number;
+  favourite_win_rate: number | null;
+  favourite_expected: number | null;
+  favourite_vs_odds: Ratio;
+  winner_median_odds: number | null;
+  outsider_win_rate: number | null;
+  stability: Stability;
+}
+
+export interface RunnerLevel {
+  level: string;
+  runners: number;
+  share: number;
+  races: number;
+  wins: number;
+  win_rate: number | null;
+  placed_rate: number | null;
+  result_vs_chance: Ratio;
+  odds_vs_chance: number | null;
+  missed_by_odds: Ratio;
+  top3_vs_odds: Ratio;
+  stability: Stability;
+}
+
+export interface ProfileReport {
+  id: string;
+  generated_at: string;
+  discipline: Discipline;
+  first_day: string | null;
+  last_day: string | null;
+  n_races: number;
+  n_runners: number;
+  race_factors: { key: string; label: string; levels: RaceLevel[] }[];
+  runner_factors: { key: string; label: string; levels: RunnerLevel[] }[];
+  tests: number;
+  correction: string;
+}
+
+export interface ModelComparison {
+  races: number;
+  log_loss_model?: number;
+  log_loss_market?: number;
+  difference?: number;
+  ci_low?: number;
+  ci_high?: number;
+  verdict?: string;
+}
+
+export interface ModelSummary {
+  id: string;
+  generated_at: string;
+  races: { train: number; validation: number; test: number };
+  lambda: number;
+  market_alpha: number;
+  coefficients: {
+    feature: string;
+    label: string;
+    active: boolean;
+    beta: number;
+    low: number | null;
+    high: number | null;
+    p: number | null;
+    per_sd?: number;
+  }[];
+  validation: ModelComparison;
+  test: ModelComparison;
+  test_bets: Record<string, { bets: number; roi?: number; roi_low?: number; roi_high?: number; hit_rate?: number }> | null;
+}
+
+export interface ConditionRecord {
+  level: string;
+  runs: number;
+  wins: number;
+  top3: number;
+  expected_top3: number;
+  elsewhere: { runs: number; wins: number; top3: number; expected_top3: number };
+  lean: "+" | "−" | null;
+}
+
+export interface RaceProfile {
+  race_id: string;
+  discipline: Discipline;
+  conditions: Record<string, string>;
+  horses: Record<
+    string,
+    {
+      name: string;
+      record: {
+        runs: number;
+        wins: number;
+        top3: number;
+        expected_top3: number;
+        conditions: Record<string, ConditionRecord>;
+      } | null;
+      levels: Record<string, string>;
+    }
+  >;
+  profile: ProfileReport | null;
+  model: ModelSummary | null;
+}
+
 export interface Hypothesis {
   hypothesis_id: string;
   revision: number;
@@ -365,4 +487,9 @@ export const api = {
     }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),
+  profile: (discipline: Discipline) =>
+    get<{ discipline: Discipline; profile: ProfileReport | null; model: ModelSummary | null }>(
+      `/profile?discipline=${discipline}`,
+    ),
+  raceProfile: (day: string, rc: string) => get<RaceProfile>(`/races/${day}/${rc}/profile`),
 };

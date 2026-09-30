@@ -174,6 +174,65 @@ Le niveau 4 du §5 : des décisions écrites **avant** la course.
 - Le carnet ne contient que nos décisions et probabilités, pas les cotes PMU (référencées
   par le hash des captures). Le commiter dans git lui donne une date publique.
 
+## 10. Profil des vainqueurs et modèle Marché+ (ajouté le 2026-09-30)
+
+Demande de Chris : regarder comment le terrain, la météo, la position au départ… pèsent
+sur la cote et sur le classement, cheval par cheval, puis prévoir.
+
+**Une seule table** (`racing/features.py`) : une ligne par partant, marché à T-25 min,
+courses au marché complet et cohérent (§9), depuis le 2024-01-01. Le passé d'un cheval,
+d'un jockey, d'un entraîneur est lu par une jointure « à date » qui **exclut le jour de la
+course** : même règle que `result_known_at`, même code pour 2024 et pour la course de
+tout à l'heure (un test vérifie l'égalité des deux chemins).
+
+**Profil des vainqueurs (descriptif)** — `racing/profile.py`. Niveaux fixés le 2026-09-30
+avant tout résultat (`LEVELS`).
+
+- *Conditions de course* (terrain, température, ciel, vent, distance, peloton) : il y a un
+  gagnant par course, donc une condition ne fait pas « gagner plus ». On mesure si le
+  favori gagne plus ou moins que sa cote, la cote médiane du gagnant, la part de gagnants
+  hors des trois premières cotes.
+- *Profil des partants* (position au départ, repos, âge, sexe, poids, recul, ferrure,
+  rang de cote) : victoires / hasard (Σ 1/partants), cote / hasard, **victoires / cote**
+  (ce que la cote a raté) et top 3 / top 3 attendu par la cote (Harville).
+- Pas de « places gagnées sur la cote » : un favori ne peut que perdre des places et un
+  outsider qu'en gagner, quel que soit le facteur. Mesure écartée le 2026-09-30.
+- IC 95 % par approximation normale d'une somme de Bernoulli ; pas d'intervalle sous
+  5 victoires attendues ; verdicts ▲ / ▼ après Benjamini-Yekutieli à 5 % sur tous les
+  tests affichés ; stabilité 2024 contre 2025-2026.
+- Le profil couvre toute la période, fenêtre de test comprise : il décrit, il ne choisit
+  rien. Aucune entrée du modèle n'a été choisie en le regardant.
+- Par cheval, dans les conditions d'une course : courses, top 3 et top 3 attendu par la
+  cote, ici et ailleurs ; ▲ / ▼ seulement avec au moins 3 courses de chaque côté et un
+  écart d'un quart de top 3 par course. Indicatif.
+
+**Marché+ v1** — `racing/marketplus.py`. Logit conditionnel :
+score = α·log q + Σ βₖ·xₖ, probabilités normalisées par course. Avec β = 0, c'est le marché
+calibré : chaque β se lit « à cote égale ».
+
+- Entrées (`MODEL_FEATURES`), figées dans le code avant la première exécution : forme
+  (places gagnées sur la cote, rétrécie k = 2), préférence du cheval pour le terrain et
+  pour la température du jour (k = 3), aucune course connue, log du repos, jockey et
+  entraîneur (victoires / cote, k = 3), position au départ, position au départ en sprint
+  (plat < 1 400 m), poids vs moyenne de la course, recul au trot.
+- Procédure : Newton exact, pénalité ridge λ ∈ {1, 10, 100, 1000} sur les β seuls, λ
+  choisi sur la validation, référence = marché calibré ajusté sur le même apprentissage.
+  Paramètres du carnet : même λ, réajusté chaque nuit sur tout l'historique publié.
+- **Première lecture du test, plat, 2026-09-30 à 07:34 UTC** (6 257 courses depuis 2025) :
+  log loss −0,0037 par course contre le marché calibré, IC 95 % [−0,0056 ; −0,0018] →
+  meilleur que le marché. Aucun facteur n'est significatif seul ; l'amélioration est
+  petite. Paris fictifs à 1 € sur le test : SG modèle −12,5 % contre SG favori −13,0 %,
+  SP modèle −10,4 % contre −11,5 % : **pas de gain exploitable**, la marge du PMU reste
+  hors de portée. λ retenu = 1000, à la borne de la grille. Toute v2 passe par la
+  validation puis une nouvelle lecture enregistrée du test.
+- Carnet : témoins « SG modèle », « SP modèle » et « SG valeur (modèle) » ajoutés le
+  2026-09-30 avant leur premier ticket, figés à T-25 avec les probabilités du modèle.
+  Si le modèle échoue (base en reconstruction), les autres tickets sont figés quand même
+  et l'erreur est écrite dans le carnet.
+- Limites : historique depuis 2024 seulement (« aucune course connue » mêle débutants et
+  chevaux plus anciens) ; au trot le terrain n'est pas mesuré ; pas de modèle tant que
+  l'apprentissage compte moins de 300 courses.
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
@@ -183,6 +242,8 @@ Le niveau 4 du §5 : des décisions écrites **avant** la course.
 - 2026-09-28 — historique limité à 2023 (décision de Chris : chevaux encore en activité) ;
   découpage révisé en conséquence (train 2023, validation 2024, test ≥ 2025), avant tout
   challenger. §9 bis : carnet en direct.
+- 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
+  première lecture du test datée ; trois témoins « modèle » au carnet.
 - 2026-09-30 — historique limité à 2024 (décision de Chris : rien de plus ancien n'est utile).
   Découpage révisé, avant tout challenger : train 1er semestre 2024, validation 2e semestre
   2024, test ≥ 2025 inchangé (la fenêtre de test garde sa taille). Les premières semaines

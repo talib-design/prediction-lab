@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
+import { ProfileButton, WinnersProfile } from "../components/WinnersProfile";
 import { api, type CarnetState, type Discipline, type RaceSummary } from "../lib/api";
 import { euros, longDay, minutesUntil, relative, shiftDay, shortDay, time, todayParis } from "../lib/format";
 import { BET_LABEL, rule } from "../lib/tickets";
@@ -75,7 +76,8 @@ function BetsOverview() {
         ))}
       </div>
       <p className="small muted" style={{ margin: "6px 0 0" }}>
-        Paris imaginaires, jamais placés : le favori et le hasard, 1 € par ticket (2 € au Quinté+).
+        Paris imaginaires, jamais placés : le favori, le hasard et le choix du modèle Marché+, 1 € par ticket (2 € au
+        Quinté+).
       </p>
     </section>
   );
@@ -89,17 +91,19 @@ function CarnetChip({ c }: { c?: CarnetState }) {
   if (c.state === "missed") return <span className="chip muted" title="Aucun ticket figé avant le départ (Mac en veille ou marché incomplet)">non jouée</span>;
   if (c.state === "cancelled") return null;
   const simple = (c.tickets ?? []).filter((t) => t.bet_type === "SIMPLE_GAGNANT" && rule(t.strategy) === "favori")[0];
-  const played = simple ? `n°${simple.numbers.join("-")}` : `${(c.tickets ?? []).length} tickets`;
+  const pick = (c.tickets ?? []).filter((t) => t.bet_type === "SIMPLE_GAGNANT" && rule(t.strategy) === "modèle")[0];
+  const modelPart = pick && simple && pick.numbers[0] !== simple.numbers[0] ? ` · n°${pick.numbers[0]} modèle` : pick ? " = modèle" : "";
+  const played = (simple ? `n°${simple.numbers.join("-")}` : `${(c.tickets ?? []).length} tickets`) + (simple ? " favori" : "") + modelPart;
   if (c.state === "frozen")
     return (
       <span className="chip played" title={(c.tickets ?? []).map((t) => `${BET_LABEL[t.bet_type] ?? t.bet_type} ${rule(t.strategy)} : ${t.numbers.join("-")}`).join("\n")}>
-        joué · {played} favori
+        joué · {played}
       </span>
     );
   const net = (c.returned ?? 0) - (c.stake ?? 0);
   return (
     <span className={`chip ${net >= 0 ? "won" : "lost"}`} title={`Misé ${euros(c.stake)}, rapporté ${euros(c.returned)}`}>
-      {played} favori · net {net >= 0 ? "+" : "−"}
+      {played} · net {net >= 0 ? "+" : "−"}
       {euros(Math.abs(net))}
     </span>
   );
@@ -111,6 +115,7 @@ export function Today({ day }: { day?: string }) {
   const load = useApi(() => api.day(current), current, current === today ? 120_000 : undefined);
   const [filter, setFilter] = useState<Filter>("ALL");
   const [quinteOnly, setQuinteOnly] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const meetings = useMemo(() => {
     if (load.state !== "ready") return [];
@@ -189,10 +194,18 @@ export function Today({ day }: { day?: string }) {
             { value: "MONTE", label: `Monté · ${counts.MONTE}` },
           ]}
         />
-        <button className="btn" aria-pressed={quinteOnly} onClick={() => setQuinteOnly((q) => !q)}>
-          Quinté+ seulement
-        </button>
+        <div className="row">
+          <ProfileButton onClick={() => setProfileOpen(true)} />
+          <button className="btn" aria-pressed={quinteOnly} onClick={() => setQuinteOnly((q) => !q)}>
+            Quinté+ seulement
+          </button>
+        </div>
       </div>
+      <WinnersProfile
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        discipline={filter === "ALL" ? "PLAT" : filter}
+      />
 
       {load.state === "loading" && <Loading rows={6} />}
       {load.state === "error" && <Failure error={load.error} />}

@@ -36,7 +36,12 @@ from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES
 from predlab.racing.carnet import entries as carnet_entries
 from predlab.racing.carnet import summarise_entries
 from predlab.racing.domain import Race, Runner
+from predlab.racing.features import RACE_FACTORS, history, live_frame
+from predlab.racing.marketplus import latest_params
+from predlab.racing.marketplus import predict as predict_plus
 from predlab.racing.orders import places_paid, top_k_probabilities
+from predlab.racing.profile import horse_conditions
+from predlab.racing.profile import latest as latest_report
 from predlab.racing.report import discipline_label, latest_alpha
 from predlab.racing.sources.pmu.client import Endpoint, capture_key
 from predlab.racing.sources.pmu.parser import (
@@ -236,6 +241,7 @@ def create_app(paths: Paths | None = None) -> FastAPI:
                 for x, p in zip(starters, top_k_probabilities(base, k), strict=True)
             }
         market_as_of = max((t for t, _ in latest.values()), default=None)
+        plus, plus_meta = _model_probabilities(lab, race, starters, latest, market)
 
         history = _histories(lab, race, runners)
         dividends: list[dict[str, Any]] = []
@@ -281,6 +287,7 @@ def create_app(paths: Paths | None = None) -> FastAPI:
                     "odds": latest.get(x.number, (None, None))[1],
                     "market_p": market.get(x.number),
                     "calibrated_p": calibrated.get(x.number),
+                    "model_p": plus.get(x.number),
                     "place_p": place.get(x.number),
                     "finish_position": x.finish_position if race.is_final else None,
                     "odds_series": [{"t": t, "kind": kind, "odds": o} for t, (kind, o) in pts],
@@ -303,6 +310,7 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             if market_as_of
             else None,
             "calibration_alpha": alpha,
+            "model": plus_meta,
             "finish_order": race.finish_order,
             "runners": rows,
             "dividends": dividends,
@@ -366,7 +374,10 @@ def create_app(paths: Paths | None = None) -> FastAPI:
                 rep = json.loads(f.read_text(encoding="utf-8"))
             except (OSError, json.JSONDecodeError):
                 continue
-            kind = "simulation" if f.parent.name.startswith("simulation") else "backtest"
+            kind = next(
+                (k for k in ("simulation", "profile", "model") if f.parent.name.startswith(k)),
+                "backtest",
+            )
             out.append(
                 {
                     "id": f.parent.name,
@@ -426,6 +437,65 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "days": days[-14:],
         }
 
+    @app.get("/api/profile")
+    def profile(discipline: str = "PLAT") -> dict[str, Any]:
+        """Latest winners' profile and Marché+ report of a discipline (nightly)."""
+        if discipline not in TARGETS:
+            raise HTTPException(404, "discipline inconnue")
+        return {
+            "discipline": discipline,
+            "profile": latest_report(lab.paths.runs, "profile", discipline),
+            "model": _model_summary(latest_report(lab.paths.runs, "model", discipline)),
+        }
+
+    @app.get("/api/races/{day}/{rc}/profile")
+    def race_profile(day: str, rc: str) -> dict[str, Any]:
+        """This race's conditions, and each starter's record in those conditions."""
+        d = date.fromisoformat(day)
+        items, _ = lab.programme(d)
+        race = next((r for r in items if f"R{r.meeting_number}C{r.race_number}" == rc), None)
+        if race is None:
+            raise HTTPException(404, f"course {day}/{rc} introuvable")
+        runners = _latest_runners(lab, race)
+        hist = _history_or_none(lab, race.discipline)
+        conditions: dict[str, str] = {}
+        horses: dict[str, Any] = {}
+        if hist is not None and runners:
+            frame = live_frame(race, runners, {}, hist)
+            row = frame.row(0, named=True)
+            conditions = {k: row[k] for k in RACE_FACTORS}
+            per_horse = horse_conditions(
+                hist,
+                [x.identity_key for x in runners if x.identity_key],
+                race.day,
+                {k: conditions[k] for k in ("going_cat", "temp_band", "dist_band")},
+            )
+            for x, r in zip(runners, frame.iter_rows(named=True), strict=True):
+                horses[str(x.number)] = {
+                    "name": x.name,
+                    "record": per_horse.get(x.identity_key or ""),
+                    "levels": {
+                        k: r[k]
+                        for k in (
+                            "draw_band",
+                            "rest_band",
+                            "age_band",
+                            "sex_cat",
+                            "weight_band",
+                            "recul_band",
+                            "shoeing_cat",
+                        )
+                    },
+                }
+        return {
+            "race_id": race.race_id,
+            "discipline": race.discipline,
+            "conditions": conditions,
+            "horses": horses,
+            "profile": latest_report(lab.paths.runs, "profile", race.discipline),
+            "model": _model_summary(latest_report(lab.paths.runs, "model", race.discipline)),
+        }
+
     @app.get("/api/hypotheses")
     def hypotheses() -> dict[str, Any]:
         reg = HypothesisRegistry(AppendOnlyLedger(lab.paths.hypotheses))
@@ -444,6 +514,70 @@ def create_app(paths: Paths | None = None) -> FastAPI:
 
 
 # ------------------------------------------------------------------------ helpers
+
+
+def _history_or_none(lab: Lab, discipline: str) -> Any:
+    if not lab.paths.database.exists():
+        return None
+    try:
+        return history(lab.paths.database, discipline)
+    except Exception:  # a base being rebuilt, or built by an older version
+        return None
+
+
+def _latest_runners(lab: Lab, race: Race) -> list[Runner]:
+    key = capture_key(Endpoint.PARTICIPANTS, race.day, race.meeting_number, race.race_number)
+    cap = _latest_ok(lab.cache.get().get(key, []))
+    if cap is None:
+        return []
+    try:
+        return [x for x in parse_participants(lab.read(cap), race.race_id) if x.is_runner]
+    except PmuFormatError:
+        return []
+
+
+def _model_summary(rep: dict[str, Any] | None) -> dict[str, Any] | None:
+    if rep is None:
+        return None
+    return {
+        k: rep.get(k)
+        for k in (
+            "id",
+            "generated_at",
+            "races",
+            "lambda",
+            "market_alpha",
+            "coefficients",
+            "validation",
+            "test",
+            "test_bets",
+        )
+    }
+
+
+def _model_probabilities(
+    lab: Lab,
+    race: Race,
+    starters: list[Runner],
+    latest: dict[int, tuple[datetime, float]],
+    market: dict[int, float],
+) -> tuple[dict[int, float], dict[str, Any] | None]:
+    """Marché+ on the latest pre-off quotes (the carnet keeps its own, frozen at T-25)."""
+    if not market:
+        return {}, None
+    params = latest_params(lab.paths.runs, race.discipline)
+    hist = _history_or_none(lab, race.discipline) if params else None
+    if params is None or hist is None:
+        return {}, None
+    try:
+        odds = {x.number: latest[x.number][1] for x in starters}
+        p = predict_plus(params, live_frame(race, starters, odds, hist))
+    except Exception:
+        return {}, None
+    return (
+        {x.number: float(v) for x, v in zip(starters, p, strict=True)},
+        {"report": params["report"], "fitted_through": params["fitted_through"]},
+    )
 
 
 def _histories(lab: Lab, race: Race, runners: list[Runner]) -> dict[str, dict[str, Any]]:

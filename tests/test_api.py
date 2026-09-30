@@ -170,3 +170,29 @@ def test_streak_counts_consecutive_positive_days() -> None:
     assert _streak(days) == {"current": 1, "best": 3, "days_played": 8}
     assert _streak([]) == {"current": 0, "best": 0, "days_played": 0}
     assert _streak([{"net": 0.0}])["current"] == 0, "break-even is not a positive day"
+
+
+def test_profile_endpoints_answer_before_any_nightly_report(lab: Paths) -> None:
+    client = TestClient(create_app(lab))
+    body = client.get("/api/profile", params={"discipline": "PLAT"}).json()
+    assert body["profile"] is None and body["model"] is None
+    assert client.get("/api/profile", params={"discipline": "LOTO"}).status_code == 404
+    race = client.get("/api/races/2026-09-28/R2C1/profile")
+    assert race.status_code == 200
+    assert set(race.json()) >= {"conditions", "horses", "profile", "model"}
+    assert client.get("/api/races/2026-09-28/R9C9/profile").status_code == 404
+    detail = client.get("/api/races/2026-09-28/R2C1").json()
+    assert detail["model"] is None and all(r["model_p"] is None for r in detail["runners"])
+
+
+def test_latest_profile_report_is_served(lab: Paths) -> None:
+    rep = {"kind": "profile", "generated_at": "2026-09-30T02:00:00+00:00", "discipline": "PLAT",
+           "race_factors": [], "runner_factors": []}
+    out = lab.runs / "profile_PLAT_20260930T020000Z"
+    out.mkdir(parents=True)
+    (out / "report.json").write_text(json.dumps(rep), encoding="utf-8")
+    client = TestClient(create_app(lab))
+    body = client.get("/api/profile").json()
+    assert body["profile"]["id"] == "profile_PLAT_20260930T020000Z"
+    kinds = {r["id"]: r["kind"] for r in client.get("/api/reports").json()["reports"]}
+    assert kinds["profile_PLAT_20260930T020000Z"] == "profile"

@@ -39,11 +39,14 @@ src/predlab/
     events.py, knowledge.py, models.py, backtest.py, report.py   banc walk-forward
     orders.py, betting.py   modèle d'ordre (Harville), paris fictifs
     carnet.py        carnet en direct : tickets figés avant le départ, réglés au rapport
+    features.py      une ligne par partant : conditions, marché, passé (jointure « à date »)
+    profile.py       profil des vainqueurs : effet de chaque condition sur la cote et le résultat
+    marketplus.py    modèle Marché+ : la cote corrigée par des facteurs pré-enregistrés
   api/app.py   API HTTP en lecture seule pour le tableau de bord (voir ci-dessous)
   cli.py       predlab racing {collect,backfill,build,backtest,simulate,…}, predlab dashboard, predlab hypothesis …
 web/           front React + TypeScript + Vite ; web/dist (compilé) est commité
 ops/           install_{collector,backfill}.sh / uninstall_… (launchd, macOS)
-tests/         117 tests, fixtures PMU (voir tests/fixtures/pmu/README.md)
+tests/         143 tests, fixtures PMU (voir tests/fixtures/pmu/README.md)
 ```
 
 ## Tableau de bord (v0, 2026-09-28)
@@ -60,6 +63,8 @@ pour ce qu'elle fait bien :
 | `GET /api/reports`, `/api/reports/{id}` | `data/runs/*/report.json` | backtests et simulations |
 | `GET /api/status` | manifestes, checkpoints, journaux, DuckDB | santé de la collecte |
 | `GET /api/carnet` | `data/carnet.jsonl` (vérifié à chaque lecture) | carnet en direct |
+| `GET /api/profile?discipline=` | derniers `profile_*` et `model_*` de `data/runs/` | modale « Profil des vainqueurs » |
+| `GET /api/races/{jour}/{RxCy}/profile` | brut (partants) + DuckDB (passé de chaque cheval) + rapports | la course, ses conditions, chaque partant dans ces conditions |
 | `GET /api/hypotheses` | registre | recherche |
 
 Documentation interactive : `/api/docs`. Aucune route n'écrit.

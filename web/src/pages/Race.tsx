@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { OddsSparkline, ProbBar } from "../components/charts";
+import { ProfileButton, type Tab, WinnersProfile } from "../components/WinnersProfile";
 import { Card, DisciplineBadge, Empty, Failure, KindBadge, Kpi, Loading, PageHead, Segmented } from "../components/ui";
 import { api, type CarnetTicket, type RaceDetail, type RunnerRow, type Tally } from "../lib/api";
 import { BET_LABEL, RULE_HELP, rule, ticketTitle } from "../lib/tickets";
-import { euros, euros0, fmt, int, longDay, minutesUntil, odds, pct, relative, time } from "../lib/format";
+import { euros, euros0, fmt, int, longDay, minutesUntil, odds, pct, relative, shortDay, time } from "../lib/format";
 import { href, useApi } from "../lib/hooks";
 
 const SHOEING: Record<string, string> = {
@@ -45,6 +46,15 @@ function History({ r, lab }: { r: RunnerRow; lab: boolean }) {
   );
 }
 
+/** Marché+ per starter: frozen at T-25 by the carnet when it played the race, else live. */
+function modelProbs(data: RaceDetail): { p: Map<number, number>; frozen: boolean } | null {
+  const frozen = data.carnet?.model_probabilities;
+  if (frozen) return { p: new Map(Object.entries(frozen).map(([n, v]) => [Number(n), v])), frozen: true };
+  const live = data.runners.filter((r) => r.model_p != null);
+  if (live.length === 0) return null;
+  return { p: new Map(live.map((r) => [r.number, r.model_p!])), frozen: false };
+}
+
 type Played = Map<number, CarnetTicket[]>;
 
 function playedMap(data: RaceDetail): Played {
@@ -64,7 +74,13 @@ function RunnersTable({ data, lab, played }: { data: RaceDetail; lab: boolean; p
         <KindBadge kind={k} short />
       </span>
     ) : null;
-  const maxP = Math.max(0.01, ...data.runners.map((r) => r.calibrated_p ?? r.market_p ?? 0));
+  const model = modelProbs(data);
+  const maxP = Math.max(
+    0.01,
+    ...data.runners.map((r) => r.calibrated_p ?? r.market_p ?? 0),
+    ...(model ? [...model.p.values()] : []),
+  );
+  const modelTop = model ? [...model.p.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] : undefined;
   const showResult = data.race.is_final;
   return (
     <div className="table-wrap">
@@ -106,6 +122,18 @@ function RunnersTable({ data, lab, played }: { data: RaceDetail; lab: boolean; p
               {lab ? "Marché calibré" : "Chance de gagner"}
               <K k="market" />
             </th>
+            {model && (
+              <th
+                title={
+                  model.frozen
+                    ? "Chance de gagner selon le modèle Marché+ (la cote corrigée par les facteurs), figée 25 min avant le départ"
+                    : "Chance de gagner selon le modèle Marché+ (la cote corrigée par les facteurs), avec les dernières cotes"
+                }
+              >
+                {lab ? "Marché+" : "Selon le modèle"}
+                <K k="forecast" />
+              </th>
+            )}
             {lab && (
               <th title="Probabilité d'être placé, déduite du marché calibré par le modèle d'ordre de Harville">
                 Placé (Harville)
@@ -179,6 +207,14 @@ function RunnersTable({ data, lab, played }: { data: RaceDetail; lab: boolean; p
                 <td>
                   <ProbBar p={r.calibrated_p ?? r.market_p} scale={maxP} />
                 </td>
+                {model && (
+                  <td>
+                    <span className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                      <ProbBar p={model.p.get(r.number) ?? null} scale={maxP} />
+                      {modelTop === r.number && !out && <span className="chip played tiny">choix</span>}
+                    </span>
+                  </td>
+                )}
                 {lab && (
                   <td>
                     <ProbBar p={r.place_p} />
@@ -267,8 +303,9 @@ function PlayedBlock({ data }: { data: RaceDetail }) {
           })}
         </div>
         <p className="small muted" style={{ margin: 0 }}>
-          Ce sont des <strong>témoins</strong>, pas des pronostics : aucun modèle n'a encore battu le marché, donc le labo
-          joue le favori et le hasard pour mesurer ce que coûte « suivre la foule ». Aucune mise réelle.
+          Le <strong>favori</strong> et le <strong>hasard</strong> sont des témoins : ce que coûte « suivre la foule ». Le{" "}
+          <strong>modèle</strong> est le choix de Marché+ (la cote corrigée par les facteurs), jugé ici en conditions
+          réelles. Aucune mise réelle.
           {c.note && ` ${c.note}.`}
         </p>
       </div>
@@ -336,6 +373,7 @@ export function Race({ day, rc }: { day: string; rc: string }) {
   const upcomingPoll = 60_000;
   const load = useApi(() => api.race(day, rc), `${day}/${rc}`, upcomingPoll);
   const [view, setViewState] = useState<"simple" | "labo">(readView);
+  const [profileTab, setProfileTab] = useState<Tab | null>(null);
   const setView = (v: "simple" | "labo") => {
     setViewState(v);
     try {
@@ -374,6 +412,13 @@ export function Race({ day, rc }: { day: string; rc: string }) {
             </span>
           </span>
         }
+        aside={<ProfileButton onClick={() => setProfileTab("race")} />}
+      />
+      <WinnersProfile
+        open={profileTab !== null}
+        initialTab={profileTab ?? undefined}
+        onClose={() => setProfileTab(null)}
+        race={{ day, rc, label: `${r.rc} · ${r.venue} · ${r.discipline_label}` }}
       />
 
       <div className="stack">
@@ -432,13 +477,27 @@ export function Race({ day, rc }: { day: string; rc: string }) {
         {view === "labo" && (
         <div className="grid-2">
           <Card title="Prévision du laboratoire" aside={<KindBadge kind="forecast" />}>
-            <div className="empty" style={{ padding: "12px 0" }}>
-              <strong>Aucun modèle fondamental évalué pour l'instant</strong>
-              <p className="small" style={{ margin: 0 }}>
-                Le marché calibré est la référence. Une prévision n'apparaîtra ici qu'une fois qu'un modèle aura battu le
-                marché calibré hors échantillon (méthodologie §5).
-              </p>
-            </div>
+            {data.model ? (
+              <div className="stack">
+                <p className="small" style={{ margin: 0 }}>
+                  <strong>Marché+</strong> : la cote, corrigée par des facteurs fixés à l'avance (forme, préférence de
+                  terrain et de température, repos, jockey, entraîneur, corde, poids, recul). Ajusté avec les courses
+                  jusqu'au {shortDay(data.model.fitted_through)}.
+                </p>
+                <div>
+                  <button className="btn" onClick={() => setProfileTab("model")}>
+                    Ce que chaque facteur apporte
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="empty" style={{ padding: "12px 0" }}>
+                <strong>Pas encore de modèle pour cette discipline</strong>
+                <p className="small" style={{ margin: 0 }}>
+                  Marché+ est ajusté chaque nuit dès qu'il y a assez de courses d'apprentissage.
+                </p>
+              </div>
+            )}
           </Card>
           <Card title="Lire ce tableau">
             <ul className="small" style={{ margin: 0, paddingLeft: 18, color: "var(--ink-2)" }}>

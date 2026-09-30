@@ -34,7 +34,12 @@ from predlab.racing.betting import (
 from predlab.racing.carnet import CarnetReport, entries, run_carnet, summarise_entries
 from predlab.racing.collect import PROGRAMME, SNAPSHOT, CollectConfig, run_collect
 from predlab.racing.events import load_events
+from predlab.racing.features import load_finished
+from predlab.racing.marketplus import load_dividends as load_simple_dividends
+from predlab.racing.marketplus import model_for_paths, write_model
+from predlab.racing.marketplus import run as run_marketplus
 from predlab.racing.models import CalibratedMarketModel, MarketModel, default_models
+from predlab.racing.profile import build_profile, write_profile
 from predlab.racing.report import build_report, compare, latest_alpha
 from predlab.racing.report import write_report as write_backtest_report
 from predlab.racing.sources.pmu.client import Endpoint, PmuClient, capture_key
@@ -113,6 +118,7 @@ def _run_carnet_pass() -> CarnetReport:
         AppendOnlyLedger(paths.carnet),
         now=utcnow(),
         alpha_for=lambda d: latest_alpha(paths.runs, d),
+        model_for=model_for_paths(paths.runs, paths.database),
     )
     if rep.frozen or rep.settled or rep.errors:
         _log_line(f"{utcnow().isoformat(timespec='seconds')} | {rep.summary()}")
@@ -227,8 +233,9 @@ def nightly(
         bool, typer.Option("--publish/--no-publish", help="Commiter et pousser carnet et rapports.")
     ] = True,
 ) -> None:
-    """La passe de nuit, sans personne : rattrapage, base, backtests et paris fictifs par
-    discipline, puis carnet et rapports datés dans git. Lancée chaque nuit par launchd."""
+    """La passe de nuit, sans personne : rattrapage, base, puis par discipline profil des
+    vainqueurs, modèle Marché+, backtests et paris fictifs ; enfin carnet et rapports
+    datés dans git. Lancée chaque nuit par launchd."""
     started = utcnow()
     stamp = started.isoformat(timespec="seconds")
     backfill(plan=DEFAULT_PLAN, end=None, hours=hours, max_requests=20_000, then_build=True)
@@ -243,6 +250,13 @@ def nightly(
                 f"{stamp} | nuit {discipline} : {usable} courses exploitables, analyse reportée"
             )
             continue
+        # Profile and Marché+ first: minutes, and the morning's carnet uses the model.
+        try:
+            profile(discipline=discipline)
+            model(discipline=discipline)
+            _log_line(f"{stamp} | nuit {discipline} : profil des vainqueurs et Marché+ ajustés")
+        except Exception as exc:
+            _log_line(f"{stamp} | nuit {discipline} profil/modèle ERREUR {exc!r}")
         try:
             backtest(horizon=DEFAULT_HORIZON_MINUTES, discipline=discipline)
             simulate_bets(horizon=DEFAULT_HORIZON_MINUTES, discipline=discipline)
@@ -372,6 +386,52 @@ def simulate_bets(
     )
     typer.echo(
         f"{settled} courses réglées avec les rapports officiels. Rapport : {out / 'report.md'}"
+    )
+
+
+PROFILE_MIN_RACES = 100  # below this, every level is "too little data"
+
+
+@racing_app.command("profile")
+def profile(
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
+) -> None:
+    """Winners' profile: how each condition bears on the odds and on the result."""
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    frame = load_finished(paths.database, discipline)
+    races = frame["race_id"].n_unique() if frame.height else 0
+    if races < PROFILE_MIN_RACES:
+        typer.echo(f"{races} courses exploitables ({discipline}) : trop peu pour un profil.")
+        return
+    out = write_profile(build_profile(frame, discipline), paths.runs)
+    typer.echo(f"Profil sur {frame['race_id'].n_unique()} courses. Rapport : {out / 'report.md'}")
+
+
+@racing_app.command("model")
+def model(
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
+) -> None:
+    """Fit Marché+ by the pre-registered procedure (train, validation, test) and save
+    the parameters the carnet uses."""
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    frame = load_finished(paths.database, discipline)
+    rep = run_marketplus(
+        frame, discipline, PREREGISTERED_SPLIT, load_simple_dividends(paths.database)
+    )
+    if rep is None:
+        typer.echo(f"Pas assez de courses d'apprentissage ({discipline}) : modèle non ajusté.")
+        return
+    out = write_model(rep, paths.runs)
+    t = rep["test"]
+    verdict = t.get("verdict", "test vide")
+    typer.echo(
+        f"Marché+ {discipline} : test sur {t['races']} courses → {verdict}. Rapport : {out / 'report.md'}"
     )
 
 
