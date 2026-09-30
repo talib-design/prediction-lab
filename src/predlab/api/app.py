@@ -32,6 +32,7 @@ from predlab.core.clock import PARIS, minutes_between, paris_day, utcnow
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import Paths, default_paths
 from predlab.core.probability import implied_probabilities
+from predlab.racing import strategies as banc_lib
 from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES
 from predlab.racing.carnet import entries as carnet_entries
 from predlab.racing.carnet import summarise_entries
@@ -316,6 +317,7 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "dividends": dividends,
             "snapshots": len([c for c in caps if c.retrieved_at < race.off_time]),
             "carnet": _carnet_entry(lab, race.race_id),
+            "banc": _banc_race(lab, race.race_id),
         }
 
     @app.get("/api/horses/{horse_id}")
@@ -496,6 +498,11 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "model": _model_summary(latest_report(lab.paths.runs, "model", race.discipline)),
         }
 
+    @app.get("/api/banc")
+    def banc(discipline: str | None = None) -> dict[str, Any]:
+        """The strategy bench: its strategies, their record, its own balance."""
+        return _banc(lab, discipline)
+
     @app.get("/api/hypotheses")
     def hypotheses() -> dict[str, Any]:
         reg = HypothesisRegistry(AppendOnlyLedger(lab.paths.hypotheses))
@@ -514,6 +521,107 @@ def create_app(paths: Paths | None = None) -> FastAPI:
 
 
 # ------------------------------------------------------------------------ helpers
+
+
+def _banc_ledger(lab: Lab) -> AppendOnlyLedger:
+    return AppendOnlyLedger(lab.paths.banc / "ledger.jsonl")
+
+
+def _banc(lab: Lab, discipline: str | None) -> dict[str, Any]:
+    panel = banc_lib.Panel.load(lab.paths.banc / "panel.json")
+    ledger = _banc_ledger(lab)
+    per, meta = banc_lib.live_returns(ledger)
+    today = paris_day(utcnow()).isoformat()
+    rows = []
+    for s in panel.strategies:
+        if discipline and s["discipline"] != discipline:
+            continue
+        live = banc_lib.summarise_returns(np.array(per.get(s["id"], []), dtype=float))
+        rows.append(
+            {
+                **s,
+                "bet_label": banc_lib.BET_LABEL[s["bet"]],
+                "criteria_list": [
+                    {"key": k, "label": banc_lib.DIM_LABEL.get(k, k), "level": v}
+                    for k, v in sorted(s["criteria"].items())
+                ],
+                "live": live,
+                "pending": meta["pending"].get(s["id"], 0),
+                "status": banc_lib.status(s, live),
+            }
+        )
+    days = meta["days"]
+
+    def total(ds: list[dict[str, float]]) -> dict[str, Any]:
+        stake = sum(d["stake"] for d in ds)
+        back = sum(d["returned"] for d in ds)
+        return {
+            "tickets": int(sum(d["tickets"] for d in ds)),
+            "stake": stake,
+            "returned": back,
+            "net": back - stake,
+            "roi": back / stake - 1 if stake else None,
+        }
+
+    counts: dict[str, int] = {}
+    for r in rows:
+        counts[r["status"]] = counts.get(r["status"], 0) + 1
+    return {
+        "updated_at": panel.updated_at,
+        "gauge": panel.gauge,
+        "rules": {
+            "win_bets": banc_lib.WIN_BETS,
+            "kill_bets": banc_lib.KILL_BETS,
+            "kill_roi": banc_lib.KILL_ROI,
+            "target_roi": banc_lib.TARGET_ROI,
+        },
+        "totals": {
+            "today": total([days[today]] if today in days else []),
+            "all": total(list(days.values())),
+            "pending": int(sum(meta["pending"].values())),
+            "races": meta["races"],
+            "first_day": min(days) if days else None,
+        },
+        "counts": counts,
+        "strategies": rows,
+    }
+
+
+def _banc_race(lab: Lab, race_id: str) -> dict[str, Any] | None:
+    """What the bench froze on this race, by horse, and what it paid once settled."""
+    ledger = _banc_ledger(lab)
+    if not ledger.path.exists():
+        return None
+    freeze = settle = None
+    for r in ledger.records():
+        if r.get("race_id") != race_id:
+            continue
+        if r.get("kind") == "freeze":
+            freeze = r
+        elif r.get("kind") == "settle":
+            settle = r
+    if freeze is None:
+        return None
+    panel = {s["id"]: s for s in banc_lib.Panel.load(lab.paths.banc / "panel.json").strategies}
+    tickets = []
+    for i, (sid, bet, number) in enumerate(freeze["tickets"]):
+        s = panel.get(sid, {})
+        tickets.append(
+            {
+                "strategy": sid,
+                "label": s.get("label", sid),
+                "bet": bet,
+                "number": number,
+                "returned": settle["returns"][i] if settle else None,
+            }
+        )
+    return {
+        "frozen_at": freeze["frozen_at"],
+        "settled": settle is not None,
+        "tickets": tickets,
+        "stake": float(len(tickets)),
+        "returned": float(sum(settle["returns"])) if settle else None,
+    }
 
 
 def _history_or_none(lab: Lab, discipline: str) -> Any:

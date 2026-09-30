@@ -1008,3 +1008,57 @@ tr.is-current td {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ---------------------------------------------------------------- strategy bench */
+
+table.banc td {
+  vertical-align: top;
+}
+.criteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 2px;
+  max-width: 460px;
+}
+.crit {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--surface);
+}
+.crit-key {
+  color: var(--ink-3);
+}
+.bet-progress {
+  display: grid;
+  grid-template-columns: 70px auto;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.roi-target {
+  stroke: var(--k-assoc);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 2;
+}
+.banc-teaser {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s2) var(--s4);
+  padding: var(--s3) var(--s4);
+  margin-bottom: var(--s5);
+  color: var(--ink);
+}
+.banc-teaser:hover {
+  text-decoration: none;
+  border-color: var(--line-strong);
+}
+.banc-horses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}

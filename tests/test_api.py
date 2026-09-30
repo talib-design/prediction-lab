@@ -186,8 +186,13 @@ def test_profile_endpoints_answer_before_any_nightly_report(lab: Paths) -> None:
 
 
 def test_latest_profile_report_is_served(lab: Paths) -> None:
-    rep = {"kind": "profile", "generated_at": "2026-09-30T02:00:00+00:00", "discipline": "PLAT",
-           "race_factors": [], "runner_factors": []}
+    rep = {
+        "kind": "profile",
+        "generated_at": "2026-09-30T02:00:00+00:00",
+        "discipline": "PLAT",
+        "race_factors": [],
+        "runner_factors": [],
+    }
     out = lab.runs / "profile_PLAT_20260930T020000Z"
     out.mkdir(parents=True)
     (out / "report.json").write_text(json.dumps(rep), encoding="utf-8")
@@ -196,3 +201,36 @@ def test_latest_profile_report_is_served(lab: Paths) -> None:
     assert body["profile"]["id"] == "profile_PLAT_20260930T020000Z"
     kinds = {r["id"]: r["kind"] for r in client.get("/api/reports").json()["reports"]}
     assert kinds["profile_PLAT_20260930T020000Z"] == "profile"
+
+
+def test_banc_endpoint_before_and_after_a_panel(lab: Paths) -> None:
+    client = TestClient(create_app(lab))
+    empty = client.get("/api/banc").json()
+    assert empty["strategies"] == [] and empty["totals"]["all"]["tickets"] == 0
+    (lab.banc).mkdir(parents=True, exist_ok=True)
+    (lab.banc / "panel.json").write_text(
+        json.dumps(
+            {
+                "strategies": [
+                    {
+                        "id": "fav",
+                        "discipline": "PLAT",
+                        "bet": "SG",
+                        "criteria": {"odds_band": "Favori"},
+                        "label": "Rang dans la cote : Favori",
+                        "reference": True,
+                        "origin": "référence",
+                        "eliminated_at": None,
+                        "exploration": {},
+                        "confirmation": None,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    body = client.get("/api/banc").json()
+    (s,) = body["strategies"]
+    assert s["status"] == "référence" and s["live"]["bets"] == 0
+    assert s["criteria_list"][0]["label"] == "Rang dans la cote"
+    assert client.get("/api/races/2026-09-28/R2C1").json()["banc"] is None

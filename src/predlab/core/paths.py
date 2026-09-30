@@ -57,6 +57,11 @@ class Paths:
         """Live paper-betting ledger: our decisions only, hash-chained, safe to commit."""
         return self.root / "carnet.jsonl"
 
+    @property
+    def banc(self) -> Path:
+        """Strategy bench: its panel of strategies and its own live ledger (decisions only)."""
+        return self.root / "banc"
+
     def ensure(self) -> Paths:
         for directory in (self.raw_pmu, self.audit, self.logs):
             directory.mkdir(parents=True, exist_ok=True)

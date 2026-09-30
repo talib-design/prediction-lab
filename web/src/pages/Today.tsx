@@ -83,6 +83,38 @@ function BetsOverview() {
   );
 }
 
+/** The strategy bench in one line, under the carnet's balance: kept apart on purpose. */
+function BancTeaser() {
+  const load = useApi(() => api.banc(), "banc-teaser", 120_000);
+  if (load.state !== "ready" || load.data.strategies.length === 0) return null;
+  const d = load.data;
+  const playing = d.strategies.filter((s) => s.status === "en test" || s.status === "gagnante");
+  const best = [...playing].filter((s) => s.live.bets >= 20).sort((a, b) => (b.live.roi ?? -9) - (a.live.roi ?? -9))[0];
+  const t = d.totals.today;
+  return (
+    <a href="#/banc" className="card banc-teaser">
+      <strong>Banc d'essai</strong>
+      <span className="small">
+        {playing.length} stratégies en test · {d.counts.gagnante ?? 0} gagnante{(d.counts.gagnante ?? 0) > 1 ? "s" : ""}
+      </span>
+      <span className="small muted">
+        aujourd'hui : {t.tickets} ticket{t.tickets > 1 ? "s" : ""} réglé{t.tickets > 1 ? "s" : ""}
+        {t.tickets > 0 && `, net ${signed(t.net)}`}
+      </span>
+      {best && (
+        <span className="small muted">
+          meilleure en direct : {best.bet === "SG" ? "gagnant" : "placé"} · {best.criteria_list.map((k) => k.level).join(" + ")} (
+          {best.live.roi != null && `${best.live.roi >= 0 ? "+" : "−"}${Math.abs(best.live.roi * 100).toFixed(0)} %`} sur{" "}
+          {best.live.bets} paris)
+        </span>
+      )}
+      <span className="small" style={{ marginLeft: "auto" }}>
+        voir le banc →
+      </span>
+    </a>
+  );
+}
+
 /** One line: what the lab played on this race, or when it will. */
 function CarnetChip({ c }: { c?: CarnetState }) {
   if (!c) return null;
@@ -181,6 +213,7 @@ export function Today({ day }: { day?: string }) {
       />
 
       <BetsOverview />
+      <BancTeaser />
 
       <div className="row" style={{ justifyContent: "space-between", marginBottom: 16 }}>
         <Segmented<Filter>

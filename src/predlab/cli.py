@@ -13,6 +13,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Annotated
 
+import polars as pl
 import typer
 
 from predlab import __version__
@@ -20,6 +21,7 @@ from predlab.core.clock import PARIS, paris_day, utcnow
 from predlab.core.dotenv import load_dotenv
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import default_paths
+from predlab.racing import strategies as banc_lib
 from predlab.racing.audit import run_audit, write_report
 from predlab.racing.backfill import DEFAULT_PLAN, parse_plan, run_backfill_plan
 from predlab.racing.backtest import DEFAULT_HORIZON_MINUTES, PREREGISTERED_SPLIT, run_backtest
@@ -107,6 +109,10 @@ def collect(
             _run_carnet_pass()
         except Exception as exc:
             _log_line(f"{utcnow().isoformat(timespec='seconds')} | carnet ERREUR {exc!r}")
+        try:
+            _run_banc_pass()
+        except Exception as exc:
+            _log_line(f"{utcnow().isoformat(timespec='seconds')} | banc ERREUR {exc!r}")
     if report.failed and report.failed == report.fetched:
         raise typer.Exit(code=1)
 
@@ -123,6 +129,53 @@ def _run_carnet_pass() -> CarnetReport:
     if rep.frozen or rep.settled or rep.errors:
         _log_line(f"{utcnow().isoformat(timespec='seconds')} | {rep.summary()}")
     return rep
+
+
+def _run_banc_pass() -> banc_lib.BancReport | None:
+    paths = default_paths().ensure()
+    panel = banc_lib.Panel.load(paths.banc / "panel.json")
+    if not panel.strategies:
+        return None
+    rep = banc_lib.run_banc(
+        RawStore(paths.raw_pmu),
+        AppendOnlyLedger(paths.banc / "ledger.jsonl"),
+        panel,
+        now=utcnow(),
+        frame_for=banc_lib.frame_for_paths(paths.runs, paths.database),
+    )
+    if rep.frozen or rep.settled or rep.errors:
+        _log_line(f"{utcnow().isoformat(timespec='seconds')} | {rep.summary()}")
+    return rep
+
+
+@racing_app.command("banc")
+def banc(
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
+) -> None:
+    """Strategy bench: explore combinations on 2024, confirm the newcomers once on
+    2025-2026, add them to the bench that plays every coming race (fictitious, 1 EUR)."""
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    frame = banc_lib.build_frame(paths.database, paths.runs, discipline)
+    explored = frame.filter(pl.col("day") <= banc_lib.EXPLORATION_END)
+    if explored["race_id"].n_unique() < NIGHTLY_MIN_RACES:
+        typer.echo(f"Trop peu de courses d'exploration ({discipline}) : banc non mis à jour.")
+        return
+    panel = banc_lib.Panel.load(paths.banc / "panel.json")
+    now = utcnow()
+    added = banc_lib.update_panel(panel, frame, discipline, now)
+    live, _ = banc_lib.live_stats(AppendOnlyLedger(paths.banc / "ledger.jsonl"))
+    gone = banc_lib.apply_eliminations(panel, live, now)
+    panel.save()
+    gauge = panel.gauge.get(discipline, {})
+    typer.echo(
+        f"Banc {discipline} : {len(added)} nouvelle(s) stratégie(s) ; "
+        f"découvertes 2024 confirmées sur 2025-2026 : {gauge.get('confirmed', 0)}"
+        f"/{gauge.get('tested', 0)} ; {len(gone)} éliminée(s) ; "
+        f"{len(panel.active(discipline))} en jeu."
+    )
 
 
 @racing_app.command("carnet")
@@ -254,7 +307,8 @@ def nightly(
         try:
             profile(discipline=discipline)
             model(discipline=discipline)
-            _log_line(f"{stamp} | nuit {discipline} : profil des vainqueurs et Marché+ ajustés")
+            banc(discipline=discipline)
+            _log_line(f"{stamp} | nuit {discipline} : profil, Marché+ et banc d'essai mis à jour")
         except Exception as exc:
             _log_line(f"{stamp} | nuit {discipline} profil/modèle ERREUR {exc!r}")
         try:
@@ -287,7 +341,11 @@ def _publish(data_dir: Path, when: datetime) -> str:
     top = git("rev-parse", "--show-toplevel")
     if top.returncode != 0:
         return "pas un dépôt git"
-    targets = [str(p) for p in (data_dir / "carnet.jsonl", data_dir / "runs") if p.exists()]
+    targets = [
+        str(p)
+        for p in (data_dir / "carnet.jsonl", data_dir / "runs", data_dir / "banc")
+        if p.exists()
+    ]
     if not targets:
         return "rien à publier"
     git("add", "--", *targets)

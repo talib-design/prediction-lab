@@ -313,6 +313,63 @@ function PlayedBlock({ data }: { data: RaceDetail }) {
   );
 }
 
+/** The strategy bench on this race: which horses it backed, and how often. */
+function BancBlock({ data }: { data: RaceDetail }) {
+  const b = data.banc;
+  if (!b) return null;
+  const byHorse = new Map<number, { SG: number; SP: number; back: number }>();
+  for (const t of b.tickets) {
+    const h = byHorse.get(t.number) ?? { SG: 0, SP: 0, back: 0 };
+    h[t.bet] += 1;
+    h.back += t.returned ?? 0;
+    byHorse.set(t.number, h);
+  }
+  const strategies = new Set(b.tickets.map((t) => t.strategy)).size;
+  return (
+    <Card
+      title="Banc d'essai sur cette course"
+      aside={
+        <span className="small muted">
+          figé à {time(b.frozen_at)} · {b.tickets.length} ticket{b.tickets.length > 1 ? "s" : ""} de {strategies} stratégie
+          {strategies > 1 ? "s" : ""}
+          {b.settled && b.returned != null && (
+            <>
+              {" "}
+              · misé {euros(b.stake)} · rapporté <strong style={{ color: "var(--ink)" }}>{euros(b.returned)}</strong>
+            </>
+          )}
+        </span>
+      }
+    >
+      {b.tickets.length === 0 ? (
+        <p className="small muted" style={{ margin: 0 }}>
+          Aucune stratégie du banc ne retenait de cheval sur cette course.
+        </p>
+      ) : (
+        <div className="banc-horses">
+          {[...byHorse.entries()]
+            .sort((a, z) => z[1].SG + z[1].SP - (a[1].SG + a[1].SP))
+            .map(([n, h]) => (
+              <span
+                key={n}
+                className={`chip ${b.settled ? (h.back > 0 ? "won" : "lost") : "played"}`}
+                title={b.tickets
+                  .filter((t) => t.number === n)
+                  .map((t) => `${t.bet === "SG" ? "Gagnant" : "Placé"} · ${t.label}`)
+                  .join("\n")}
+              >
+                n°{n} {horseName(data, n)} · {h.SG > 0 && `${h.SG} gagnant`}
+                {h.SG > 0 && h.SP > 0 && ", "}
+                {h.SP > 0 && `${h.SP} placé`}
+                {b.settled && ` · ${euros(h.back)}`}
+              </span>
+            ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function readView(): "simple" | "labo" {
   try {
     return localStorage.getItem("predlab.view") === "labo" ? "labo" : "simple";
@@ -423,6 +480,7 @@ export function Race({ day, rc }: { day: string; rc: string }) {
 
       <div className="stack">
         <PlayedBlock data={data} />
+        <BancBlock data={data} />
 
         <div className="kpis">
           <Kpi label="Distance" value={r.distance_m ? `${int(r.distance_m)} m` : "—"} kind="fact" sub={data.conditions.handedness === "LEFT" ? "Corde à gauche" : data.conditions.handedness === "RIGHT" ? "Corde à droite" : undefined} />

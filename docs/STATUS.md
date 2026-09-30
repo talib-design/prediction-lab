@@ -2,6 +2,19 @@
 
 Dernière mise à jour : 2026-09-30.
 
+## Banc d'essai des stratégies — 2026-09-30
+
+- **Banc d'essai** (`predlab racing banc`, page « Banc d'essai ») : des combinaisons de 1 à
+  3 critères (cote, Marché+, âge, musique, niveau, distance, oeillères, jockey, entraîneur,
+  terrain, hippodrome…) jouées fictivement à 1 € sur chaque course à venir, figées à T-25,
+  avec un bilan séparé du carnet. Méthode : docs/METHODOLOGY.md §11.
+- **Jauge** : les 200 meilleures combinaisons de 2024 (+18 %) font −16 % sur 2025-2026 ;
+  aucune ne tient. Le banc garde donc 150 combinaisons positives chaque année 2024, 2025
+  et 2026 (plus le favori en référence) ; seules les courses à venir les jugeront
+  (gagnante après 300 paris, éliminée après 100 si nettement négative).
+- **Nuit** : le banc est recherché à nouveau après le modèle ; le collecteur fige et règle
+  les tickets toutes les 5 minutes.
+
 ## Profil des vainqueurs et modèle Marché+ — 2026-09-30
 
 - **Profil des vainqueurs** (`predlab racing profile`) : pour chaque condition de course

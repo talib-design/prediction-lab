@@ -172,6 +172,70 @@ export interface RaceDetail {
   dividends: DividendRow[];
   snapshots: number;
   carnet: CarnetEntry | null;
+  banc: BancRace | null;
+}
+
+export interface BancRace {
+  frozen_at: string;
+  settled: boolean;
+  stake: number;
+  returned: number | null;
+  tickets: { strategy: string; label: string; bet: "SG" | "SP"; number: number; returned: number | null }[];
+}
+
+export interface Summary {
+  bets: number;
+  stake: number;
+  returned: number;
+  net: number;
+  roi: number | null;
+  low: number | null;
+  high: number | null;
+  p: number | null;
+}
+
+export interface BancStrategy {
+  id: string;
+  discipline: Discipline;
+  bet: "SG" | "SP";
+  bet_label: string;
+  criteria: Record<string, string>;
+  criteria_list: { key: string; label: string; level: string }[];
+  label: string;
+  reference: boolean;
+  origin: string;
+  added_at: string;
+  exploration: {
+    from?: string;
+    to?: string;
+    bets?: number;
+    roi?: number | null;
+    low?: number | null;
+    high?: number | null;
+    periods?: { from: string; to: string; bets: number; roi: number }[] | null;
+  };
+  confirmation: (Summary & { since: string; verdict: string }) | null;
+  eliminated_at: string | null;
+  live: Summary;
+  pending: number;
+  status: "en test" | "gagnante" | "éliminée" | "référence";
+}
+
+export interface BancTotals {
+  tickets: number;
+  stake: number;
+  returned: number;
+  net: number;
+  roi: number | null;
+}
+
+export interface BancResponse {
+  updated_at: string | null;
+  gauge: Record<string, { at: string; tested: number; confirmed: number; exploration_roi: number | null; confirmation_roi: number | null }>;
+  rules: { win_bets: number; kill_bets: number; kill_roi: number; target_roi: number };
+  totals: { today: BancTotals; all: BancTotals; pending: number; races: number; first_day: string | null };
+  counts: Record<string, number>;
+  strategies: BancStrategy[];
 }
 
 export interface HorseResponse {
@@ -492,4 +556,5 @@ export const api = {
       `/profile?discipline=${discipline}`,
     ),
   raceProfile: (day: string, rc: string) => get<RaceProfile>(`/races/${day}/${rc}/profile`),
+  banc: () => get<BancResponse>("/banc"),
 };

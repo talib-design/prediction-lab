@@ -233,6 +233,46 @@ calibré : chaque β se lit « à cote égale ».
   chevaux plus anciens) ; au trot le terrain n'est pas mesuré ; pas de modèle tant que
   l'apprentissage compte moins de 300 courses.
 
+## 11. Banc d'essai des stratégies (ajouté le 2026-09-30)
+
+Demande de Chris : parier fictivement, sans limite, sur toutes les courses à venir avec
+des stratégies construites sur les apprentissages, pour trouver une combinaison de
+critères qui rapporte plus qu'elle ne mise (objectif : +10 %). `racing/strategies.py`.
+
+- **Stratégie** = des critères (1 à 3) + un pari (simple gagnant ou simple placé) +
+  1 € par ticket, sur chaque partant qui remplit les critères. Aucun plan de mise, aucune
+  martingale, aucun pari réel.
+- **Critères** (`DIMENSIONS`) : ceux du profil (§10) et de nouveaux, tous connus avant la
+  course — tranche de cote, classement et « valeur » de Marché+ (p × cote), type de
+  course, hippodrome, dernière course et régularité lues dans la musique (vérifiée le
+  2026-09-28 : elle n'inclut pas la course elle-même), distance, niveau (allocation) et
+  oeillères comparés à la dernière course, changement de jockey annoncé, réussite du
+  jockey, de l'entraîneur et du duo (victoires / cote, passé seulement), réussite du
+  cheval sur ce terrain. Les niveaux « inconnu » ne sont jamais un critère.
+- **Marché+ comme critère** : pour l'historique, chaque mois est prédit par un modèle
+  ajusté sur les mois précédents seulement (λ du dernier rapport).
+- **Recherche stricte (jauge)** : explorée sur 2024 (gardée si positive dans chaque
+  moitié de la période), confirmée une fois sur 2025-2026 (test unilatéral « retour > 0 »,
+  Benjamini-Yekutieli). Les confirmées entrent au banc.
+  **Première mesure, 2026-09-30, plat : 0 sur 200.** Les 200 meilleures combinaisons de
+  2024 y rapportaient +18 % en moyenne ; sur 2025-2026, −16 %. Leçon : ce qui « marche »
+  une année est d'abord de la chance.
+- **Recherche « chaque année »** : explorée sur tout l'historique, gardée seulement si
+  elle est positive séparément en 2024, en 2025 et en 2026 (au moins 40 paris par année,
+  200 au total). Aucune fenêtre ne reste pour la confirmer : ce sont les courses à venir
+  qui jugent. Les 100 meilleures par type de pari (borne basse de l'IC) entrent au banc.
+- **Références** : simple gagnant et simple placé sur le favori.
+- **En direct** : chaque stratégie non éliminée joue chaque course cible, figée à T-25
+  comme le carnet, dans son propre registre chaîné `data/banc/ledger.jsonl`, avec son
+  propre bilan (jamais mélangé au carnet). Un non-partant est remboursé.
+- **Verdicts, sur les seuls paris en direct** : *gagnante* à partir de 300 paris si la
+  borne basse de l'IC 95 % du retour est au-dessus de 0 ; *éliminée* (définitivement) à
+  partir de 100 paris si la borne haute est sous −5 % ; *en test* sinon. Rien n'est
+  effacé ; l'historique du banc est dans git.
+- Limite assumée : les critères précis se présentent rarement (5 à 6 tickets par course
+  de plat au lancement) ; conclure prendra des semaines, davantage pour les stratégies
+  les plus rares.
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
@@ -242,6 +282,7 @@ calibré : chaque β se lit « à cote égale ».
 - 2026-09-28 — historique limité à 2023 (décision de Chris : chevaux encore en activité) ;
   découpage révisé en conséquence (train 2023, validation 2024, test ≥ 2025), avant tout
   challenger. §9 bis : carnet en direct.
+- 2026-09-30 — §11 : banc d'essai des stratégies ; jauge stricte 0/200 sur le plat.
 - 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
   première lecture du test datée ; trois témoins « modèle » au carnet.
 - 2026-09-30 — historique limité à 2024 (décision de Chris : rien de plus ancien n'est utile).

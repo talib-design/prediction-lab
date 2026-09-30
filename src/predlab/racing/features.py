@@ -28,6 +28,7 @@ Measures of a finished run:
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
@@ -66,6 +67,14 @@ RAW_SCHEMA: dict[str, Any] = {
     "odds": pl.Float64,
     "position": pl.Int64,
     "finished": pl.Boolean,
+    # Added 2026-09-30 for the strategy bench (racing/strategies.py). All pre-race: the
+    # musique was checked on 2026-09-28 not to contain the race it is published for.
+    "venue_name": pl.Utf8,
+    "category": pl.Utf8,
+    "prize_eur": pl.Int64,
+    "musique": pl.Utf8,
+    "blinkers": pl.Utf8,
+    "jockey_changed": pl.Boolean,
 }
 
 # The factors of the profile, in display order: column, French name, which disciplines.
@@ -219,7 +228,9 @@ def load_finished(db_path: Path, discipline: str, *, since: date = HISTORY_START
                    CAST(u.draw AS BIGINT) AS draw, CAST(u.weight_raw AS BIGINT) AS weight_raw,
                    CAST(u.age AS BIGINT) AS age, u.sex, u.shoeing,
                    CAST(u.handicap_distance AS BIGINT) AS handicap_distance,
-                   q.odds, CAST(u.finish_position AS BIGINT) AS position, TRUE AS finished
+                   q.odds, CAST(u.finish_position AS BIGINT) AS position, TRUE AS finished,
+                   r.venue_name, r.category, CAST(r.prize_eur AS BIGINT) AS prize_eur,
+                   u.form AS musique, u.blinkers, u.jockey_changed
             FROM runners u JOIN races r USING (race_id)
             LEFT JOIN q ON q.race_id = u.race_id AND q.number = u.number
             WHERE r.is_final AND r.country_code = 'FRA' AND r.discipline = ?
@@ -250,7 +261,7 @@ def history(db_path: Path, discipline: str) -> pl.DataFrame:
 
 
 def live_frame(
-    race: Any, runners: list[Any], odds: dict[int, float], hist: pl.DataFrame
+    race: Any, runners: list[Any], odds: Mapping[int, float | None], hist: pl.DataFrame
 ) -> pl.DataFrame:
     """The same row, for a race not yet run: ``race`` is a domain ``Race``, ``runners``
     its starters, ``odds`` the quotes at the horizon."""
@@ -282,6 +293,12 @@ def live_frame(
                 "odds": odds.get(x.number),
                 "position": None,
                 "finished": False,
+                "venue_name": race.venue_name,
+                "category": race.category,
+                "prize_eur": race.prize_eur,
+                "musique": x.form,
+                "blinkers": x.blinkers,
+                "jockey_changed": x.jockey_changed,
             }
         )
     df = pl.DataFrame(rows, schema=RAW_SCHEMA)
@@ -464,7 +481,80 @@ def derive(df: pl.DataFrame) -> pl.DataFrame:
         .otherwise(pl.lit("7e cote et au-delà"))
         .alias("odds_band"),
     )
-    return df
+    return _with_card_extras(df)
+
+
+def _with_card_extras(df: pl.DataFrame) -> pl.DataFrame:
+    """Levels read from the race card itself, added 2026-09-30 for the strategy bench."""
+    # Musique, most recent first: "1p4p(25)0pDp" -> positions 1, 4, 10+, disqualified.
+    # A real token is one position character followed by the discipline letter; year
+    # markers such as "(24)" or a bare "24" before a token are skipped by that rule.
+    tokens = pl.col("musique").fill_null("").str.extract_all(r"[0-9DATRS][a-z]").list.head(5)
+    pos = tokens.list.eval(
+        pl.element()
+        .str.slice(0, 1)
+        .replace_strict({str(d): d for d in range(1, 10)}, default=10, return_dtype=pl.Int64)
+    )
+    df = df.with_columns(
+        pos.alias("mus_pos"),
+        pos.list.len().alias("mus_n"),
+    ).with_columns(
+        pl.col("mus_pos").list.first().alias("mus_last"),
+        pl.col("mus_pos").list.eval(pl.element() <= 3).list.sum().alias("mus_top3"),
+    )
+    cat = pl.col("category").fill_null("")
+    return df.with_columns(
+        pl.when(pl.col("mus_n") == 0)
+        .then(pl.lit("Aucune course (musique vide)"))
+        .when(pl.col("mus_last") == 1)
+        .then(pl.lit("Gagnant de sa dernière course"))
+        .when(pl.col("mus_last") <= 3)
+        .then(pl.lit("2e-3e la dernière fois"))
+        .when(pl.col("mus_last") <= 9)
+        .then(pl.lit("4e-9e la dernière fois"))
+        .otherwise(pl.lit("Non placé ou arrêté la dernière fois"))
+        .alias("mus_last_band"),
+        pl.when(pl.col("mus_n") == 0)
+        .then(pl.lit("Aucune course (musique vide)"))
+        .when(pl.col("mus_top3") >= 3)
+        .then(pl.lit("Régulier : 3 top 3 ou plus sur 5"))
+        .when(pl.col("mus_top3") >= 1)
+        .then(pl.lit("Parfois placé : 1-2 top 3 sur 5"))
+        .otherwise(pl.lit("Aucun top 3 sur ses dernières courses"))
+        .alias("mus_form_band"),
+        pl.when(cat.str.contains("GROUPE"))
+        .then(pl.lit("Groupe (I à III)"))
+        .when(cat.str.contains("HANDICAP"))
+        .then(pl.lit("Handicap"))
+        .when(cat.str.contains("RECLAMER"))
+        .then(pl.lit("À réclamer"))
+        .when(cat.str.contains("CONDITION"))
+        .then(pl.lit("Course à conditions"))
+        .otherwise(pl.lit("Autre ou inconnue"))
+        .alias("category_cat"),
+        _bands(
+            "odds",
+            [3, 5, 8, 13, 21],
+            ["Cote < 3", "Cote 3 à 5", "Cote 5 à 8", "Cote 8 à 13", "Cote 13 à 21", "Cote ≥ 21"],
+            "Non cotée",
+        ).alias("odds_range"),
+        pl.col("blinkers")
+        .replace_strict(
+            {
+                "SANS_OEILLERES": "Sans oeillères",
+                "OEILLERES_AUSTRALIENNES": "Oeillères australiennes",
+                "OEILLERES_CLASSIQUE": "Oeillères classiques",
+            },
+            default="Inconnu",
+            return_dtype=pl.Utf8,
+        )
+        .alias("blinkers_cat"),
+        pl.when(pl.col("jockey_changed"))
+        .then(pl.lit("Changement de jockey annoncé"))
+        .otherwise(pl.lit("Jockey prévu"))
+        .alias("jockey_change_cat"),
+        pl.col("venue_name").fill_null("Inconnu").alias("venue"),
+    )
 
 
 def harville_top3(p: np.ndarray) -> np.ndarray:
@@ -507,7 +597,10 @@ _HISTORY_KEYS: dict[str, tuple[str, ...]] = {
     "ht": ("horse_id", "temp_band"),
     "j": ("jockey",),
     "t": ("trainer",),
+    "jt": ("jockey", "trainer"),
 }
+# What a horse's last run looked like (distance, prize, blinkers): its latest day.
+_LAST_OF_HORSE = ("distance_m", "prize_eur", "blinkers")
 
 
 def _cumulative(hist: pl.DataFrame, keys: tuple[str, ...], prefix: str) -> pl.DataFrame:
@@ -521,14 +614,24 @@ def _cumulative(hist: pl.DataFrame, keys: tuple[str, ...], prefix: str) -> pl.Da
             pl.col("gain").sum().alias("places"),
             pl.col("won").sum().alias("wins"),
             pl.col("market_p").sum().alias("exp"),
+            pl.col("placed").sum().alias("top3"),
+            pl.col("exp_top3").sum().alias("exp3"),
+            *(
+                [pl.col(c).last().alias(f"last_{c}") for c in _LAST_OF_HORSE]
+                if prefix == "h"
+                else []
+            ),
         )
         .sort("day")
     )
     cum = [
         pl.col(c).cum_sum().over(list(keys)).alias(f"{prefix}_{c}")
-        for c in ("n", "gain", "places", "wins", "exp")
+        for c in ("n", "gain", "places", "wins", "exp", "top3", "exp3")
     ]
-    return daily.select(*keys, "day", *cum, pl.col("day").alias(f"{prefix}_last"))
+    extra = (
+        [pl.col(f"last_{c}").alias(f"h_last_{c}") for c in _LAST_OF_HORSE] if prefix == "h" else []
+    )
+    return daily.select(*keys, "day", *cum, *extra, pl.col("day").alias(f"{prefix}_last"))
 
 
 def with_history(targets: pl.DataFrame, hist: pl.DataFrame) -> pl.DataFrame:
@@ -556,7 +659,74 @@ def with_history(targets: pl.DataFrame, hist: pl.DataFrame) -> pl.DataFrame:
             "Première course connue",
         ).alias("rest_band")
     )
-    return add_model_features(out)
+    return add_model_features(_with_history_bands(out))
+
+
+def _people_band(prefix: str, who: str, min_exp: float) -> pl.Expr:
+    wins, exp = pl.col(f"{prefix}_wins").fill_null(0), pl.col(f"{prefix}_exp").fill_null(0.0)
+    ratio = wins / exp
+    return (
+        pl.when(exp < min_exp)
+        .then(pl.lit(f"{who} peu connu"))
+        .when(ratio >= 1.2)
+        .then(pl.lit(f"{who} en réussite (≥ ×1,2 vs cote)"))
+        .when(ratio <= 0.8)
+        .then(pl.lit(f"{who} en difficulté (≤ ×0,8 vs cote)"))
+        .otherwise(pl.lit(f"{who} dans la norme"))
+    )
+
+
+def _with_history_bands(df: pl.DataFrame) -> pl.DataFrame:
+    """Levels built on the past (strictly before the race day), for the strategy bench."""
+    dist = pl.col("distance_m") - pl.col("h_last_distance_m")
+    prize = pl.col("prize_eur") / pl.col("h_last_prize_eur")
+    was = pl.col("h_last_blinkers").fill_null("SANS_OEILLERES")
+    now = pl.col("blinkers").fill_null("SANS_OEILLERES")
+    first = pl.col("h_n").is_null()
+    excess = (pl.col("hg_top3") - pl.col("hg_exp3")) / pl.col("hg_n")
+    return df.with_columns(
+        pl.when(first)
+        .then(pl.lit("Première course connue"))
+        .when(dist.is_null())
+        .then(pl.lit("Distance inconnue"))
+        .when(dist <= -200)
+        .then(pl.lit("Raccourcit (≥ 200 m)"))
+        .when(dist >= 200)
+        .then(pl.lit("Rallonge (≥ 200 m)"))
+        .otherwise(pl.lit("Même distance"))
+        .alias("dist_change"),
+        pl.when(first)
+        .then(pl.lit("Première course connue"))
+        .when(prize.is_null() | prize.is_nan())
+        .then(pl.lit("Allocation inconnue"))
+        .when(prize <= 0.75)
+        .then(pl.lit("Descend de niveau (allocation −25 %)"))
+        .when(prize >= 1.33)
+        .then(pl.lit("Monte de niveau (allocation +33 %)"))
+        .otherwise(pl.lit("Même niveau"))
+        .alias("class_change"),
+        pl.when(first)
+        .then(pl.lit("Première course connue"))
+        .when((was == "SANS_OEILLERES") & (now != "SANS_OEILLERES"))
+        .then(pl.lit("Met des oeillères"))
+        .when((was != "SANS_OEILLERES") & (now == "SANS_OEILLERES"))
+        .then(pl.lit("Retire ses oeillères"))
+        .otherwise(pl.lit("Équipement inchangé"))
+        .alias("blinkers_change"),
+        _people_band("j", "Jockey", 5.0).alias("jockey_form"),
+        _people_band("t", "Entraîneur", 5.0).alias("trainer_form"),
+        _people_band("jt", "Duo jockey-entraîneur", 2.0).alias("duo_form"),
+        pl.when(pl.col("going_cat") == "Non mesuré")
+        .then(pl.lit("Terrain non mesuré"))
+        .when(pl.col("hg_n").fill_null(0) < 2)
+        .then(pl.lit("Peu d'expérience de ce terrain"))
+        .when(excess >= 0.2)
+        .then(pl.lit("Réussit sur ce terrain"))
+        .when(excess <= -0.2)
+        .then(pl.lit("Échoue sur ce terrain"))
+        .otherwise(pl.lit("Neutre sur ce terrain"))
+        .alias("going_lean"),
+    )
 
 
 def add_model_features(df: pl.DataFrame) -> pl.DataFrame:

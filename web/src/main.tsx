@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { api } from "./lib/api";
 import { useApi, useRoute } from "./lib/hooks";
+import { Banc } from "./pages/Banc";
 import { Carnet } from "./pages/Carnet";
 import { Data } from "./pages/Data";
 import { Horse } from "./pages/Horse";
@@ -14,6 +15,7 @@ import "./styles/app.css";
 const NAV = [
   { to: "#/", label: "Courses", match: ["", "jour", "course", "cheval"] },
   { to: "#/carnet", label: "Carnet", match: ["carnet"] },
+  { to: "#/banc", label: "Banc d'essai", match: ["banc"] },
   { to: "#/performance", label: "Performance", match: ["performance"] },
   { to: "#/donnees", label: "Données", match: ["donnees"] },
   { to: "#/recherche", label: "Recherche", match: ["recherche"] },
@@ -44,6 +46,9 @@ function App() {
       break;
     case "carnet":
       body = <Carnet />;
+      break;
+    case "banc":
+      body = <Banc />;
       break;
     case "performance":
       body = <Performance />;
