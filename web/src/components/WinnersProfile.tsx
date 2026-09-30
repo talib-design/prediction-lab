@@ -18,10 +18,10 @@ export type Tab = "race" | "conditions" | "runners" | "model";
 
 /** ×1,12 on a log scale centred on 1, with its 95 % interval. Not colour-only: the
  *  verdict is also written as a sign next to it. */
-function RatioBar({ r }: { r: Ratio }) {
+function RatioBar({ r, range = 1.35 }: { r: Ratio; range?: number }) {
   if (r.value == null) return <span className="muted">—</span>;
   const W = 84;
-  const span = Math.log(1.6);
+  const span = Math.log(range);
   const x = (v: number) => W / 2 + (Math.max(-span, Math.min(span, Math.log(Math.max(v, 1e-3)))) / span) * (W / 2);
   const strong = r.verdict === "+" || r.verdict === "−";
   return (
@@ -63,6 +63,21 @@ function Stable({ s }: { s: { verdict: string } }) {
 
 /* ------------------------------------------------------------------------ tab panes */
 
+// Levels this rare say nothing: hidden, and said so under the table.
+const MIN_RACES = 30;
+const MIN_RUNNERS = 200;
+const UNKNOWN = new Set(["Non mesuré", "Inconnue", "Inconnu"]);
+
+function RareNote({ hidden }: { hidden: number }) {
+  if (hidden === 0) return null;
+  return (
+    <p className="small muted" style={{ margin: 0 }}>
+      {hidden} niveau{hidden > 1 ? "x" : ""} trop rare{hidden > 1 ? "s" : ""} masqué{hidden > 1 ? "s" : ""} (moins de{" "}
+      {MIN_RACES} courses ou {MIN_RUNNERS} partants).
+    </p>
+  );
+}
+
 function RacePane({ data }: { data: RaceProfile }) {
   const factors = data.profile?.race_factors ?? [];
   const labelOf = (key: string) => factors.find((f) => f.key === key)?.label ?? key;
@@ -73,7 +88,9 @@ function RacePane({ data }: { data: RaceProfile }) {
     ["temp_band", "Cette température"],
     ["dist_band", "Cette distance"],
   ];
-  const showGoing = data.discipline === "PLAT";
+  const shown = cols.filter(
+    ([key]) => !(key === "going_cat" && data.discipline !== "PLAT") && !UNKNOWN.has(data.conditions[key] ?? ""),
+  );
   return (
     <div className="stack">
       <section>
@@ -85,7 +102,11 @@ function RacePane({ data }: { data: RaceProfile }) {
               <div key={key} className="cond">
                 <span className="kpi-label">{labelOf(key)}</span>
                 <strong>{data.conditions[key]}</strong>
-                {lv && lv.favourite_win_rate != null && (
+                {UNKNOWN.has(data.conditions[key] ?? "") ? (
+                  <span className="small muted">
+                    {key === "going_cat" ? "pas encore publié : le PMU le mesure le jour même" : "pas de prévision publiée"}
+                  </span>
+                ) : lv && lv.races >= MIN_RACES && lv.favourite_win_rate != null && (
                   <span className="small muted">
                     favori gagnant {pct(lv.favourite_win_rate, 0)} des {int(lv.races)} courses
                     {lv.favourite_vs_odds.verdict === "+" && " — plus souvent que sa cote"}
@@ -111,14 +132,12 @@ function RacePane({ data }: { data: RaceProfile }) {
                 <th className="r">N°</th>
                 <th>Cheval</th>
                 <th className="r">Courses</th>
-                {cols.map(([key, label]) =>
-                  key === "going_cat" && !showGoing ? null : (
-                    <th key={key}>
-                      {label}
-                      <span className="th-sub">{data.conditions[key]}</span>
-                    </th>
-                  ),
-                )}
+                {shown.map(([key, label]) => (
+                  <th key={key}>
+                    {label}
+                    <span className="th-sub">{data.conditions[key]}</span>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -135,13 +154,11 @@ function RacePane({ data }: { data: RaceProfile }) {
                       <span className="muted">0</span>
                     )}
                   </td>
-                  {cols.map(([key]) =>
-                    key === "going_cat" && !showGoing ? null : (
-                      <td key={key}>
-                        <CondCell c={h.record?.conditions[key]} />
-                      </td>
-                    ),
-                  )}
+                  {shown.map(([key]) => (
+                    <td key={key}>
+                      <CondCell c={h.record?.conditions[key]} />
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -167,6 +184,8 @@ function CondCell({ c }: { c: ConditionRecord | undefined }) {
 }
 
 function ConditionsPane({ profile, current }: { profile: ProfileReport; current?: Record<string, string> }) {
+  const keep = (lv: { level: string; races: number }, key: string) => lv.races >= MIN_RACES || current?.[key] === lv.level;
+  const hidden = profile.race_factors.reduce((n, f) => n + f.levels.filter((lv) => !keep(lv, f.key)).length, 0);
   return (
     <div className="stack">
       <p className="small muted modal-lead">
@@ -193,7 +212,7 @@ function ConditionsPane({ profile, current }: { profile: ProfileReport; current?
               <tr className="group">
                 <td colSpan={8}>{f.label}</td>
               </tr>
-              {f.levels.map((lv) => (
+              {f.levels.filter((lv) => keep(lv, f.key)).map((lv) => (
                 <tr key={lv.level} className={current?.[f.key] === lv.level ? "is-current" : undefined}>
                   <td>
                     {lv.level}
@@ -216,11 +235,16 @@ function ConditionsPane({ profile, current }: { profile: ProfileReport; current?
           ))}
         </table>
       </div>
+      <RareNote hidden={hidden} />
     </div>
   );
 }
 
 function RunnersPane({ profile }: { profile: ProfileReport }) {
+  const hidden = profile.runner_factors.reduce((n, f) => n + f.levels.filter((lv) => lv.runners < MIN_RUNNERS).length, 0);
+  const factors = profile.runner_factors
+    .map((f) => ({ ...f, levels: f.levels.filter((lv) => lv.runners >= MIN_RUNNERS) }))
+    .filter((f) => f.levels.length > 1);
   return (
     <div className="stack">
       <p className="small muted modal-lead">
@@ -242,7 +266,7 @@ function RunnersPane({ profile }: { profile: ProfileReport }) {
               <th>2024 → 2026</th>
             </tr>
           </thead>
-          {profile.runner_factors.map((f) => (
+          {factors.map((f) => (
             <tbody key={f.key}>
               <tr className="group">
                 <td colSpan={7}>{f.label}</td>
@@ -272,6 +296,7 @@ function RunnersPane({ profile }: { profile: ProfileReport }) {
           ))}
         </table>
       </div>
+      <RareNote hidden={hidden} />
     </div>
   );
 }
@@ -320,6 +345,7 @@ function ModelPane({ model }: { model: ModelSummary | null }) {
                   <td>
                     {c.active ? (
                       <RatioBar
+                        range={1.12}
                         r={{
                           value: Math.exp(c.beta),
                           low: c.low == null ? null : Math.exp(c.low),

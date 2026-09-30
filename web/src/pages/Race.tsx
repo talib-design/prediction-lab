@@ -210,7 +210,7 @@ function RunnersTable({ data, lab, played }: { data: RaceDetail; lab: boolean; p
                 {model && (
                   <td>
                     <span className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                      <ProbBar p={model.p.get(r.number) ?? null} scale={maxP} />
+                      <ProbBar p={model.p.get(r.number) ?? null} scale={maxP} kind="forecast" />
                       {modelTop === r.number && !out && <span className="chip played tiny">choix</span>}
                     </span>
                   </td>
