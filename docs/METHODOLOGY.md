@@ -82,13 +82,13 @@ et l'ajustement sera daté ici.
 ## 6. Découpage et usage de la fenêtre de test
 
 Chronologique uniquement (`backtest/splits.py`). **Pré-enregistré le 2026-09-28, révisé
-le même jour** quand l'historique a été limité à 2023 (`racing/backtest.py`,
+le 2026-09-30** quand l'historique a été limité à 2024 (`racing/backtest.py`,
 `PREREGISTERED_SPLIT`) — avant qu'aucun modèle challenger n'ait été évalué :
 
 | Phase | Courses dont le jour est… |
 |---|---|
-| train | 2023 |
-| validation | 2024 |
+| train | 2024-01-01 → 2024-06-30 |
+| validation | 2024-07-01 → 2024-12-31 |
 | test | ≥ 2025-01-01 (≈ 21 mois au 2026-09, ~7 500 courses de plat, un peu plus chaque mois) |
 
 Conséquence assumée : la fenêtre de test est au départ un peu sous l'estimation de
@@ -183,6 +183,10 @@ Le niveau 4 du §5 : des décisions écrites **avant** la course.
 - 2026-09-28 — historique limité à 2023 (décision de Chris : chevaux encore en activité) ;
   découpage révisé en conséquence (train 2023, validation 2024, test ≥ 2025), avant tout
   challenger. §9 bis : carnet en direct.
+- 2026-09-30 — historique limité à 2024 (décision de Chris : rien de plus ancien n'est utile).
+  Découpage révisé, avant tout challenger : train 1er semestre 2024, validation 2e semestre
+  2024, test ≥ 2025 inchangé (la fenêtre de test garde sa taille). Les premières semaines
+  de 2024 ont un historique de forme court : les variables de forme y sont moins informées.
 - 2026-09-28 — trot attelé et trot monté ajoutés (décision de Chris). Chaque discipline est
   évaluée **séparément** (backtest, simulation, calibration du marché, découpage identique) ;
   aucun résultat d'une discipline ne vaut pour une autre. Au trot, la question du §1 se

@@ -182,7 +182,7 @@ def audit(
 def backfill(
     plan: Annotated[
         str,
-        typer.Option(help="Disciplines et premier jour, par priorité : PLAT:2023-01-01,ATTELE:…"),
+        typer.Option(help="Disciplines et premier jour, par priorité : PLAT:2024-01-01,ATTELE:…"),
     ] = DEFAULT_PLAN,
     end: Annotated[
         str | None, typer.Option(help="Jour le plus récent (défaut : avant-hier).")

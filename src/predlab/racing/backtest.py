@@ -39,11 +39,11 @@ from predlab.racing.knowledge import Knowledge
 
 METRICS = ("log_loss", "brier", "top1", "rr")
 
-# Pre-registered on 2026-09-28 (docs/METHODOLOGY.md §6), revised the same day when the
-# history was cut to start in 2023 -- before any challenger model had been evaluated:
-# train = 2023, validation = 2024, test = 2025 onwards.
+# Pre-registered on 2026-09-28 (docs/METHODOLOGY.md §6), revised on 2026-09-30 when the
+# history was cut to start in 2024 -- before any challenger model had been evaluated:
+# train = 2024 H1, validation = 2024 H2, test = 2025 onwards (unchanged).
 PREREGISTERED_SPLIT = TimeSplit(
-    train_end=date(2023, 12, 31), validation_end=date(2024, 12, 31), test_end=date(2099, 12, 31)
+    train_end=date(2024, 6, 30), validation_end=date(2024, 12, 31), test_end=date(2099, 12, 31)
 )
 DEFAULT_HORIZON_MINUTES = 25.0
 

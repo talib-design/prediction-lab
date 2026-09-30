@@ -1,6 +1,13 @@
 # Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
-Dernière mise à jour : 2026-09-28.
+Dernière mise à jour : 2026-09-30.
+
+## Historique limité à 2024 — 2026-09-30
+
+- **Rattrapage arrêté au 1er janvier 2024** pour toutes les disciplines (décision de Chris :
+  aller plus loin ne sert à rien). Ce qui est déjà stocké est gardé. Découpage révisé
+  avant tout challenger : train 1er semestre 2024, validation 2e semestre 2024, test ≥ 2025
+  (docs/METHODOLOGY.md §6).
 
 ## Décisions actées (2026-09-28)
 
@@ -95,7 +102,7 @@ désormais le jour et continue, arrêt après 20 échecs d'affilée) ; la strat�
 ## Tableau de bord v0 et trot — livrés le 2026-09-28
 
 - **Trot attelé et monté** : collectés en direct (même politique d'instantanés), rattrapés
-  après le plat (`--plan PLAT:2023-01-01,ATTELE:2023-01-01,MONTE:2023-01-01`),
+  après le plat (`--plan PLAT:2024-01-01,ATTELE:2024-01-01,MONTE:2024-01-01`, historique limité à 2024 depuis le 2026-09-30),
   champs propres au trot (ferrure, distance de handicap, réduction kilométrique — cette
   dernière est un résultat), `--discipline` sur `backtest` et `simulate`.
 - **Tableau de bord** `uv run predlab dashboard` → http://127.0.0.1:8765 : programme du

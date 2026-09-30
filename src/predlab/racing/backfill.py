@@ -1,7 +1,7 @@
-"""Historical backfill: French flat and trot races since 2023, fetched once, politely.
+"""Historical backfill: French flat and trot races since 2024, fetched once, politely.
 
-Scale, from the audit: ~4 000 flat and ~7 000 trot races a year in France; since 2023
-that is ~40 000 races, two requests each (runners, dividends). It therefore runs
+Scale, from the audit: ~4 000 flat and ~7 000 trot races a year in France; since 2024
+that is ~30 000 races, two requests each (runners, dividends). It therefore runs
 in bounded slices (a request cap and a deadline), typically a few hours a night, and
 resumes where it stopped. There is no progress file to trust: the raw store *is* the
 state. A day is done when its programme and every target race's post-race runners
@@ -217,14 +217,14 @@ def run_backfill(
     return report
 
 
-# From 2023 for every discipline (decision of 2026-09-28): the horses running now, with
-# their recent careers; three full seasons before the test window. Older seasons can
-# be added later by passing an earlier date -- nothing already stored is refetched.
-DEFAULT_PLAN = "PLAT:2023-01-01,ATTELE:2023-01-01,MONTE:2023-01-01"
+# From 2024 for every discipline (decision of Chris, 2026-09-30, replacing 2023): the
+# horses running now and their recent careers; nothing older is useful. The backfill
+# stops at this date -- nothing already stored is refetched or deleted.
+DEFAULT_PLAN = "PLAT:2024-01-01,ATTELE:2024-01-01,MONTE:2024-01-01"
 
 
 def parse_plan(text: str) -> list[tuple[str, date]]:
-    """``"PLAT:2023-01-01,ATTELE:2023-01-01"`` -> [("PLAT", date), ...], in priority order."""
+    """``"PLAT:2024-01-01,ATTELE:2024-01-01"`` -> [("PLAT", date), ...], in priority order."""
     plan = []
     for part in text.split(","):
         discipline, _, start = part.strip().partition(":")
