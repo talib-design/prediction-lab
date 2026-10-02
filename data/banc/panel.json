@@ -1,13 +1,13 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-01T07:27:49+00:00",
+ "updated_at": "2026-10-02T05:50:02+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-01T07:27:49+00:00",
+   "at": "2026-10-02T05:50:02+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.17575823271917032,
-   "confirmation_roi": -0.1628792632941588
+   "confirmation_roi": -0.16291239195570287
   }
  },
  "strategies": [
@@ -9324,6 +9324,94 @@
       "to": "2026-12-31",
       "bets": 50,
       "roi": 0.02400000000000002
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "3792483260",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "rest_band": "15-30 jours",
+    "temp_band": "Frais (10-17 °C)",
+    "going_lean": "Échoue sur ce terrain"
+   },
+   "label": "Le cheval sur ce terrain : Échoue sur ce terrain · Repos : 15-30 jours · Température : Frais (10-17 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-02T05:50:02+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-01",
+    "bets": 933,
+    "roi": 0.2117899249732047,
+    "low": -0.11808770283581205,
+    "high": 0.5416675527822215,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 279,
+      "roi": 0.2412186379928316
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 439,
+      "roi": 0.2820045558086559
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 215,
+      "roi": 0.03023255813953485
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "71f34b8cd2",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "venue": "STRASBOURG",
+    "jockey_change_cat": "Jockey prévu",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Changement de jockey : Jockey prévu · Entraîneur : Entraîneur dans la norme · Hippodrome : STRASBOURG",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-02T05:50:02+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-01",
+    "bets": 537,
+    "roi": 0.33780260707635,
+    "low": -0.11883221896974167,
+    "high": 0.7944374331224417,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 103,
+      "roi": 0.17281553398058258
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 232,
+      "roi": 0.2607758620689655
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 202,
+      "roi": 0.5103960396039604
      }
     ]
    },
