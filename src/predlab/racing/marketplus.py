@@ -58,9 +58,15 @@ class Design:
     days: np.ndarray  # (races,) datetime64[D]
 
 
-def design(df: pl.DataFrame, means: np.ndarray, stds: np.ndarray) -> Design:
+def design(
+    df: pl.DataFrame,
+    means: np.ndarray,
+    stds: np.ndarray,
+    features: tuple[str, ...] = MODEL_FEATURES,
+) -> Design:
+    """``features`` defaults to the model's own; the lab passes a challenger's list."""
     df = df.sort(["day", "race_id", "number"])
-    x = df.select(MODEL_FEATURES).to_numpy().astype(np.float64)
+    x = df.select(features).to_numpy().astype(np.float64)
     x = np.where(stds > 0, (x - means) / np.where(stds > 0, stds, 1.0), 0.0)
     logq = df["log_q"].to_numpy().astype(np.float64)[:, None]
     race = df["race_id"].to_numpy()

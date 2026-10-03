@@ -185,6 +185,45 @@ def banc(
     )
 
 
+@racing_app.command("lab")
+def lab(
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
+    max_tests: Annotated[int, typer.Option(help="Tests lancés au plus par passage.")] = 3,
+) -> None:
+    """The lab: pre-register the catalogue's new criteria, run the tests whose data is
+    ready (each once, by the rule fixed beforehand), refresh the favourites study."""
+    from predlab.racing import lab as lab_lib
+
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    reg = HypothesisRegistry(AppendOnlyLedger(paths.hypotheses))
+    frame = load_finished(paths.database, discipline)
+    added = lab_lib.register(reg, discipline)
+    if added:
+        typer.echo(
+            f"Labo {discipline} : {len(added)} critère(s) pré-enregistré(s) : {', '.join(added)}"
+        )
+    rep = lab_lib.study_favourites(
+        reg,
+        banc_lib.with_returns(frame, banc_lib.load_simple_dividends(paths.database)),
+        paths.lab,
+        discipline,
+    )
+    top = rep["bands"][0]
+    if top["races"]:
+        typer.echo(
+            f"Labo {discipline} : favoris < 1,5 → {top['races']} courses, gagnent "
+            f"{top['win_rate']:.0%}, retour gagnant {top['roi_sg']:+.1%}."
+        )
+    for line in lab_lib.run_pending(
+        reg, frame, paths.database, paths.lab, discipline, max_tests=max_tests
+    ):
+        typer.echo(f"Labo {line}")
+        _log_line(f"{utcnow().isoformat(timespec='seconds')} | labo {line}")
+
+
 def _write_replay(frame: pl.DataFrame, discipline: str, runs: Path) -> None:
     """Historical curve, favourite vs model, from the frame the bench already built."""
     from predlab.racing import replay as replay_lib
@@ -409,6 +448,10 @@ def nightly(
         except Exception as exc:
             _log_line(f"{stamp} | nuit {discipline} profil/modèle ERREUR {exc!r}")
         try:
+            lab(discipline=discipline)
+        except Exception as exc:
+            _log_line(f"{stamp} | nuit {discipline} labo ERREUR {exc!r}")
+        try:
             backtest(horizon=DEFAULT_HORIZON_MINUTES, discipline=discipline)
             simulate_bets(horizon=DEFAULT_HORIZON_MINUTES, discipline=discipline)
             _log_line(
@@ -440,7 +483,13 @@ def _publish(data_dir: Path, when: datetime) -> str:
         return "pas un dépôt git"
     targets = [
         str(p)
-        for p in (data_dir / "carnet.jsonl", data_dir / "runs", data_dir / "banc")
+        for p in (
+            data_dir / "carnet.jsonl",
+            data_dir / "runs",
+            data_dir / "banc",
+            data_dir / "lab",
+            data_dir / "hypotheses.jsonl",
+        )
         if p.exists()
     ]
     if not targets:

@@ -1,0 +1,42 @@
+{
+ "experiment": "musique_top3:PLAT",
+ "candidate": "musique_top3",
+ "label": "Régularité dans la musique",
+ "discipline": "PLAT",
+ "source": "history",
+ "tested_at": "2026-10-03T11:49:59+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0003 (IC 99 % -0.0010 à +0.0005). Probablement déjà dans la cote.",
+ "races": {
+  "train": 1751,
+  "validation": 1893,
+  "test": 6290
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-10-02"
+ ],
+ "lambda": {
+  "base": 1000.0,
+  "challenger": 1000.0
+ },
+ "difference": -0.0002935493463480024,
+ "ci_low": -0.0010229713778052306,
+ "ci_high": 0.00048005972537030193,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.00031680192836663933
+  },
+  "2026": {
+   "races": 2670,
+   "difference": -0.00026202337372348365
+  }
+ },
+ "beta": 0.029529120572308713,
+ "beta_low": -0.027730196842131884,
+ "beta_high": 0.08678843798674932,
+ "per_sd": 1.0299694283343985,
+ "sd": 0.28277173543032014
+}

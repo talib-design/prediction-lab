@@ -13,6 +13,19 @@ Dernière mise à jour : 2026-10-03.
   quand aucun départ n'est à moins de 35 min. Le modèle, le profil et le banc du trot se
   lancent seuls dès que son historique remonte au premier semestre 2024.
 
+## Laboratoire des critères et étude des favoris — 2026-10-03
+
+- **Labo** (`predlab racing lab`, chaque nuit après le banc) : 9 critères au catalogue,
+  pré-enregistrés au registre puis testés une seule fois contre Marché+ v1 (règle §12).
+  Page Recherche : statut, gain de prévision avec IC 99 %, effet, conclusion.
+- **Mouvement de cote** (proposition 1, Marché+ v2) : impossible à tester sur
+  l'historique (une seule cote avant le départ) ; pré-enregistré, testé à 1 000 courses
+  suivies en direct. Il faut que le Mac soit éveillé pendant les réunions.
+- **Trot** (proposition 3) : déferré des 4 et fautes passées, plus les critères communs,
+  enregistrés ; testés dès que l'historique du trot couvre 2024.
+- **Gros favoris** : à moins de 1,5, ils perdent 42 % du temps et rendent −9 % en
+  gagnant.
+
 ## Courbe historique et choix de la période — 2026-10-03
 
 - **Performance** : courbe historique favori contre modèle sur toutes les courses depuis

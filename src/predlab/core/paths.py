@@ -62,6 +62,11 @@ class Paths:
         """Strategy bench: its panel of strategies and its own live ledger (decisions only)."""
         return self.root / "banc"
 
+    @property
+    def lab(self) -> Path:
+        """The lab: pre-registered criterion tests and studies (our outputs only)."""
+        return self.root / "lab"
+
     def ensure(self) -> Paths:
         for directory in (self.raw_pmu, self.audit, self.logs):
             directory.mkdir(parents=True, exist_ok=True)

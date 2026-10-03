@@ -1,0 +1,42 @@
+{
+ "experiment": "dist_change:PLAT",
+ "candidate": "dist_change",
+ "label": "Change de distance",
+ "discipline": "PLAT",
+ "source": "history",
+ "tested_at": "2026-10-03T11:49:59+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0000 (IC 99 % -0.0000 à +0.0000). Probablement déjà dans la cote.",
+ "races": {
+  "train": 1751,
+  "validation": 1893,
+  "test": 6290
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-10-02"
+ ],
+ "lambda": {
+  "base": 1000.0,
+  "challenger": 1000.0
+ },
+ "difference": 2.0534986303555986e-06,
+ "ci_low": -1.384847816119452e-05,
+ "ci_high": 1.9711208922537993e-05,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": 2.493285420424516e-06
+  },
+  "2026": {
+   "races": 2670,
+   "difference": 1.4572333943820104e-06
+  }
+ },
+ "beta": 0.0006879035996643563,
+ "beta_low": -0.056987290612296376,
+ "beta_high": 0.05836309781162509,
+ "per_sd": 1.0006881402596088,
+ "sd": 0.19539949557553504
+}

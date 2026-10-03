@@ -1,0 +1,42 @@
+{
+ "experiment": "class_drop:PLAT",
+ "candidate": "class_drop",
+ "label": "Descend de catégorie",
+ "discipline": "PLAT",
+ "source": "history",
+ "tested_at": "2026-10-03T11:49:59+00:00",
+ "status": "REJECTED",
+ "conclusion": "Rejeté : le critère dégrade la prévision, écart +0.0001 (IC 99 % +0.0001 à +0.0002).",
+ "races": {
+  "train": 1751,
+  "validation": 1893,
+  "test": 6290
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-10-02"
+ ],
+ "lambda": {
+  "base": 1000.0,
+  "challenger": 1000.0
+ },
+ "difference": 0.00013529424182919542,
+ "ci_low": 6.163544521418483e-05,
+ "ci_high": 0.0002071009580586031,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": 0.00011022476063770211
+  },
+  "2026": {
+   "races": 2670,
+   "difference": 0.00016928357587908525
+  }
+ },
+ "beta": -0.002099140302939743,
+ "beta_low": -0.06012270580269265,
+ "beta_high": 0.05592442519681316,
+ "per_sd": 0.9979030613512695,
+ "sd": 0.3159028980896237
+}

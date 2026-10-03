@@ -14,6 +14,7 @@ Everything here reads; nothing writes, bets, or calls the PMU.
 
 from __future__ import annotations
 
+import contextlib
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -539,6 +540,12 @@ def create_app(paths: Paths | None = None) -> FastAPI:
         reg = HypothesisRegistry(AppendOnlyLedger(lab.paths.hypotheses))
         return {"hypotheses": [h.model_dump(mode="json") for h in reg.current()]}
 
+    @app.get("/api/lab")
+    def lab_view() -> dict[str, Any]:
+        """The lab: each criterion test with its pre-registration date and result, and the
+        favourites study per discipline."""
+        return _lab(lab)
+
     if WEB_DIST.exists():
         app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")
 
@@ -832,6 +839,52 @@ def _series(lab: Lab) -> list[dict[str, Any]]:
             }
         )
     return out
+
+
+def _lab(lab: Lab) -> dict[str, Any]:
+    from predlab.racing import lab as lab_lib
+
+    reg = HypothesisRegistry(AppendOnlyLedger(lab.paths.hypotheses))
+    first: dict[str, str] = {}
+    for h in reg.history():
+        first.setdefault(h.hypothesis_id, h.created_at.isoformat(timespec="seconds"))
+    results = lab_lib.results(lab.paths.lab)
+    experiments = []
+    for h in reg.current():
+        exp = h.experiment or ""
+        if ":" not in exp:
+            continue
+        cid, discipline = exp.split(":", 1)
+        c = lab_lib.BY_ID.get(cid)
+        experiments.append(
+            {
+                "experiment": exp,
+                "candidate": cid,
+                "label": c.label if c else h.description.split(" (")[0],
+                "hypothesis": c.hypothesis if c else h.description,
+                "discipline": discipline,
+                "source": c.source if c else "study",
+                "origin": h.origin.value,
+                "status": h.status.value,
+                "registered_at": first.get(h.hypothesis_id),
+                "updated_at": h.created_at.isoformat(timespec="seconds"),
+                "conclusion": h.conclusion,
+                "waiting": h.forward_result if h.status.value == "TESTING" else None,
+                "result": results.get(exp),
+            }
+        )
+    favourites = {}
+    for d in TARGETS:
+        f = lab.paths.lab / f"favourites_{d}.json"
+        if f.exists():
+            with contextlib.suppress(OSError, json.JSONDecodeError):
+                favourites[d] = json.loads(f.read_text(encoding="utf-8"))
+    return {
+        "experiments": experiments,
+        "favourites": favourites,
+        "rule": lab_lib.RULE,
+        "catalogue": len(lab_lib.CANDIDATES),
+    }
 
 
 def _merge_series(groups: list[list[dict[str, Any]]], since: str | None) -> list[dict[str, Any]]:

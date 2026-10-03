@@ -1,0 +1,42 @@
+{
+ "experiment": "blinkers_first:PLAT",
+ "candidate": "blinkers_first",
+ "label": "Met des oeillères",
+ "discipline": "PLAT",
+ "source": "history",
+ "tested_at": "2026-10-03T11:49:59+00:00",
+ "status": "SUPPORTED",
+ "conclusion": "Retenu : écart -0.0005 (IC 99 % -0.0009 à -0.0000). Proposé pour la prochaine version du modèle.",
+ "races": {
+  "train": 1751,
+  "validation": 1893,
+  "test": 6290
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-10-02"
+ ],
+ "lambda": {
+  "base": 1000.0,
+  "challenger": 1000.0
+ },
+ "difference": -0.0004920913222562063,
+ "ci_low": -0.0009468839344179758,
+ "ci_high": -6.298913742728619e-06,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.0006373898098982071
+  },
+  "2026": {
+   "races": 2670,
+   "difference": -0.0002950948708464522
+  }
+ },
+ "beta": -0.01723280037854041,
+ "beta_low": -0.07191953951397229,
+ "beta_high": 0.03745393875689147,
+ "per_sd": 0.9829148350521353,
+ "sd": 0.20449803750856413
+}

@@ -273,6 +273,39 @@ critères qui rapporte plus qu'elle ne mise (objectif : +10 %). `racing/strategi
   de plat au lancement) ; conclure prendra des semaines, davantage pour les stratégies
   les plus rares.
 
+## 12. Laboratoire des critères (ajouté le 2026-10-03)
+
+Marché+ réajuste ses poids chaque nuit, mais sa liste de critères est fixe. Un nouveau
+critère passe par le labo (`racing/lab.py`), jamais directement dans le modèle :
+
+1. **Pré-enregistrement** : le critère, sa définition et la règle de décision sont
+   inscrits au registre d'hypothèses (chaîné, publié par git chaque nuit) avant tout
+   résultat. Une définition révisée est un nouveau critère.
+2. **Test unique** : challenger = Marché+ v1 + le critère, base = Marché+ v1, même
+   procédure (λ choisi sur la validation parmi 1, 10, 100, 1000), mêmes courses.
+   Critères « historique » : découpage pré-enregistré (train 2024 S1, validation 2024 S2,
+   test 2025 →). Critères « en direct » (mouvement de cote) : l'historique PMU ne garde
+   qu'une cote avant le départ (vers T-30) et la cote finale ; le mouvement n'existe que
+   pour les courses suivies en direct. Test quand 1 000 courses sont réunies : 60 %
+   premières (par date) pour ajuster, 40 % dernières pour tester, λ = 1 000.
+3. **Décision** sur l'écart de log loss par course (challenger − base) :
+   retenu si l'IC à 99 % est entièrement sous 0 et le gain présent chaque année de test
+   (99 % parce que plusieurs critères partagent la même fenêtre de test) ; rejeté si
+   l'IC est entièrement au-dessus de 0 ; sinon non concluant.
+4. Un critère retenu n'entre pas seul dans le modèle en service : il devient la
+   proposition de la version suivante, que le carnet juge ensuite en direct.
+
+L'« agent » du labo est la boucle de nuit : il enregistre les critères du catalogue
+absents du registre et lance au plus trois tests prêts par discipline. Les critères sont
+ajoutés au catalogue en revue de code (Chris ou Claude), jamais générés et testés dans le
+même geste. Le mouvement de cote n'a fait l'objet d'aucun regard sur les résultats avant
+son pré-enregistrement, et n'en fera aucun avant ses 1 000 courses.
+
+Étude des gros favoris : le favori de chaque course (plus petite cote à T-25), par
+tranche de cote : victoires contre probabilité promise, retour en gagnant et en placé.
+Hypothèse unique, fixée avant de regarder : « les favoris à moins de 1,5 rapportent plus
+qu'ils ne coûtent en gagnant » (IC 95 % du retour au-dessus de 0).
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
@@ -294,6 +327,13 @@ critères qui rapporte plus qu'elle ne mise (objectif : +10 %). `racing/strategi
   octobre 2026) : le modèle quitte le favori sur 8,8 % des courses ; sur celles-ci, écart
   gagnant +59 € (z ≈ 0,65), placé +40 € (z ≈ 0,86), l'avance gagnant venant de 2024 :
   pas d'écart démontré.
+- 2026-10-03 — §12 : laboratoire des critères. Premier passage plat (test 2025-2026,
+  6 290 courses) : oeillères mises « retenu » de justesse (écart −0,0005, IC 99 % −0,0009
+  à −0,0000) mais dans le sens inverse de l'hypothèse (le marché surestime ces chevaux,
+  ×0,98) ; descend de catégorie rejeté (+0,0001) ; distance, jockey, duo, musique non
+  concluants, sans gain mesurable. Mouvement de cote en attente (71/1 000 courses).
+  Favoris < 1,5 : 392 courses, gagnent 58 % pour 66 % promis, retour gagnant −9,0 %
+  (IC 95 % −17 % à −1 %) : hypothèse rejetée.
 - 2026-09-30 — §11 : banc d'essai des stratégies ; jauge stricte 0/200 sur le plat.
 - 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
   première lecture du test datée ; trois témoins « modèle » au carnet.

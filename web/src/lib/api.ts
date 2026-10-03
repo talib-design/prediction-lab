@@ -545,6 +545,59 @@ export interface Hypothesis {
   conclusion: string | null;
 }
 
+export interface LabResult {
+  difference: number;
+  ci_low: number;
+  ci_high: number;
+  level: number;
+  by_year: Record<string, { races: number; difference: number }>;
+  beta: number;
+  per_sd: number | null;
+  races: Record<string, number>;
+  test_days: [string, string] | null;
+  tested_at: string;
+}
+
+export interface LabExperiment {
+  experiment: string;
+  candidate: string;
+  label: string;
+  hypothesis: string;
+  discipline: Discipline;
+  source: "history" | "live" | "study";
+  origin: Hypothesis["origin"];
+  status: Hypothesis["status"];
+  registered_at: string | null;
+  updated_at: string;
+  conclusion: string | null;
+  waiting: string | null;
+  result: LabResult | null;
+}
+
+export interface FavouriteBand {
+  band: string;
+  races: number;
+  win_rate: number | null;
+  win_low: number | null;
+  win_high: number | null;
+  implied: number | null;
+  place_rate: number | null;
+  roi_sg: number | null;
+  roi_sg_low: number | null;
+  roi_sg_high: number | null;
+  roi_sp: number | null;
+  roi_sp_low: number | null;
+  roi_sp_high: number | null;
+  lost: number;
+}
+
+export interface LabResponse {
+  experiments: LabExperiment[];
+  favourites: Partial<Record<Discipline, { first_day: string | null; last_day: string | null; generated_at: string; bands: FavouriteBand[] }>>;
+  rule: string;
+  catalogue: number;
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -586,6 +639,7 @@ export const api = {
     }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),
+  lab: () => get<LabResponse>("/lab"),
   replay: (discipline: Discipline | "ALL", since?: string) =>
     get<ReplayResponse>(`/replay?discipline=${discipline}${since ? `&since=${since}` : ""}`),
   profile: (discipline: Discipline) =>

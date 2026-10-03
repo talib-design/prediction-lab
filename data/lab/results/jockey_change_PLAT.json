@@ -1,0 +1,42 @@
+{
+ "experiment": "jockey_change:PLAT",
+ "candidate": "jockey_change",
+ "label": "Changement de jockey",
+ "discipline": "PLAT",
+ "source": "history",
+ "tested_at": "2026-10-03T11:49:59+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0000 (IC 99 % -0.0001 à +0.0000). Probablement déjà dans la cote.",
+ "races": {
+  "train": 1751,
+  "validation": 1893,
+  "test": 6290
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-10-02"
+ ],
+ "lambda": {
+  "base": 1000.0,
+  "challenger": 1000.0
+ },
+ "difference": -4.264170093052871e-05,
+ "ci_low": -0.0001388219499022064,
+ "ci_high": 3.8711508214982646e-05,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -9.504691415427166e-05
+  },
+  "2026": {
+   "races": 2670,
+   "difference": 2.8409561942111545e-05
+  }
+ },
+ "beta": 0.003155954690680757,
+ "beta_low": -0.05008712189671962,
+ "beta_high": 0.05639903127808114,
+ "per_sd": 1.0031609399587327,
+ "sd": 0.10109242668748795
+}
