@@ -1,17 +1,28 @@
 # Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
-Dernière mise à jour : 2026-10-03.
+Dernière mise à jour : 2026-10-04.
 
-## Carnet simplifié, courbe jour par jour, trot accéléré — 2026-10-03
+## Où on en est — 2026-10-04
 
-- **Carnet** : favori contre modèle Marché+, en gagnant et en placé, rien d'autre. Les
-  anciens témoins (hasard, valeur, tiercé, quinté) restent dans le registre mais sortent
-  des bilans.
-- **Courbe des gains cumulés**, jour par jour, favori contre modèle (un panneau gagnant, un
-  panneau placé) : sur l'accueil, sous le bilan, et dans le carnet.
-- **Trot** : le rattrapage avance aussi le jour, par tranches de 90 s après chaque collecte
-  quand aucun départ n'est à moins de 35 min. Le modèle, le profil et le banc du trot se
-  lancent seuls dès que son historique remonte au premier semestre 2024.
+- **Tourne seul** sur le Mac (launchd) : collecte toutes les 5 min (carnet et banc figés à
+  T-25 puis réglés), rattrapage de jour par tranches, passe de nuit à 1 h 30 (rattrapage,
+  base, puis par discipline : profil, Marché+, banc, courbe historique, labo, backtests),
+  publication git. Tableau de bord : http://127.0.0.1:8790 (relancé seul au redémarrage).
+- **Résultat principal à ce jour (plat)** : Marché+ v1 prévoit un peu mieux que le marché
+  calibré (log loss −0,0039 sur 6 290 courses de test) mais quitte le favori sur 8,8 % des
+  courses seulement ; sur 9 480 courses depuis mars 2024, favori et modèle perdent tous les
+  deux (gagnant −14,2 % / −13,6 %, placé −11,3 % / −10,9 %), écart non démontré. Aucune
+  tranche de favori n'est rentable ; sous 1,5 il perd 42 % du temps (−9 % en gagnant).
+- **En attente de données** :
+  - mouvement de cote (Marché+ v2) : 71/1 000 courses de plat suivies en direct
+    (attelé 44, monté 10) ; demande le Mac éveillé pendant les réunions ;
+  - trot : historique encore limité à 2026 ; modèle, profil, banc et critères du trot
+    démarrent quand il couvre le 1er semestre 2024.
+- **Proposé, pas lancé** : tâche planifiée hebdomadaire où Claude relit le labo et ajoute
+  des critères au catalogue ; hébergement serveur (Oracle Always Free envisagé, reporté) ;
+  fichier CLAUDE.md et agents critique / hypothèses.
+- **Règles inchangées** : aucun pari réel, aucune mise, aucun compte PMU ; jamais
+  d'information future dans les entrées ; le marché est la référence.
 
 ## Laboratoire des critères et étude des favoris — 2026-10-03
 
@@ -38,6 +49,18 @@ Dernière mise à jour : 2026-10-03.
   passe alors en retour sur mise (%).
 - Plat : le modèle quitte le favori sur 8,8 % des courses ; écart en sa faveur, non
   significatif (voir METHODOLOGY, révision du 2026-10-03).
+
+## Carnet simplifié, courbe jour par jour, trot accéléré — 2026-10-03
+
+- **Carnet** : favori contre modèle Marché+, en gagnant et en placé, rien d'autre. Les
+  anciens témoins (hasard, valeur, tiercé, quinté) restent dans le registre mais sortent
+  des bilans.
+- **Courbe des gains cumulés**, jour par jour, favori (trait plein) contre modèle
+  (pointillés), sélecteur gagnant + placé / gagnant / placé : sur l'accueil, sous le
+  bilan, et dans le carnet.
+- **Trot** : le rattrapage avance aussi le jour, par tranches de 90 s après chaque collecte
+  quand aucun départ n'est à moins de 35 min. Le modèle, le profil et le banc du trot se
+  lancent seuls dès que son historique remonte au premier semestre 2024.
 
 ## Banc d'essai des stratégies — 2026-09-30
 
