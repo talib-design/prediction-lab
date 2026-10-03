@@ -1,13 +1,13 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-02T05:50:02+00:00",
+ "updated_at": "2026-10-03T07:09:00+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-02T05:50:02+00:00",
+   "at": "2026-10-03T07:09:00+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.17575823271917032,
-   "confirmation_roi": -0.16291239195570287
+   "confirmation_roi": -0.16239386636004988
   }
  },
  "strategies": [
@@ -9412,6 +9412,50 @@
       "to": "2026-12-31",
       "bets": 202,
       "roi": 0.5103960396039604
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "a9234b4719",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "draw_band": "Intérieur (1er tiers)",
+    "class_change": "Monte de niveau (allocation +33 %)",
+    "going_lean": "Réussit sur ce terrain"
+   },
+   "label": "Niveau vs dernière course : Monte de niveau (allocation +33 %) · Position au départ : Intérieur (1er tiers) · Le cheval sur ce terrain : Réussit sur ce terrain",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-03T07:09:00+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-02",
+    "bets": 646,
+    "roi": 0.04597523219814259,
+    "low": -0.108430018874869,
+    "high": 0.20038048327115418,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 136,
+      "roi": 0.13970588235294112
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 279,
+      "roi": 0.026881720430107503
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 231,
+      "roi": 0.013852813852813783
      }
     ]
    },
