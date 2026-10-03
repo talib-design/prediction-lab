@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
-import { BetsChart } from "../components/BetsChart";
+import { CarnetBetsChart } from "../components/BetsChart";
 import { ProfileButton, WinnersProfile } from "../components/WinnersProfile";
 import { api, type CarnetState, type Discipline, type RaceSummary } from "../lib/api";
 import { euros, longDay, minutesUntil, relative, shiftDay, shortDay, time, todayParis } from "../lib/format";
@@ -81,7 +81,7 @@ function BetsOverview() {
           <h3 className="bets-h3">Suivi des paris, jour par jour</h3>
           <span className="small muted">gains cumulés : la courbe monte quand on gagne, descend quand on perd</span>
         </div>
-        <BetsChart series={series} />
+        <CarnetBetsChart series={series} />
       </div>
       <p className="small muted" style={{ margin: "6px 0 0" }}>
         Paris imaginaires, jamais placés : le favori et le choix du modèle Marché+, en gagnant et en placé, 1 € par

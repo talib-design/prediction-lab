@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
+import { BetsChart } from "../components/BetsChart";
 import { IntervalChart, ReliabilityChart } from "../components/charts";
 import { Card, Empty, Failure, KindBadge, Kpi, Loading, PageHead, Segmented, disciplineLabel } from "../components/ui";
 import { api, type BacktestReport, type Discipline, type ReportListItem, type SimulationReport } from "../lib/api";
-import { PHASE_LABELS, dateTime, euros, fmt, int, modelLabel, pct, signedPct } from "../lib/format";
+import { PHASE_LABELS, dateTime, euros, fmt, int, modelLabel, pct, shortDay, signedPct } from "../lib/format";
 import { useApi } from "../lib/hooks";
 
 const PLANNED_TEST_RACES = 8000;
@@ -264,6 +265,65 @@ function Simulation({ id }: { id: string }) {
   );
 }
 
+const signedEuros = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
+
+/** The carnet's two picks replayed on every race since 2024: does the model beat the favourite? */
+function HistoryCurve({ discipline }: { discipline: Discipline }) {
+  const load = useApi(() => api.replay(discipline), `replay-${discipline}`, 600_000);
+  if (load.state === "loading") return <Loading rows={4} />;
+  if (load.state === "error")
+    return (
+      <Card title="Courbe historique : favori contre modèle">
+        <Empty title="Courbe indisponible">
+          <p className="small">
+            Le tableau de bord tourne encore sur l'ancien code : relancez-le avec{" "}
+            <code className="mono">bash ops/install_dashboard.sh</code>.
+          </p>
+        </Empty>
+      </Card>
+    );
+  const rep = load.data.report;
+  const s = rep?.summary;
+  return (
+    <Card
+      title="Courbe historique : favori contre modèle"
+      aside={<span className="muted small">reconstitution sur toutes les courses passées · 1 € par ticket</span>}
+    >
+      {!rep || !s ? (
+        <Empty title={`Pas encore de courbe historique en ${disciplineLabel(discipline).toLowerCase()}`}>
+          <p className="small">
+            Elle est recalculée chaque nuit dès que le modèle Marché+ existe pour cette discipline (historique jusqu'au
+            premier semestre 2024 nécessaire). À la main : <code className="mono">uv run predlab racing replay --discipline {discipline}</code>.
+          </p>
+        </Empty>
+      ) : (
+        <div className="stack" style={{ gap: 12 }}>
+          <p className="small" style={{ margin: 0 }}>
+            Sur <strong className="num">{int(s.races)}</strong> courses du {shortDay(s.first_day)} au {shortDay(s.last_day)}, le
+            modèle choisit un autre cheval que le favori dans <strong className="num">{fmt(s.differ_share * 100, 1)} %</strong>{" "}
+            des cas ({int(s.differ)} courses). Tout l'écart se joue là : en gagnant, le favori y fait{" "}
+            <strong className="num">{signedEuros(s.when_they_differ.SG.favori_net)}</strong> et le modèle{" "}
+            <strong className="num">{signedEuros(s.when_they_differ.SG.modèle_net)}</strong> ; en placé,{" "}
+            <span className="num">{signedEuros(s.when_they_differ.SP.favori_net)}</span> contre{" "}
+            <span className="num">{signedEuros(s.when_they_differ.SP.modèle_net)}</span>.
+          </p>
+          <BetsChart
+            series={rep.series}
+            ranges
+            height={300}
+            note={
+              <>
+                Favori : plus petite cote 25 min avant le départ. Modèle : Marché+ du mois, ajusté sur les mois précédents
+                seulement. Reconstitution, jamais mêlée au carnet. Mise à jour : {dateTime(rep.generated_at)}.
+              </>
+            }
+          />
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export function Performance() {
   const load = useApi(() => api.reports(), "reports");
   const [discipline, setDiscipline] = useState<Discipline>("PLAT");
@@ -302,6 +362,9 @@ export function Performance() {
           </div>
         }
       />
+      <div style={{ marginBottom: 16 }}>
+        <HistoryCurve discipline={discipline} />
+      </div>
       {load.state === "loading" && <Loading />}
       {load.state === "error" && <Failure error={load.error} />}
       {load.state === "ready" && items.length === 0 && (

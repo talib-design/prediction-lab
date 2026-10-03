@@ -165,6 +165,7 @@ def banc(
         typer.echo("Base absente : lancez d'abord `predlab racing build`.")
         raise typer.Exit(code=1)
     frame = banc_lib.build_frame(paths.database, paths.runs, discipline)
+    _write_replay(frame, discipline, paths.runs)
     explored = frame.filter(pl.col("day") <= banc_lib.EXPLORATION_END)
     if explored["race_id"].n_unique() < NIGHTLY_MIN_RACES:
         typer.echo(f"Trop peu de courses d'exploration ({discipline}) : banc non mis à jour.")
@@ -181,6 +182,36 @@ def banc(
         f"découvertes 2024 confirmées sur 2025-2026 : {gauge.get('confirmed', 0)}"
         f"/{gauge.get('tested', 0)} ; {len(gone)} éliminée(s) ; "
         f"{len(panel.active(discipline))} en jeu."
+    )
+
+
+def _write_replay(frame: pl.DataFrame, discipline: str, runs: Path) -> None:
+    """Historical curve, favourite vs model, from the frame the bench already built."""
+    from predlab.racing import replay as replay_lib
+
+    rep = replay_lib.build_report(frame, discipline)
+    s = rep["summary"]
+    if not s.get("races"):
+        typer.echo(f"Courbe historique {discipline} : pas encore de modèle walk-forward.")
+        return
+    replay_lib.write_report(rep, runs)
+    typer.echo(
+        f"Courbe historique {discipline} : {s['races']} courses depuis le {s['first_day']}, "
+        f"le modèle quitte le favori sur {s['differ_share']:.0%} d'entre elles."
+    )
+
+
+@racing_app.command("replay")
+def replay(
+    discipline: Annotated[str, typer.Option(help="PLAT, ATTELE ou MONTE.")] = "PLAT",
+) -> None:
+    """Historical curve: favourite vs Marché+ pick on every past race (reconstruction)."""
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    _write_replay(
+        banc_lib.build_frame(paths.database, paths.runs, discipline), discipline, paths.runs
     )
 
 

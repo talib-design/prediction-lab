@@ -1144,3 +1144,40 @@ table.banc td {
 .tip-row .num {
   text-align: right;
 }
+
+/* Period selector under a time chart, stock-chart style. */
+.range-bar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.range-bar button {
+  border: 0;
+  background: transparent;
+  min-width: 44px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.range-bar button:hover {
+  background: var(--surface-2);
+}
+.range-bar button[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-2);
+  cursor: pointer;
+}

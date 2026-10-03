@@ -377,7 +377,11 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             except (OSError, json.JSONDecodeError):
                 continue
             kind = next(
-                (k for k in ("simulation", "profile", "model") if f.parent.name.startswith(k)),
+                (
+                    k
+                    for k in ("simulation", "profile", "model", "replay")
+                    if f.parent.name.startswith(k)
+                ),
                 "backtest",
             )
             out.append(
@@ -438,6 +442,32 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "streak": _streak(days),
             "days": days[-14:],
             "series": _series(lab),
+        }
+
+    @app.get("/api/replay")
+    def replay(discipline: str = "PLAT", since: str | None = None) -> dict[str, Any]:
+        """Historical curve, favourite vs model, on every past race (nightly
+        reconstruction). ``ALL`` adds the disciplines up; ``since`` restarts the totals."""
+        if discipline not in (*TARGETS, "ALL"):
+            raise HTTPException(404, "discipline inconnue")
+        reps = {d: latest_report(lab.paths.runs, "replay", d) for d in TARGETS}
+        available = [d for d, r in reps.items() if r]
+        chosen = [
+            r
+            for d in (available if discipline == "ALL" else [discipline])
+            if (r := reps[d]) is not None
+        ]
+        if not chosen:
+            return {"discipline": discipline, "available": available, "report": None}
+        return {
+            "discipline": discipline,
+            "available": available,
+            "report": {
+                "generated_at": max(r["generated_at"] for r in chosen),
+                "method": chosen[0]["method"],
+                "summary": chosen[0]["summary"] if len(chosen) == 1 else None,
+                "series": _merge_series([r["series"] for r in chosen], since),
+            },
         }
 
     @app.get("/api/profile")
@@ -801,6 +831,35 @@ def _series(lab: Lab) -> list[dict[str, Any]]:
                 "points": points,
             }
         )
+    return out
+
+
+def _merge_series(groups: list[list[dict[str, Any]]], since: str | None) -> list[dict[str, Any]]:
+    """Add day-by-day series of the same (bet, pick) across disciplines; keep the days from
+    ``since`` on and recompute the running totals from there."""
+    merged: dict[tuple[str, str], dict[str, Any]] = {}
+    for series in groups:
+        for s in series:
+            m = merged.setdefault(
+                (s["bet"], s["pick"]),
+                {**{k: s[k] for k in ("strategy", "label", "bet", "pick")}, "days": {}},
+            )
+            for p in s["points"]:
+                if since and p["day"] < since:
+                    continue
+                d = m["days"].setdefault(p["day"], {"races": 0, "stake": 0.0, "returned": 0.0})
+                d["races"] += p["races"]
+                d["stake"] += p["stake"]
+                d["returned"] += p["returned"]
+    out = []
+    for m in merged.values():
+        cum, points = 0.0, []
+        for day in sorted(m["days"]):
+            v = m["days"][day]
+            net = v["returned"] - v["stake"]
+            cum += net
+            points.append({"day": day, **v, "net": round(net, 2), "cum": round(cum, 2)})
+        out.append({**{k: m[k] for k in ("strategy", "label", "bet", "pick")}, "points": points})
     return out
 
 

@@ -58,6 +58,32 @@ export interface CarnetSeries {
   points: { day: string; races: number; stake: number; returned: number; net: number; cum: number }[];
 }
 
+export interface ReplayTotals {
+  bets: number;
+  returned: number;
+  net: number;
+  roi: number | null;
+}
+
+export interface ReplayResponse {
+  discipline: Discipline | "ALL";
+  available: Discipline[];
+  report: {
+    generated_at: string;
+    method: string;
+    summary: {
+      races: number;
+      first_day: string;
+      last_day: string;
+      differ: number;
+      differ_share: number;
+      totals: Record<string, ReplayTotals>;
+      when_they_differ: Record<"SG" | "SP", { races: number; favori_net: number; modèle_net: number }>;
+    } | null;
+    series: CarnetSeries[];
+  } | null;
+}
+
 export interface DayResponse {
   day: string;
   programme_retrieved_at: string | null;
@@ -560,6 +586,8 @@ export const api = {
     }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),
+  replay: (discipline: Discipline | "ALL", since?: string) =>
+    get<ReplayResponse>(`/replay?discipline=${discipline}${since ? `&since=${since}` : ""}`),
   profile: (discipline: Discipline) =>
     get<{ discipline: Discipline; profile: ProfileReport | null; model: ModelSummary | null }>(
       `/profile?discipline=${discipline}`,

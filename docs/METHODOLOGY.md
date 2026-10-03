@@ -287,6 +287,13 @@ critères qui rapporte plus qu'elle ne mise (objectif : +10 %). `racing/strategi
   valeur, tiercé et quinté sont retirés ; leurs tickets passés restent dans le registre
   chaîné, intacts, mais n'entrent plus dans aucun bilan. Rattrapage : tranches de jour de
   90 s quand aucun départ n'est proche (la passe de nuit perd ses heures quand le Mac dort).
+- 2026-10-03 — courbe historique (reconstitution, hors carnet) : sur chaque course finie
+  depuis 2024 couverte par le Marché+ walk-forward, favori = plus petite cote à T-25,
+  modèle = plus forte probabilité du modèle du mois (ajusté sur les mois précédents),
+  1 € gagnant et 1 € placé chacun. Première lecture plat (9 480 courses, mars 2024 à
+  octobre 2026) : le modèle quitte le favori sur 8,8 % des courses ; sur celles-ci, écart
+  gagnant +59 € (z ≈ 0,65), placé +40 € (z ≈ 0,86), l'avance gagnant venant de 2024 :
+  pas d'écart démontré.
 - 2026-09-30 — §11 : banc d'essai des stratégies ; jauge stricte 0/200 sur le plat.
 - 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
   première lecture du test datée ; trois témoins « modèle » au carnet.

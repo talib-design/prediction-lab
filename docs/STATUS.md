@@ -1,6 +1,6 @@
 # Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
-Dernière mise à jour : 2026-09-30.
+Dernière mise à jour : 2026-10-03.
 
 ## Carnet simplifié, courbe jour par jour, trot accéléré — 2026-10-03
 
@@ -12,6 +12,19 @@ Dernière mise à jour : 2026-09-30.
 - **Trot** : le rattrapage avance aussi le jour, par tranches de 90 s après chaque collecte
   quand aucun départ n'est à moins de 35 min. Le modèle, le profil et le banc du trot se
   lancent seuls dès que son historique remonte au premier semestre 2024.
+
+## Courbe historique et choix de la période — 2026-10-03
+
+- **Performance** : courbe historique favori contre modèle sur toutes les courses depuis
+  2024 (reconstitution, cotes à T-25, modèle walk-forward), avec choix de la période
+  (1S, 1M, 3M, 6M, 1A, Tout) ; les cumuls repartent de zéro au début de la période.
+  Recalculée chaque nuit avec le banc (`predlab racing replay` à la main), seul le dernier
+  rapport est gardé.
+- **Carnet et accueil** : case « Toutes les courses (recalculé) » qui ajoute les mêmes
+  choix recalculés sur toutes les courses des jours suivis, en pointillés fins ; l'échelle
+  passe alors en retour sur mise (%).
+- Plat : le modèle quitte le favori sur 8,8 % des courses ; écart en sa faveur, non
+  significatif (voir METHODOLOGY, révision du 2026-10-03).
 
 ## Banc d'essai des stratégies — 2026-09-30
 

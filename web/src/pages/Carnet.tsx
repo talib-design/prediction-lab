@@ -1,4 +1,4 @@
-import { BetsChart } from "../components/BetsChart";
+import { CarnetBetsChart } from "../components/BetsChart";
 import { useState } from "react";
 import { IntervalChart } from "../components/charts";
 import { Card, DisciplineBadge, Empty, Failure, Kpi, Loading, PageHead } from "../components/ui";
@@ -105,7 +105,7 @@ function Evolution() {
   if (load.state !== "ready") return null;
   return (
     <Card title="Suivi des paris, jour par jour" aside={<span className="muted small">gains cumulés : favori contre modèle</span>}>
-      <BetsChart series={load.data.series} />
+      <CarnetBetsChart series={load.data.series} />
     </Card>
   );
 }
