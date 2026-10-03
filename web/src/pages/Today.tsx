@@ -78,7 +78,7 @@ function BetsOverview() {
       </div>
       <div className="card card-body bets-evolution">
         <div className="row" style={{ justifyContent: "space-between", marginBottom: 4 }}>
-          <h3 className="bets-h3">Évolution, jour par jour</h3>
+          <h3 className="bets-h3">Suivi des paris, jour par jour</h3>
           <span className="small muted">gains cumulés : la courbe monte quand on gagne, descend quand on perd</span>
         </div>
         <BetsChart series={series} />

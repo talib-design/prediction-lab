@@ -1,140 +1,211 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CarnetSeries } from "../lib/api";
 import { euros, shortDay } from "../lib/format";
+import { Segmented } from "./ui";
 
-/** Running total of the carnet's fictitious bets, day by day: favourite vs Marché+, one
- *  panel per bet type. Both panels share the same time and euro scales so they compare. */
+/** Running total of the carnet's fictitious bets, one point per day: favourite vs Marché+.
+ *  One chart, two lines. The model line is dashed and drawn on top, so when the model picks
+ *  the favourite (identical results) both lines stay visible instead of one hiding the other. */
+
+type Mode = "ALL" | "SG" | "SP";
 
 const PICKS = [
-  { pick: "favori", label: "Favori", color: "var(--series-favori)" },
-  { pick: "modèle", label: "Modèle Marché+", color: "var(--series-model)" },
+  { pick: "favori", label: "Favori", color: "var(--series-favori)", dash: undefined },
+  { pick: "modèle", label: "Modèle", color: "var(--series-model)", dash: "7 5" },
 ] as const;
 
-const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
-const DAY = 86_400_000;
-const t = (d: string) => new Date(`${d}T00:00:00Z`).getTime();
+type Point = { day: string; races: number; stake: number; net: number; cum: number };
 
-function Panel({
-  title,
-  series,
-  domain,
-  height,
-}: {
-  title: string;
-  series: CarnetSeries[];
-  domain: { x0: number; x1: number; y0: number; y1: number };
-  height: number;
-}) {
-  const W = 560;
-  const H = height;
-  const m = { top: 12, right: 104, bottom: 22, left: 52 };
+const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
+
+/** One line per pick for the chosen bet type; "ALL" adds win and place day by day. */
+function lines(series: CarnetSeries[], mode: Mode): Record<"favori" | "modèle", Point[]> {
+  const out = { favori: [] as Point[], modèle: [] as Point[] };
+  for (const pick of ["favori", "modèle"] as const) {
+    const byDay = new Map<string, Point>();
+    for (const s of series) {
+      if (s.pick !== pick || (mode !== "ALL" && s.bet !== mode)) continue;
+      for (const p of s.points) {
+        const d = byDay.get(p.day) ?? { day: p.day, races: 0, stake: 0, net: 0, cum: 0 };
+        d.races = Math.max(d.races, p.races);
+        d.stake += p.stake;
+        d.net += p.net;
+        byDay.set(p.day, d);
+      }
+    }
+    let cum = 0;
+    out[pick] = [...byDay.values()]
+      .sort((a, b) => a.day.localeCompare(b.day))
+      .map((p) => {
+        cum += p.net;
+        return { ...p, cum };
+      });
+  }
+  return out;
+}
+
+function niceTicks(lo: number, hi: number, n: number): number[] {
+  const span = hi - lo || 1;
+  const raw = span / n;
+  const pow = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 5, 10].map((k) => k * pow).find((s) => s >= raw) ?? raw;
+  const out: number[] = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v * 100) / 100);
+  if (!out.includes(0) && lo <= 0 && hi >= 0) out.push(0);
+  return out.sort((a, b) => a - b);
+}
+
+export function BetsChart({ series, height = 280 }: { series: CarnetSeries[]; height?: number }) {
+  const [mode, setMode] = useState<Mode>("ALL");
+  const [hover, setHover] = useState<number | null>(null);
+  // Drawn at the container's real width so text stays at its true size on phone and desktop.
+  const wrap = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(760);
+  const data = useMemo(() => lines(series, mode), [series, mode]);
+  const days = useMemo(
+    () => [...new Set([...data.favori, ...data.modèle].map((p) => p.day))].sort(),
+    [data],
+  );
+
+  const ready = days.length >= 2;
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => e && setWidth(Math.max(300, Math.round(e.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ready]);
+  if (days.length < 2)
+    return (
+      <p className="small muted" style={{ margin: 0 }}>
+        La courbe apparaît après deux jours de paris réglés.
+      </p>
+    );
+
+  const W = width;
+  const narrow = W < 520;
+  const H = narrow ? Math.round(height * 0.8) : height;
+  const m = { top: 16, right: narrow ? 98 : 120, bottom: 28, left: narrow ? 44 : 56 };
   const iw = W - m.left - m.right;
   const ih = H - m.top - m.bottom;
-  const x = (ms: number) => m.left + (domain.x1 === domain.x0 ? iw / 2 : ((ms - domain.x0) / (domain.x1 - domain.x0)) * iw);
-  const y = (v: number) => m.top + ih - ((v - domain.y0) / (domain.y1 - domain.y0)) * ih;
-  const days = useMemo(
-    () => [...new Set(series.flatMap((s) => s.points.map((p) => p.day)))].sort(),
-    [series],
-  );
-  const [hover, setHover] = useState<string | null>(null);
-  const box = useRef<HTMLDivElement>(null);
+  const all = [...data.favori, ...data.modèle].map((p) => p.cum);
+  const lo0 = Math.min(0, ...all);
+  const hi0 = Math.max(0, ...all);
+  const pad = Math.max(1, (hi0 - lo0) * 0.1);
+  const lo = lo0 - pad;
+  const hi = hi0 + pad;
+  const x = (i: number) => m.left + (days.length === 1 ? iw / 2 : (i / (days.length - 1)) * iw);
+  const y = (v: number) => m.top + ih - ((v - lo) / (hi - lo)) * ih;
+  const idx = new Map(days.map((d, i) => [d, i]));
+  const ticks = niceTicks(lo, hi, 5);
+  const every = Math.max(1, Math.ceil(days.length / (narrow ? 4 : 10)));
+  const same =
+    data.favori.length === data.modèle.length &&
+    data.favori.every((p, i) => Math.abs(p.cum - (data.modèle[i]?.cum ?? NaN)) < 1e-9);
 
-  const ticks = niceTicks(domain.y0, domain.y1, 4);
-  const xTicks = days.length <= 6 ? days : days.filter((_, i) => i % Math.ceil(days.length / 5) === 0);
+  // End labels, nudged apart when the two lines finish close together.
+  const ends = PICKS.map((k) => {
+    const pts = data[k.pick];
+    const last = pts[pts.length - 1];
+    return last ? { k, last, ly: y(last.cum) } : null;
+  }).filter((e): e is NonNullable<typeof e> => e !== null);
+  if (ends.length === 2 && Math.abs(ends[0]!.ly - ends[1]!.ly) < 16) {
+    const [a, b] = ends[0]!.ly <= ends[1]!.ly ? [ends[0]!, ends[1]!] : [ends[1]!, ends[0]!];
+    const mid = (a.ly + b.ly) / 2;
+    a.ly = mid - 8;
+    b.ly = mid + 8;
+  }
 
   const onMove = (e: React.MouseEvent<SVGRectElement>) => {
     const r = (e.currentTarget.ownerSVGElement as SVGSVGElement).getBoundingClientRect();
     const px = ((e.clientX - r.left) / r.width) * W;
-    let best: string | null = null;
-    let dist = Infinity;
-    for (const d of days) {
-      const dd = Math.abs(x(t(d)) - px);
-      if (dd < dist) {
-        dist = dd;
-        best = d;
-      }
-    }
-    setHover(best);
+    const i = Math.round(((px - m.left) / iw) * (days.length - 1));
+    setHover(Math.max(0, Math.min(days.length - 1, i)));
   };
+  const hd = hover == null ? null : days[hover]!;
+  const hx = hover == null ? 0 : x(hover);
 
-  // End labels, nudged apart when the two lines finish close together.
-  const ends = series
-    .map((s) => ({ s, last: s.points[s.points.length - 1] }))
-    .filter((e) => e.last)
-    .map((e) => ({ ...e, ly: y(e.last!.cum) }));
-  if (ends.length === 2 && Math.abs(ends[0]!.ly - ends[1]!.ly) < 14) {
-    const [a, b] = ends[0]!.ly <= ends[1]!.ly ? [ends[0]!, ends[1]!] : [ends[1]!, ends[0]!];
-    const mid = (a.ly + b.ly) / 2;
-    a.ly = mid - 7;
-    b.ly = mid + 7;
-  }
-
-  const hoverX = hover ? x(t(hover)) : 0;
   return (
-    <div className="bets-panel" ref={box}>
-      <div className="bets-panel-title">{title}</div>
-      <div className="bets-svg-wrap">
-        <svg className="chart" viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`${title} : gains cumulés par jour`}>
+    <div className="stack" style={{ gap: 10 }}>
+      <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <div className="legend" aria-label="Légende">
+          {PICKS.map((k) => (
+            <span key={k.pick}>
+              <svg width="26" height="10" aria-hidden>
+                <line x1="1" x2="25" y1="5" y2="5" stroke={k.color} strokeWidth={3} strokeDasharray={k.dash} strokeLinecap="round" />
+              </svg>
+              {k.label}
+            </span>
+          ))}
+        </div>
+        <Segmented<Mode>
+          label="Type de pari"
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: "ALL", label: "Gagnant + placé" },
+            { value: "SG", label: "Gagnant" },
+            { value: "SP", label: "Placé" },
+          ]}
+        />
+      </div>
+
+      <div className="bets-svg-wrap" ref={wrap}>
+        <svg className="chart" viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label="Gains cumulés par jour, favori et modèle">
           {ticks.map((v) => (
             <g key={v}>
               <line x1={m.left} x2={m.left + iw} y1={y(v)} y2={y(v)} className={v === 0 ? "zero" : "grid"} />
-              <text x={m.left - 6} y={y(v) + 3} textAnchor="end">
+              <text x={m.left - 8} y={y(v) + 4} textAnchor="end">
                 {v === 0 ? "0 €" : `${v > 0 ? "+" : "−"}${Math.abs(v)} €`}
               </text>
             </g>
           ))}
-          {xTicks.map((d) => (
-            <text key={d} x={x(t(d))} y={H - 6} textAnchor="middle">
-              {shortDay(d).slice(0, 5)}
-            </text>
-          ))}
-          {series.map((s) => {
-            const color = PICKS.find((p) => p.pick === s.pick)!.color;
-            const pts = s.points.map((p) => `${x(t(p.day))},${y(p.cum)}`).join(" ");
-            const last = s.points[s.points.length - 1];
+          {days.map((d, i) =>
+            i % every === 0 || i === days.length - 1 ? (
+              <text key={d} x={x(i)} y={H - 8} textAnchor="middle">
+                {shortDay(d).slice(0, 5)}
+              </text>
+            ) : null,
+          )}
+          {PICKS.map((k) => {
+            const pts = data[k.pick];
             return (
-              <g key={s.strategy}>
-                {s.points.length > 1 && <polyline points={pts} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
-                {last && <circle cx={x(t(last.day))} cy={y(last.cum)} r={4} fill={color} className="ring" />}
+              <g key={k.pick}>
+                <polyline
+                  points={pts.map((p) => `${x(idx.get(p.day)!)},${y(p.cum)}`).join(" ")}
+                  fill="none"
+                  stroke={k.color}
+                  strokeWidth={3}
+                  strokeDasharray={k.dash}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+                {pts.map((p) => (
+                  <circle key={p.day} cx={x(idx.get(p.day)!)} cy={y(p.cum)} r={k.dash ? 3 : 4.5} fill={k.color} className="ring" />
+                ))}
               </g>
             );
           })}
-          {ends.map(({ s, last, ly }) => (
-            <text key={s.strategy} x={x(t(last!.day)) + 9} y={ly + 4} className="end-label">
-              {PICKS.find((p) => p.pick === s.pick)!.label.split(" ")[0]} {signed(last!.cum)}
+          {ends.map(({ k, last, ly }) => (
+            <text key={k.pick} x={x(idx.get(last.day)!) + 10} y={ly + 4} className="end-label">
+              {narrow ? signed(last.cum) : `${k.label} ${signed(last.cum)}`}
             </text>
           ))}
-          {hover && (
-            <g pointerEvents="none">
-              <line x1={hoverX} x2={hoverX} y1={m.top} y2={m.top + ih} className="crosshair" />
-              {series.map((s) => {
-                const p = s.points.find((q) => q.day === hover);
-                const color = PICKS.find((k) => k.pick === s.pick)!.color;
-                return p ? <circle key={s.strategy} cx={hoverX} cy={y(p.cum)} r={4.5} fill={color} className="ring" /> : null;
-              })}
-            </g>
+          {hd && (
+            <line x1={hx} x2={hx} y1={m.top} y2={m.top + ih} className="crosshair" pointerEvents="none" />
           )}
-          <rect
-            x={m.left}
-            y={m.top}
-            width={iw}
-            height={ih}
-            fill="transparent"
-            onMouseMove={onMove}
-            onMouseLeave={() => setHover(null)}
-          />
+          <rect x={m.left} y={m.top} width={iw} height={ih} fill="transparent" onMouseMove={onMove} onMouseLeave={() => setHover(null)} />
         </svg>
-        {hover && (
+        {hd && (
           <div
             className="chart-tip"
-            style={{ left: `${(hoverX / W) * 100}%`, transform: hoverX > W * 0.6 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
+            style={{ left: `${(hx / W) * 100}%`, transform: hx > W * 0.6 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
           >
-            <strong>{shortDay(hover)}</strong>
-            {series.map((s) => {
-              const p = s.points.find((q) => q.day === hover);
-              const k = PICKS.find((q) => q.pick === s.pick)!;
+            <strong>{shortDay(hd)}</strong>
+            {PICKS.map((k) => {
+              const p = data[k.pick].find((q) => q.day === hd);
               return (
-                <div key={s.strategy} className="tip-row">
+                <div key={k.pick} className="tip-row">
                   <i style={{ background: k.color }} />
                   <span>{k.label}</span>
                   {p ? (
@@ -150,57 +221,14 @@ function Panel({
           </div>
         )}
       </div>
-    </div>
-  );
-}
 
-function niceTicks(lo: number, hi: number, n: number): number[] {
-  const span = hi - lo || 1;
-  const raw = span / n;
-  const pow = 10 ** Math.floor(Math.log10(raw));
-  const step = [1, 2, 5, 10].map((k) => k * pow).find((s) => s >= raw) ?? raw;
-  const out: number[] = [];
-  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.round(v));
-  if (!out.includes(0) && lo <= 0 && hi >= 0) out.push(0);
-  return out.sort((a, b) => a - b);
-}
-
-export function BetsChart({ series, height = 190 }: { series: CarnetSeries[]; height?: number }) {
-  const all = series.flatMap((s) => s.points);
-  const days = [...new Set(all.map((p) => p.day))].sort();
-  if (days.length < 2)
-    return (
       <p className="small muted" style={{ margin: 0 }}>
-        La courbe apparaît après deux jours de paris réglés.
+        {same
+          ? "Les deux courbes sont confondues : jusqu'ici le modèle a choisi le favori sur toutes les courses. "
+          : ""}
+        Comparés sur les mêmes courses (celles où le modèle a joué), 1 € par ticket.
       </p>
-    );
-  const lo = Math.min(0, ...all.map((p) => p.cum));
-  const hi = Math.max(0, ...all.map((p) => p.cum));
-  const pad = Math.max(2, (hi - lo) * 0.12);
-  const domain = { x0: t(days[0]!), x1: t(days[days.length - 1]!) || t(days[0]!) + DAY, y0: lo - pad, y1: hi + pad };
-  const by = (bet: "SG" | "SP") => series.filter((s) => s.bet === bet && s.points.length > 0);
-  const modelStart = series.filter((s) => s.pick === "modèle").flatMap((s) => s.points.map((p) => p.day)).sort()[0];
-  return (
-    <div className="stack" style={{ gap: 8 }}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <div className="legend" aria-label="Légende">
-          {PICKS.map((p) => (
-            <span key={p.pick}>
-              <i style={{ background: p.color }} />
-              {p.label}
-            </span>
-          ))}
-        </div>
-        {modelStart && (
-          <span className="small muted">
-            comparés sur les mêmes courses : celles où le modèle a joué (depuis le {shortDay(modelStart)})
-          </span>
-        )}
-      </div>
-      <div className="bets-grid">
-        <Panel title="Gagnant (simple gagnant)" series={by("SG")} domain={domain} height={height} />
-        <Panel title="Placé (simple placé)" series={by("SP")} domain={domain} height={height} />
-      </div>
+
       <details className="small">
         <summary className="muted">Voir les chiffres jour par jour</summary>
         <div className="table-wrap">
@@ -208,27 +236,24 @@ export function BetsChart({ series, height = 190 }: { series: CarnetSeries[]; he
             <thead>
               <tr>
                 <th>Jour</th>
-                {series.map((s) => (
-                  <th key={s.strategy} className="r">
-                    {s.label}
-                  </th>
-                ))}
+                <th className="r">Courses</th>
+                <th className="r">Favori (jour → cumul)</th>
+                <th className="r">Modèle (jour → cumul)</th>
               </tr>
             </thead>
             <tbody>
-              {days.map((d) => (
-                <tr key={d}>
-                  <td>{shortDay(d)}</td>
-                  {series.map((s) => {
-                    const p = s.points.find((q) => q.day === d);
-                    return (
-                      <td key={s.strategy} className="r num">
-                        {p ? `${signed(p.net)} → ${signed(p.cum)}` : "—"}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+              {days.map((d) => {
+                const f = data.favori.find((q) => q.day === d);
+                const mo = data.modèle.find((q) => q.day === d);
+                return (
+                  <tr key={d}>
+                    <td>{shortDay(d)}</td>
+                    <td className="r num">{f?.races ?? mo?.races ?? "—"}</td>
+                    <td className="r num">{f ? `${signed(f.net)} → ${signed(f.cum)}` : "—"}</td>
+                    <td className="r num">{mo ? `${signed(mo.net)} → ${signed(mo.cum)}` : "—"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -104,8 +104,8 @@ function Evolution() {
   const load = useApi(() => api.periods(), "carnet-series", 120_000);
   if (load.state !== "ready") return null;
   return (
-    <Card title="Évolution, jour par jour" aside={<span className="muted small">gains cumulés, favori contre modèle, sur les mêmes courses</span>}>
-      <BetsChart series={load.data.series} height={220} />
+    <Card title="Suivi des paris, jour par jour" aside={<span className="muted small">gains cumulés : favori contre modèle</span>}>
+      <BetsChart series={load.data.series} />
     </Card>
   );
 }
