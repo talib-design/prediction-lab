@@ -1,13 +1,13 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-03T07:09:00+00:00",
+ "updated_at": "2026-10-03T17:00:22+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-03T07:09:00+00:00",
+   "at": "2026-10-03T17:00:22+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.17575823271917032,
-   "confirmation_roi": -0.16239386636004988
+   "confirmation_roi": -0.16182941444192264
   }
  },
  "strategies": [
@@ -9456,6 +9456,94 @@
       "to": "2026-12-31",
       "bets": 231,
       "roi": 0.013852813852813783
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c505b2cad9",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "going_cat": "Bon souple",
+    "duo_form": "Duo jockey-entraîneur peu connu"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur peu connu · Terrain : Bon souple · Cote : Cote 3 à 5",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-03T17:00:22+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-03",
+    "bets": 766,
+    "roi": 0.037859007832898195,
+    "low": -0.09528885490631983,
+    "high": 0.17100687057211622,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 257,
+      "roi": 0.052918287937743225
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 273,
+      "roi": 0.05384615384615388
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 236,
+      "roi": 0.0029661016949151797
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "d6f6d52ca1",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "2e-3e cote",
+    "going_cat": "Bon souple",
+    "class_change": "Descend de niveau (allocation −25 %)"
+   },
+   "label": "Niveau vs dernière course : Descend de niveau (allocation −25 %) · Terrain : Bon souple · Rang dans la cote : 2e-3e cote",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-03T17:00:22+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-03",
+    "bets": 718,
+    "roi": 0.04791086350974938,
+    "low": -0.11596157291718392,
+    "high": 0.21178329993668268,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 174,
+      "roi": 0.07413793103448274
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 280,
+      "roi": 0.04714285714285715
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 264,
+      "roi": 0.03143939393939399
      }
     ]
    },
