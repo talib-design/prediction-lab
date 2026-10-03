@@ -11,7 +11,7 @@ import os
 import socket
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import polars as pl
 import typer
@@ -113,6 +113,12 @@ def collect(
             _run_banc_pass()
         except Exception as exc:
             _log_line(f"{utcnow().isoformat(timespec='seconds')} | banc ERREUR {exc!r}")
+        try:
+            _daytime_backfill_slice()
+        except Exception as exc:
+            _log_line(
+                f"{utcnow().isoformat(timespec='seconds')} | rattrapage de jour ERREUR {exc!r}"
+            )
     if report.failed and report.failed == report.fetched:
         raise typer.Exit(code=1)
 
@@ -255,25 +261,85 @@ def backfill(
     ] = False,
 ) -> None:
     """Fetch past French races, discipline by discipline, newest first, resumable."""
-    paths = default_paths().ensure()
-    started = utcnow()
-    last = date.fromisoformat(end) if end else paris_day(started) - timedelta(days=2)
-    reports = run_backfill_plan(
-        PmuClient(),
-        RawStore(paths.raw_pmu),
-        plan=parse_plan(plan),
-        end=last,
-        now=utcnow,
-        max_requests=max_requests,
-        deadline=started + timedelta(hours=hours),
-        progress=typer.echo,
-    )
-    for discipline, report in reports:
-        line = f"{discipline} — {report.summary()}"
-        typer.echo(line)
-        _log_line(f"{started.isoformat(timespec='seconds')} | {line}")
+    reports = _backfill_locked(plan, end, hours, max_requests, blocking=True)
+    for discipline, report in reports or []:
+        typer.echo(f"{discipline} — {report.summary()}")
     if then_build:
         build_db()
+
+
+def _backfill_locked(
+    plan: str, end: str | None, hours: float, max_requests: int, *, blocking: bool, log: bool = True
+) -> list[tuple[str, Any]] | None:
+    """One backfill pass under a lock shared by the nightly run and the daytime slices,
+    so two passes never fetch the same days. None when ``blocking`` is False and another
+    pass holds the lock."""
+    import fcntl
+
+    paths = default_paths().ensure()
+    lock = (paths.logs / "backfill.lock").open("a")
+    try:
+        try:
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB))
+        except BlockingIOError:
+            return None
+        started = utcnow()
+        last = date.fromisoformat(end) if end else paris_day(started) - timedelta(days=2)
+        reports = run_backfill_plan(
+            PmuClient(),
+            RawStore(paths.raw_pmu),
+            plan=parse_plan(plan),
+            end=last,
+            now=utcnow,
+            max_requests=max_requests,
+            deadline=started + timedelta(hours=hours),
+            progress=typer.echo if log else None,
+        )
+        if log:
+            for discipline, report in reports:
+                _log_line(
+                    f"{started.isoformat(timespec='seconds')} | {discipline} — {report.summary()}"
+                )
+        return reports
+    finally:
+        lock.close()
+
+
+SLICE_SECONDS = 90
+SLICE_REQUESTS = 120
+SLICE_QUIET_MINUTES = (5, 35)  # no slice from 35 min before an off to 5 min after it
+
+
+def _daytime_backfill_slice() -> None:
+    """While the Mac is awake, a short backfill slice after each collection pass -- the
+    nightly run alone loses its hours whenever the Mac sleeps at night. Skipped near a
+    race's freeze window, so the T-25 snapshots are never delayed; logged only when it
+    completes days."""
+    from predlab.racing.carnet import _is_target, _programme
+
+    paths = default_paths().ensure()
+    store = RawStore(paths.raw_pmu)
+    now = utcnow()
+    before, after = SLICE_QUIET_MINUTES
+    for race in _programme(store, store.index(), paris_day(now)):
+        if _is_target(race) and (
+            race.off_time - timedelta(minutes=after)
+            <= now
+            <= race.off_time + timedelta(minutes=before)
+        ):
+            return
+    reports = _backfill_locked(
+        DEFAULT_PLAN, None, SLICE_SECONDS / 3600, SLICE_REQUESTS, blocking=False, log=False
+    )
+    done = [(d, r) for d, r in reports or [] if r.days_completed]
+    if done:
+        stamp = now.isoformat(timespec="seconds")
+        _log_line(
+            f"{stamp} | rattrapage de jour : "
+            + ", ".join(
+                f"{d} {r.days_completed} j. (jusqu'au {r.oldest_day_reached})" for d, r in done
+            )
+        )
 
 
 NIGHTLY_MIN_RACES = 300  # below this, a backtest says nothing: skip the discipline

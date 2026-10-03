@@ -48,3 +48,39 @@ def test_publish_commits_only_our_outputs_and_pushes(tmp_path: Path) -> None:
 
 def test_publish_outside_a_repository_is_harmless(tmp_path: Path) -> None:
     assert _publish(tmp_path, WHEN) in {"pas un dépôt git", "rien à publier"}
+
+
+def test_daytime_slice_waits_near_an_off_and_never_runs_twice(tmp_path, monkeypatch) -> None:
+    import fcntl
+    from datetime import timedelta
+
+    from predlab import cli
+    from predlab.core.paths import ENV_VAR
+    from predlab.racing.sources.pmu.client import FetchResult
+    from predlab.racing.store.raw import RawStore
+
+    from .test_carnet import OFF, _programme
+
+    monkeypatch.setenv(ENV_VAR, str(tmp_path / "data"))
+    paths = cli.default_paths().ensure()
+    store = RawStore(paths.raw_pmu)
+    store.record(
+        FetchResult("u", 200, _programme(), OFF - timedelta(hours=3)),
+        key="programme/2026-09-28",
+        endpoint="programme",
+        purpose="t",
+    )
+    calls: list[bool] = []
+    monkeypatch.setattr(cli, "_backfill_locked", lambda *a, **k: calls.append(k["blocking"]) or [])
+    monkeypatch.setattr(cli, "utcnow", lambda: OFF - timedelta(minutes=20))
+    cli._daytime_backfill_slice()
+    assert calls == [], "20 min before an off: the T-25 snapshots come first"
+    monkeypatch.setattr(cli, "utcnow", lambda: OFF - timedelta(hours=2))
+    cli._daytime_backfill_slice()
+    assert calls == [False], "far from any off: a non-blocking slice runs"
+
+    monkeypatch.undo()
+    monkeypatch.setenv(ENV_VAR, str(tmp_path / "data"))
+    with (paths.logs / "backfill.lock").open("a") as held:
+        fcntl.flock(held.fileno(), fcntl.LOCK_EX)
+        assert cli._backfill_locked(cli.DEFAULT_PLAN, None, 0.01, 1, blocking=False) is None

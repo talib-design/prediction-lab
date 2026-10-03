@@ -50,6 +50,14 @@ export interface PeriodTotals {
   pending_stake: number;
 }
 
+export interface CarnetSeries {
+  strategy: string;
+  label: string;
+  bet: "SG" | "SP";
+  pick: "favori" | "modèle";
+  points: { day: string; races: number; stake: number; returned: number; net: number; cum: number }[];
+}
+
 export interface DayResponse {
   day: string;
   programme_retrieved_at: string | null;
@@ -548,6 +556,7 @@ export const api = {
       periods: PeriodTotals[];
       streak: { current: number; best: number; days_played: number };
       days: { day: string; races: number; stake: number; returned: number; net: number }[];
+      series: CarnetSeries[];
     }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),
   hypotheses: () => get<{ hypotheses: Hypothesis[] }>("/hypotheses"),

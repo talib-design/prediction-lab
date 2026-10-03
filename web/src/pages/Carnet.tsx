@@ -1,3 +1,4 @@
+import { BetsChart } from "../components/BetsChart";
 import { useState } from "react";
 import { IntervalChart } from "../components/charts";
 import { Card, DisciplineBadge, Empty, Failure, Kpi, Loading, PageHead } from "../components/ui";
@@ -99,6 +100,16 @@ function DaySummary({ entries }: { entries: CarnetEntry[] }) {
   );
 }
 
+function Evolution() {
+  const load = useApi(() => api.periods(), "carnet-series", 120_000);
+  if (load.state !== "ready") return null;
+  return (
+    <Card title="Évolution, jour par jour" aside={<span className="muted small">gains cumulés, favori contre modèle, sur les mêmes courses</span>}>
+      <BetsChart series={load.data.series} height={220} />
+    </Card>
+  );
+}
+
 export function Carnet() {
   const load = useApi(() => api.carnet(), "carnet", 60_000);
   const [day, setDay] = useState<string | undefined>();
@@ -167,7 +178,9 @@ export function Carnet() {
           <Kpi label="Réglées" value={int(c.settled)} kind="fact" sub={`${int(c.races - c.settled)} en attente du rapport`} />
         </div>
 
-        <Card title="Bilan par stratégie" aside={<span className="muted small">une unité par ticket · 1 €, 2 € au Quinté+</span>}>
+        <Evolution />
+
+        <Card title="Bilan par stratégie" aside={<span className="muted small">1 € par ticket · favori et modèle, en gagnant et en placé</span>}>
           {settledRows.length === 0 ? (
             <Empty title="Pas encore de course réglée">
               <p className="small">

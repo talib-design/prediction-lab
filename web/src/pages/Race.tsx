@@ -303,9 +303,8 @@ function PlayedBlock({ data }: { data: RaceDetail }) {
           })}
         </div>
         <p className="small muted" style={{ margin: 0 }}>
-          Le <strong>favori</strong> et le <strong>hasard</strong> sont des témoins : ce que coûte « suivre la foule ». Le{" "}
-          <strong>modèle</strong> est le choix de Marché+ (la cote corrigée par les facteurs), jugé ici en conditions
-          réelles. Aucune mise réelle.
+          Le labo compare deux choix : le <strong>favori</strong> des parieurs et le <strong>modèle</strong> Marché+ (la
+          cote corrigée par les facteurs), en gagnant et en placé. Aucune mise réelle.
           {c.note && ` ${c.note}.`}
         </p>
       </div>

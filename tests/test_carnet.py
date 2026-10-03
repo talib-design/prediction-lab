@@ -72,7 +72,9 @@ def test_tickets_are_frozen_inside_the_window_from_horizon_odds_only(tmp_path: P
     (entry,) = entries(ledger)
     fav = next(t for t in entry["tickets"] if t["strategy"] == "SG favori")
     assert fav["numbers"] == [4], "the 1.2 quote on no. 1 came after T-25 and is ignored"
-    assert not any(t["bet_type"] == "QUINTE_PLUS" for t in entry["tickets"]), "not offered"
+    assert {t["strategy"] for t in entry["tickets"]} == {"SG favori", "SP favori"}, (
+        "no model parameters here: only the favourite is played"
+    )
     assert datetime.fromisoformat(entry["odds_as_of"]) <= OFF - timedelta(minutes=25)
 
     assert _run(store, ledger, OFF - timedelta(minutes=1)).frozen == [], "frozen once only"
@@ -174,7 +176,7 @@ def test_model_tickets_are_frozen_with_the_model_probabilities(tmp_path: Path) -
     (entry,) = entries(ledger)
     got = {t["strategy"]: t["numbers"] for t in entry["tickets"]}
     assert got["SG top marche_plus"] == [3] and got["SG favori"] == [4]
-    assert got["SG valeur marche_plus"] == [3], "0.5 x 8.0 >= 1.10"
+    assert set(got) == {"SG favori", "SP favori", "SG top marche_plus", "SP top marche_plus"}
     assert ledger.records()[0]["model"]["probabilities"]["3"] == 0.5
 
 
@@ -199,3 +201,40 @@ def test_a_failing_model_never_blocks_the_other_tickets(tmp_path: Path) -> None:
     rec = ledger.records()[0]
     assert "base en reconstruction" in rec["model_error"]
     assert not any("marche_plus" in t["strategy"] for t in rec["tickets"])
+
+
+def test_retired_witnesses_stay_in_the_ledger_but_out_of_every_balance(tmp_path: Path) -> None:
+    ledger = AppendOnlyLedger(tmp_path / "carnet.jsonl")
+    ledger.append(
+        {
+            "kind": "freeze",
+            "race_id": "2026-09-28/R1C1",
+            "day": "2026-09-28",
+            "discipline": "PLAT",
+            "off_time": "2026-09-28T12:00:00+00:00",
+            "frozen_at": "2026-09-28T11:40:00+00:00",
+            "odds_as_of": "2026-09-28T11:35:00+00:00",
+            "alpha": 1.0,
+            "tickets": [
+                {
+                    "strategy": "SG favori",
+                    "bet_type": "SIMPLE_GAGNANT",
+                    "numbers": [1],
+                    "stake": 1.0,
+                },
+                {
+                    "strategy": "SG hasard",
+                    "bet_type": "SIMPLE_GAGNANT",
+                    "numbers": [5],
+                    "stake": 1.0,
+                },
+            ],
+        }
+    )
+    ledger.append(
+        {"kind": "settle", "race_id": "2026-09-28/R1C1", "settled_at": "x", "returns": [0.0, 12.0]}
+    )
+    (entry,) = entries(ledger)
+    assert [t["strategy"] for t in entry["tickets"]] == ["SG favori"]
+    assert entry["tickets"][0]["returned"] == 0.0, "returns stay aligned with their ticket"
+    ledger.verify()

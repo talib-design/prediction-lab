@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from predlab.api.app import create_app
+from predlab.core.hashing import AppendOnlyLedger
 from predlab.core.paths import Paths
 from predlab.racing.sources.pmu.client import FetchResult
 from predlab.racing.store.normalized import build
@@ -132,7 +133,12 @@ def test_carnet_endpoint_is_empty_then_reports_integrity(lab: Paths) -> None:
     client = TestClient(create_app(lab))
     body = client.get("/api/carnet").json()
     assert body["races"] == 0 and body["integrity_error"] is None
-    assert {r["strategy"] for r in body["summary"]} >= {"SG favori", "SG hasard"}
+    assert {r["strategy"] for r in body["summary"]} == {
+        "SG favori",
+        "SP favori",
+        "SG top marche_plus",
+        "SP top marche_plus",
+    }
     lab.carnet.write_text('{"kind": "freeze", "prev_hash": "x", "record_hash": "y"}\n')
     assert client.get("/api/carnet").json()["integrity_error"]
 
@@ -159,6 +165,12 @@ def test_carnet_periods_are_consistent(lab: Paths) -> None:
     body = TestClient(create_app(lab)).get("/api/carnet/periods").json()
     assert [p["key"] for p in body["periods"]] == ["day", "week", "month", "all"]
     assert set(body["streak"]) == {"current", "best", "days_played"} and "days" in body
+    assert [(s["bet"], s["pick"]) for s in body["series"]] == [
+        ("SG", "favori"),
+        ("SP", "favori"),
+        ("SG", "modèle"),
+        ("SP", "modèle"),
+    ]
     for p in body["periods"]:
         assert p["net"] == p["returned"] - p["stake"]
 
@@ -234,3 +246,44 @@ def test_banc_endpoint_before_and_after_a_panel(lab: Paths) -> None:
     assert s["status"] == "référence" and s["live"]["bets"] == 0
     assert s["criteria_list"][0]["label"] == "Rang dans la cote"
     assert client.get("/api/races/2026-09-28/R2C1").json()["banc"] is None
+
+
+def test_series_compare_favourite_and_model_on_the_same_races(lab: Paths) -> None:
+    from predlab.api.app import Lab, _series
+
+    def freeze(race: str, strategies: list[str]) -> list[dict]:
+        tickets = [
+            {
+                "strategy": s,
+                "bet_type": "SIMPLE_GAGNANT" if s.startswith("SG") else "SIMPLE_PLACE",
+                "numbers": [1],
+                "stake": 1.0,
+            }
+            for s in strategies
+        ]
+        return [
+            {
+                "kind": "freeze",
+                "race_id": race,
+                "day": "2026-09-30",
+                "discipline": "PLAT",
+                "off_time": "2026-09-30T12:00:00+00:00",
+                "frozen_at": "x",
+                "odds_as_of": "x",
+                "alpha": 1.0,
+                "tickets": tickets,
+            },
+            {"kind": "settle", "race_id": race, "settled_at": "x", "returns": [2.0] * len(tickets)},
+        ]
+
+    ledger = AppendOnlyLedger(lab.carnet)
+    for rec in freeze(
+        "2026-09-30/R1C1", ["SG favori", "SP favori", "SG top marche_plus", "SP top marche_plus"]
+    ) + freeze(
+        "2026-09-30/R2C1",
+        ["SG favori", "SP favori"],  # a trot race: no model, not compared
+    ):
+        ledger.append(rec)
+    series = {s["strategy"]: s["points"] for s in _series(Lab(lab))}
+    assert series["SG favori"][0]["races"] == 1 and series["SG top marche_plus"][0]["races"] == 1
+    assert series["SG favori"][0]["cum"] == 1.0

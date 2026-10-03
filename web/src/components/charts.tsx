@@ -168,7 +168,7 @@ export function IntervalChart({
   const color = (t?: Interval["tone"]) =>
     t === "strong" ? "var(--accent)" : t === "muted" ? "var(--ink-3)" : "var(--ink-2)";
   return (
-    <svg className="chart" width="100%" viewBox={`0 0 ${width} ${h}`} role="img" aria-label="Intervalles de confiance">
+    <svg className="chart" width="100%" style={{ maxWidth: width * 1.3 }} viewBox={`0 0 ${width} ${h}`} role="img" aria-label="Intervalles de confiance">
       <line x1={sx(0)} x2={sx(0)} y1={4} y2={h - 20} className="axis" />
       <text x={sx(0)} y={h - 6} textAnchor="middle">
         {zeroLabel ?? "0"}

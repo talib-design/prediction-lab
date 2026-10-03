@@ -282,6 +282,11 @@ critères qui rapporte plus qu'elle ne mise (objectif : +10 %). `racing/strategi
 - 2026-09-28 — historique limité à 2023 (décision de Chris : chevaux encore en activité) ;
   découpage révisé en conséquence (train 2023, validation 2024, test ≥ 2025), avant tout
   challenger. §9 bis : carnet en direct.
+- 2026-10-03 — §9 bis : le carnet ne joue plus que le favori et Marché+, en simple
+  gagnant et en simple placé (décision de Chris : comparer les deux). Les témoins hasard,
+  valeur, tiercé et quinté sont retirés ; leurs tickets passés restent dans le registre
+  chaîné, intacts, mais n'entrent plus dans aucun bilan. Rattrapage : tranches de jour de
+  90 s quand aucun départ n'est proche (la passe de nuit perd ses heures quand le Mac dort).
 - 2026-09-30 — §11 : banc d'essai des stratégies ; jauge stricte 0/200 sur le plat.
 - 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
   première lecture du test datée ; trois témoins « modèle » au carnet.

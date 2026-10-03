@@ -437,6 +437,7 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "periods": _periods(lab, today),
             "streak": _streak(days),
             "days": days[-14:],
+            "series": _series(lab),
         }
 
     @app.get("/api/profile")
@@ -759,6 +760,48 @@ def _daily(lab: Lab) -> list[dict[str, Any]]:
     for r in rows:
         r["net"] = r["returned"] - r["stake"]
     return rows
+
+
+def _series(lab: Lab) -> list[dict[str, Any]]:
+    """Per strategy of the carnet, its settled results day by day and the running total:
+    the chart "is it going up, down or flat?", favourite against model on the same races."""
+    from predlab.racing.carnet import STRATEGIES, strategy_label
+
+    per: dict[str, dict[str, dict[str, float]]] = {s: {} for s in STRATEGIES}
+    for e in _carnet_by_race(lab).values():
+        if not e["settled"]:
+            continue
+        for bet in ("SG", "SP"):
+            # Paired: a race counts for a bet type only if the favourite AND the model
+            # played it, so the two lines are compared on exactly the same races.
+            pair = [t for t in e["tickets"] if t["strategy"].startswith(bet)]
+            if {("marche_plus" in t["strategy"]) for t in pair} != {True, False}:
+                continue
+            for t in pair:
+                day = per.setdefault(t["strategy"], {}).setdefault(
+                    e["day"], {"races": 0, "stake": 0.0, "returned": 0.0}
+                )
+                day["races"] += 1
+                day["stake"] += t["stake"]
+                day["returned"] += t["returned"] or 0.0
+    out = []
+    for strategy in STRATEGIES:
+        cum, points = 0.0, []
+        for d in sorted(per.get(strategy, {})):
+            v = per[strategy][d]
+            net = v["returned"] - v["stake"]
+            cum += net
+            points.append({"day": d, **v, "net": net, "cum": cum})
+        out.append(
+            {
+                "strategy": strategy,
+                "label": strategy_label(strategy),
+                "bet": "SG" if strategy.startswith("SG") else "SP",
+                "pick": "modèle" if "marche_plus" in strategy else "favori",
+                "points": points,
+            }
+        )
+    return out
 
 
 def _streak(days: list[dict[str, Any]]) -> dict[str, int]:

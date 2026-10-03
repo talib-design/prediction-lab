@@ -2,6 +2,17 @@
 
 Dernière mise à jour : 2026-09-30.
 
+## Carnet simplifié, courbe jour par jour, trot accéléré — 2026-10-03
+
+- **Carnet** : favori contre modèle Marché+, en gagnant et en placé, rien d'autre. Les
+  anciens témoins (hasard, valeur, tiercé, quinté) restent dans le registre mais sortent
+  des bilans.
+- **Courbe des gains cumulés**, jour par jour, favori contre modèle (un panneau gagnant, un
+  panneau placé) : sur l'accueil, sous le bilan, et dans le carnet.
+- **Trot** : le rattrapage avance aussi le jour, par tranches de 90 s après chaque collecte
+  quand aucun départ n'est à moins de 35 min. Le modèle, le profil et le banc du trot se
+  lancent seuls dès que son historique remonte au premier semestre 2024.
+
 ## Banc d'essai des stratégies — 2026-09-30
 
 - **Banc d'essai** (`predlab racing banc`, page « Banc d'essai ») : des combinaisons de 1 à

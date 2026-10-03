@@ -163,7 +163,8 @@ function Simulation({ id }: { id: string }) {
   if (load.state === "error") return <Failure error={load.error} />;
   const rep = load.data;
   const current = phase ?? rep.decision_phase;
-  const rows = (rep.by_phase[current] ?? []).filter((r) => r.races > 0);
+  // The random-pick witness is no longer shown (decision of Chris, 2026-10-03).
+  const rows = (rep.by_phase[current] ?? []).filter((r) => r.races > 0 && !r.strategy.includes("hasard"));
   const phases = Object.keys(rep.by_phase);
   return (
     <div className="stack">

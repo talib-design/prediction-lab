@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
+import { BetsChart } from "../components/BetsChart";
 import { ProfileButton, WinnersProfile } from "../components/WinnersProfile";
 import { api, type CarnetState, type Discipline, type RaceSummary } from "../lib/api";
 import { euros, longDay, minutesUntil, relative, shiftDay, shortDay, time, todayParis } from "../lib/format";
@@ -23,7 +24,7 @@ const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
 function BetsOverview() {
   const load = useApi(() => api.periods(), "periods", 120_000);
   if (load.state !== "ready") return null;
-  const { periods, streak, days } = load.data;
+  const { periods, streak, days, series } = load.data;
   if (periods.every((p) => p.races === 0)) return null;
   const plural = (n: number) => (n > 1 ? "s" : "");
   return (
@@ -75,9 +76,16 @@ function BetsOverview() {
           </a>
         ))}
       </div>
+      <div className="card card-body bets-evolution">
+        <div className="row" style={{ justifyContent: "space-between", marginBottom: 4 }}>
+          <h3 className="bets-h3">Évolution, jour par jour</h3>
+          <span className="small muted">gains cumulés : la courbe monte quand on gagne, descend quand on perd</span>
+        </div>
+        <BetsChart series={series} />
+      </div>
       <p className="small muted" style={{ margin: "6px 0 0" }}>
-        Paris imaginaires, jamais placés : le favori, le hasard et le choix du modèle Marché+, 1 € par ticket (2 € au
-        Quinté+).
+        Paris imaginaires, jamais placés : le favori et le choix du modèle Marché+, en gagnant et en placé, 1 € par
+        ticket.
       </p>
     </section>
   );

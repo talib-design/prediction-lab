@@ -16,7 +16,8 @@ How it works, run after every collection pass (every 5 min):
    settled with :func:`predlab.racing.betting.settle` and the result appended.
 
 Rules (fixed 2026-09-28, before the first ticket): same stakes as the simulation
-(1 EUR, 2 EUR for the Quinté+), no staking plan, no account, nothing is ever wagered.
+(1 EUR per ticket), no staking plan, no account, nothing is ever wagered. Since
+2026-10-03 the carnet plays only the favourite and the Marché+ model (``STRATEGIES``).
 The ledger holds our decisions and probabilities, not PMU odds: the odds used are
 referenced by the hash of the raw captures they came from. It is safe to commit, and
 committing it is what gives the "written before the race" claim an outside anchor.
@@ -40,7 +41,6 @@ from predlab.racing.betting import (
     SIMPLE_PLACE,
     SIMPLE_WIN,
     Ticket,
-    exotic_strategies,
     settle,
     simple_strategies,
 )
@@ -60,21 +60,25 @@ TARGETS = ("PLAT", "ATTELE", "MONTE")
 MODEL = "market_calibrated"
 PLUS = "marche_plus"  # racing/marketplus.py, added 2026-09-30
 
-# Only strategies that differ from one another: with the market as the only model,
-# "top market" is the favourite and the most likely order is the favourites' order.
+# What the carnet plays, since 2026-10-03 (decision of Chris): the favourite and the
+# Marché+ model, to compare the two, in simple gagnant and simple placé. The other
+# witnesses played from 2026-09-28 (random picks, "value", tiercé, quinté) are retired:
+# their tickets stay in the hash-chained ledger, untouched, but no longer enter any
+# balance, chart or summary -- ``entries`` filters them out.
 STRATEGIES = (
     "SG favori",
+    "SP favori",
+    f"SG top {PLUS}",
+    f"SP top {PLUS}",
+)
+RETIRED = (
     "SG hasard",
     "SG valeur market_calibrated",
-    "SP favori",
     "SP hasard",
     "Tiercé favoris",
     "Tiercé hasard",
     "Quinté favoris",
     "Quinté hasard",
-    # Added 2026-09-30, before their first ticket: the Marché+ model's own picks.
-    f"SG top {PLUS}",
-    f"SP top {PLUS}",
     f"SG valeur {PLUS}",
 )
 
@@ -95,7 +99,7 @@ def strategy_label(name: str) -> str:
 
 
 def _strategies(with_model: bool = False) -> dict[str, Any]:
-    every = {**simple_strategies([MODEL, PLUS]), **exotic_strategies([MODEL])}
+    every = simple_strategies([MODEL, PLUS])
     return {n: every[n] for n in STRATEGIES if with_model or PLUS not in n}
 
 
@@ -435,6 +439,7 @@ def entries(ledger: AppendOnlyLedger) -> list[dict[str, Any]]:
                 "returned": s["returns"][i] if s else None,
             }
             for i, t in enumerate(r["tickets"])
+            if t["strategy"] in STRATEGIES  # retired witnesses stay in the ledger only
         ]
         out.append(
             {
