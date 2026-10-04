@@ -1,13 +1,20 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-03T17:00:22+00:00",
+ "updated_at": "2026-10-04T05:48:23+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-03T17:00:22+00:00",
+   "at": "2026-10-04T04:31:33+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.17575823271917032,
    "confirmation_roi": -0.16182941444192264
+  },
+  "ATTELE": {
+   "at": "2026-10-04T05:48:23+00:00",
+   "tested": 124,
+   "confirmed": 0,
+   "exploration_roi": 0.1562703060366328,
+   "confirmation_roi": -0.23866969897949325
   }
  },
  "strategies": [
@@ -9546,6 +9553,1238 @@
       "roi": 0.03143939393939399
      }
     ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "3c5bf3346c",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "2e-3e cote",
+    "draw_band": "Milieu",
+    "dist_band": "Courte (< 2 200 m)"
+   },
+   "label": "Distance : Courte (< 2 200 m) · Position au départ : Milieu · Rang dans la cote : 2e-3e cote",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 899,
+    "roi": 0.03570634037819809,
+    "low": -0.11931859112605345,
+    "high": 0.19073127188244962,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 53,
+      "roi": 0.05283018867924527
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 471,
+      "roi": 0.00849256900212314
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 375,
+      "roi": 0.06746666666666679
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "249f2af9d2",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 5 à 8",
+    "dist_band": "Courte (< 2 200 m)",
+    "temp_band": "Frais (10-17 °C)"
+   },
+   "label": "Distance : Courte (< 2 200 m) · Cote : Cote 5 à 8 · Température : Frais (10-17 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 523,
+    "roi": 0.07208413001912062,
+    "low": -0.13736662408843883,
+    "high": 0.28153488412668004,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 61,
+      "roi": 0.17377049180327853
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 255,
+      "roi": 0.06549019607843132
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 207,
+      "roi": 0.05024154589371976
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "05197e7a64",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "7e cote et au-delà",
+    "odds_range": "Cote 8 à 13",
+    "jockey_form": "Jockey peu connu"
+   },
+   "label": "Jockey : Jockey peu connu · Rang dans la cote : 7e cote et au-delà · Cote : Cote 8 à 13",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 456,
+    "roi": 0.28421052631578947,
+    "low": -0.14837611521215432,
+    "high": 0.7167971678437333,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 52,
+      "roi": 1.1865384615384618
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 308,
+      "roi": 0.0032467532467532756
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 96,
+      "roi": 0.6968750000000001
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "ad1ec0cc19",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 8 à 13",
+    "dist_band": "Courte (< 2 200 m)",
+    "temp_band": "Froid (< 10 °C)"
+   },
+   "label": "Distance : Courte (< 2 200 m) · Cote : Cote 8 à 13 · Température : Froid (< 10 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 737,
+    "roi": 0.0050203527815468885,
+    "low": -0.23275438162596956,
+    "high": 0.24279508718906334,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 152,
+      "roi": 0.006578947368421018
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 411,
+      "roi": 0.0055961070559611414
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 174,
+      "roi": 0.0022988505747125743
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "b0e90bf01e",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "temp_band": "Froid (< 10 °C)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Âge : 6-7 ans · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Température : Froid (< 10 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 375,
+    "roi": 0.12880000000000003,
+    "low": -0.27795109036881505,
+    "high": 0.5355510903688151,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 47,
+      "roi": 0.4829787234042553
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 222,
+      "roi": 0.09774774774774775
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 106,
+      "roi": 0.03679245283018884
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c23c9e6605",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_change": "Raccourcit (≥ 200 m)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)",
+    "trainer_form": "Entraîneur peu connu"
+   },
+   "label": "Distance vs dernière course : Raccourcit (≥ 200 m) · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Entraîneur : Entraîneur peu connu",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 657,
+    "roi": 0.30928462709284643,
+    "low": -0.2797895677578912,
+    "high": 0.8983588219435841,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 46,
+      "roi": 0.07391304347826089
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 460,
+      "roi": 0.4204347826086956
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 151,
+      "roi": 0.042384105960264984
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "701fd2c23e",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "sky_cat": "Nuageux ou couvert",
+    "category_cat": "À réclamer",
+    "shoeing_cat": "Déferré des 4"
+   },
+   "label": "Type de course : À réclamer · Ferrure : Déferré des 4 · Ciel : Nuageux ou couvert",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 742,
+    "roi": 0.2057951482479785,
+    "low": -0.289137696936025,
+    "high": 0.700727993431982,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 42,
+      "roi": 0.8119047619047617
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 426,
+      "roi": 0.040375586854459966
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 274,
+      "roi": 0.3700729927007298
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "f49cd508bf",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Longue (≥ 2 700 m)",
+    "sky_cat": "Nuageux ou couvert",
+    "category_cat": "À réclamer"
+   },
+   "label": "Type de course : À réclamer · Distance : Longue (≥ 2 700 m) · Ciel : Nuageux ou couvert",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 821,
+    "roi": 0.14884287454323997,
+    "low": -0.31808571646633726,
+    "high": 0.6157714655528173,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.5688888888888888
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 441,
+      "roi": 0.15623582766439914
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 335,
+      "roi": 0.08268656716417899
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "2496883309",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Longue (≥ 2 700 m)",
+    "category_cat": "À réclamer",
+    "recul_band": "Sans recul"
+   },
+   "label": "Type de course : À réclamer · Distance : Longue (≥ 2 700 m) · Recul : Sans recul",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 873,
+    "roi": 0.11615120274914092,
+    "low": -0.3252849861788822,
+    "high": 0.5575873916771641,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.5688888888888888
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 474,
+      "roi": 0.11160337552742616
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 354,
+      "roi": 0.06468926553672305
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e4deb0e47c",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "draw_band": "Intérieur (1er tiers)",
+    "venue": "AMIENS",
+    "jockey_change_cat": "Jockey prévu"
+   },
+   "label": "Position au départ : Intérieur (1er tiers) · Changement de jockey : Jockey prévu · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 354,
+    "roi": 0.18898305084745748,
+    "low": -0.3258753261043551,
+    "high": 0.7038414277992701,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 54,
+      "roi": 0.9111111111111112
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 189,
+      "roi": 0.08253968253968247
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 111,
+      "roi": 0.018918918918918948
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "653ae414c0",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Longue (≥ 2 700 m)",
+    "category_cat": "À réclamer",
+    "jockey_change_cat": "Jockey prévu"
+   },
+   "label": "Type de course : À réclamer · Distance : Longue (≥ 2 700 m) · Changement de jockey : Jockey prévu",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 1011,
+    "roi": 0.05677546983184967,
+    "low": -0.3306210686637996,
+    "high": 0.4441720083274989,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.5688888888888888
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 544,
+      "roi": 0.010661764705882204
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 422,
+      "roi": 0.06161137440758302
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "77629d8552",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "draw_band": "Intérieur (1er tiers)",
+    "venue": "AMIENS"
+   },
+   "label": "Position au départ : Intérieur (1er tiers) · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 357,
+    "roi": 0.1789915966386555,
+    "low": -0.3316643650467598,
+    "high": 0.6896475583240708,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 54,
+      "roi": 0.9111111111111112
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 192,
+      "roi": 0.06562500000000004
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 111,
+      "roi": 0.018918918918918948
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "06e02d2ccd",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Longue (≥ 2 700 m)",
+    "category_cat": "À réclamer"
+   },
+   "label": "Type de course : À réclamer · Distance : Longue (≥ 2 700 m)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 1018,
+    "roi": 0.049508840864440185,
+    "low": -0.3352612695124188,
+    "high": 0.43427895124129917,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.5688888888888888
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 549,
+      "roi": 0.0014571948998176598
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 424,
+      "roi": 0.05660377358490565
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "46a3e88d46",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "venue": "AMIENS",
+    "recul_band": "Sans recul"
+   },
+   "label": "Âge : 6-7 ans · Recul : Sans recul · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 468,
+    "roi": 0.2551282051282051,
+    "low": -0.3421511140064182,
+    "high": 0.8524075242628284,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 49,
+      "roi": 0.6755102040816325
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 258,
+      "roi": 0.31821705426356606
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 161,
+      "roi": 0.02608695652173898
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "756efefc84",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "draw_band": "Intérieur (1er tiers)",
+    "venue": "AMIENS",
+    "duo_form": "Duo jockey-entraîneur peu connu"
+   },
+   "label": "Position au départ : Intérieur (1er tiers) · Duo jockey-entraîneur : Duo jockey-entraîneur peu connu · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 266,
+    "roi": 0.3248120300751878,
+    "low": -0.3427146510170269,
+    "high": 0.9923387111674025,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 54,
+      "roi": 0.9111111111111112
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 144,
+      "roi": 0.10833333333333339
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 68,
+      "roi": 0.3176470588235294
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "bea2d552d2",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "sky_cat": "Nuageux ou couvert",
+    "venue": "AMIENS"
+   },
+   "label": "Âge : 6-7 ans · Ciel : Nuageux ou couvert · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 333,
+    "roi": 0.3657657657657656,
+    "low": -0.34282589631017313,
+    "high": 1.0743574278417043,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 55,
+      "roi": 0.4927272727272727
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 159,
+      "roi": 0.4081761006289306
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 119,
+      "roi": 0.2504201680672269
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "057a4c5d3e",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 13 à 21",
+    "temp_band": "Froid (< 10 °C)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Cote : Cote 13 à 21 · Température : Froid (< 10 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 328,
+    "roi": 0.13658536585365866,
+    "low": -0.35482679793807387,
+    "high": 0.6279975296453912,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 66,
+      "roi": 0.0015151515151514694
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 176,
+      "roi": 0.03749999999999987
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 86,
+      "roi": 0.4430232558139535
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "91300b3d54",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Longue (≥ 2 700 m)",
+    "category_cat": "À réclamer",
+    "duo_form": "Duo jockey-entraîneur peu connu"
+   },
+   "label": "Type de course : À réclamer · Distance : Longue (≥ 2 700 m) · Duo jockey-entraîneur : Duo jockey-entraîneur peu connu",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 795,
+    "roi": 0.10477987421383639,
+    "low": -0.3632813329612064,
+    "high": 0.5728410813888791,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.5688888888888888
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 458,
+      "roi": 0.018995633187772976
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 292,
+      "roi": 0.16780821917808209
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "ec8093db6a",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "venue": "AMIENS",
+    "duo_form": "Duo jockey-entraîneur peu connu"
+   },
+   "label": "Âge : 6-7 ans · Duo jockey-entraîneur : Duo jockey-entraîneur peu connu · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 435,
+    "roi": 0.25494252873563217,
+    "low": -0.3827227550719058,
+    "high": 0.8926078125431701,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 55,
+      "roi": 0.4927272727272727
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 247,
+      "roi": 0.29919028340080955
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 133,
+      "roi": 0.07443609022556386
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "5e23648e3c",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "field_band": "Grand (≥ 14)",
+    "category_cat": "À réclamer",
+    "shoeing_cat": "Déferré des 4"
+   },
+   "label": "Type de course : À réclamer · Taille du peloton : Grand (≥ 14) · Ferrure : Déferré des 4",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 670,
+    "roi": 0.14567164179104486,
+    "low": -0.3906906163062731,
+    "high": 0.6820338998883628,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 48,
+      "roi": 0.37916666666666665
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 344,
+      "roi": 0.07761627906976742
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 278,
+      "roi": 0.1895683453237409
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "1e46a6d3fb",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "4e-6e cote",
+    "venue": "CABOURG",
+    "jockey_form": "Jockey peu connu"
+   },
+   "label": "Jockey : Jockey peu connu · Rang dans la cote : 4e-6e cote · Hippodrome : CABOURG",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 253,
+    "roi": 0.08656126482213433,
+    "low": -0.43554913016103824,
+    "high": 0.6086716598053069,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.06222222222222218
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 136,
+      "roi": 0.028676470588235414
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 72,
+      "roi": 0.21111111111111125
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c56d6cdff3",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "field_band": "Moyen (9-13)",
+    "venue": "AMIENS",
+    "duo_form": "Duo jockey-entraîneur peu connu"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur peu connu · Taille du peloton : Moyen (9-13) · Hippodrome : AMIENS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 793,
+    "roi": 0.09609079445145019,
+    "low": -0.4386724711303629,
+    "high": 0.6308540600332633,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 77,
+      "roi": 0.4792207792207792
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 476,
+      "roi": 0.07563025210084029
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 240,
+      "roi": 0.013749999999999929
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "3cf7406327",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Courte (< 2 200 m)",
+    "venue": "CAGNES/MER",
+    "trainer_form": "Entraîneur peu connu"
+   },
+   "label": "Distance : Courte (< 2 200 m) · Entraîneur : Entraîneur peu connu · Hippodrome : CAGNES/MER",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 636,
+    "roi": 0.2044025157232705,
+    "low": -0.5752245278340066,
+    "high": 0.9840295592805476,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 175,
+      "roi": 0.4422857142857144
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 361,
+      "roi": 0.00969529085872578
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 100,
+      "roi": 0.4909999999999999
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "4d8d731eb1",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_range": "Cote < 3",
+    "age_band": "2-3 ans",
+    "rest_band": "Première course connue"
+   },
+   "label": "Âge : 2-3 ans · Cote : Cote < 3 · Repos : Première course connue",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 324,
+    "roi": 0.04027777777777786,
+    "low": -0.0342663029836614,
+    "high": 0.11482185853921711,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 56,
+      "roi": 0.05714285714285716
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 155,
+      "roi": 0.0335483870967741
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 113,
+      "roi": 0.04115044247787614
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "bf6d475ed0",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_range": "Cote < 3",
+    "rest_band": "Première course connue",
+    "shoeing_cat": "Ferré (ou non publié)"
+   },
+   "label": "Cote : Cote < 3 · Repos : Première course connue · Ferrure : Ferré (ou non publié)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 330,
+    "roi": 0.03106060606060601,
+    "low": -0.04231760065315768,
+    "high": 0.1044388127743697,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 49,
+      "roi": 0.0020408163265306367
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 175,
+      "roi": 0.023428571428571354
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 106,
+      "roi": 0.05707547169811322
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "cad1caf9ae",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "draw_band": "Intérieur (1er tiers)",
+    "venue": "GRAIGNES",
+    "trainer_form": "Entraîneur peu connu"
+   },
+   "label": "Position au départ : Intérieur (1er tiers) · Entraîneur : Entraîneur peu connu · Hippodrome : GRAIGNES",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 266,
+    "roi": 0.21165413533834587,
+    "low": -0.058195572503277226,
+    "high": 0.48150384317996897,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 78,
+      "roi": 0.16794871794871802
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 147,
+      "roi": 0.2612244897959184
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 41,
+      "roi": 0.1170731707317072
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "58d2be16de",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "rest_band": "Première course connue",
+    "draw_band": "Intérieur (1er tiers)",
+    "dist_band": "Longue (≥ 2 700 m)"
+   },
+   "label": "Distance : Longue (≥ 2 700 m) · Position au départ : Intérieur (1er tiers) · Repos : Première course connue",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 328,
+    "roi": 0.13658536585365866,
+    "low": -0.1008308804109084,
+    "high": 0.3740016121182257,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 123,
+      "roi": 0.01300813008130075
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 155,
+      "roi": 0.21612903225806446
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 50,
+      "roi": 0.19399999999999995
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "5a4ae2c2dc",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "Favori"
+   },
+   "label": "Rang dans la cote : Favori",
+   "reference": true,
+   "origin": "référence",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 7625,
+    "roi": -0.11302295081967212,
+    "low": -0.14446746269966546,
+    "high": -0.08157843893967878,
+    "periods": null
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "9dde0d77b6",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori"
+   },
+   "label": "Rang dans la cote : Favori",
+   "reference": true,
+   "origin": "référence",
+   "added_at": "2026-10-04T05:48:23+00:00",
+   "exploration": {
+    "from": "2024-11-11",
+    "to": "2026-10-03",
+    "bets": 7625,
+    "roi": -0.06780983606557377,
+    "low": -0.08614412316853338,
+    "high": -0.04947554896261415,
+    "periods": null
    },
    "confirmation": null,
    "eliminated_at": null
