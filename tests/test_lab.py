@@ -147,3 +147,14 @@ def test_lab_endpoint(tmp_path: Path) -> None:
     drift = next(e for e in body["experiments"] if e["candidate"] == "drift")
     assert drift["status"] == "PROPOSED" and drift["source"] == "live" and drift["registered_at"]
     assert body["catalogue"] == len(lab.CANDIDATES)
+    assert body["scoreboard"] == {}, "no champion written yet"
+    from predlab.racing import arena
+    from predlab.racing.champion import Champion
+
+    Champion.load(paths.lab, "PLAT").save()
+    arena.register(reg, "PLAT", paths.lab)
+    board = client.get("/api/lab").json()["scoreboard"]["PLAT"]
+    assert board["champion"]["version"] == 1 and board["champion"]["features"] == 11
+    assert board["coverage"]["ready"] is False and board["vault"]["start"] == "2026-04-01"
+    assert board["live"]["races"] == 0 and board["tests"]["protocol"] == "obj1"
+    assert board["tests"]["by_status"] == {"PROPOSED": board["tests"]["total"]}

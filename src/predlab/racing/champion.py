@@ -64,32 +64,69 @@ EXTENDED = Window(
 )
 
 
-def history_ready(
-    db_path: Path,
-    discipline: str,
-    years: tuple[int, ...] = (2020, 2021, 2022, 2023),
-    share: float = 0.6,
-) -> bool:
-    """Is the extended history in place for this discipline? Every year of ``years`` must
-    hold at least ``share`` of the races of 2024 (2020 had fewer races: lockdown). The
-    first race in the base proves nothing: the 2026-09-28 audit stored scattered days
-    back to 2013."""
+YEARS = (2020, 2021, 2022, 2023)
+SHARE = 0.6
+
+
+# Before the extended history is in place: the model's own split (2024), enough to fit
+# the champion the value rule needs; the rule is judged on fresh races anyway.
+BASE = Window(
+    since=date(2024, 1, 1),
+    train_end=date(2024, 6, 30),
+    validation_end=date(2024, 12, 31),
+    test_end=date(2026, 3, 31),
+    vault_start=VAULT_START,
+)
+
+
+def history_coverage(db_path: Path, discipline: str) -> dict[str, Any]:
+    """Races per year 2020-2024 and whether the extended history is in place: every year
+    2020-2023 must hold at least 60 % of the races of 2024 (2020 had fewer races:
+    lockdown). The first race in the base proves nothing: the 2026-09-28 audit stored
+    scattered days back to 2013."""
+    import duckdb
+
+    per_year: dict[int, int] = {}
+    if db_path.exists():
+        con = duckdb.connect(str(db_path), read_only=True)
+        try:
+            rows = con.execute(
+                "SELECT year(day), count(*) FROM races WHERE is_final AND country_code = 'FRA' "
+                "AND discipline = ? AND year(day) BETWEEN ? AND 2024 GROUP BY 1",
+                [discipline, min(YEARS)],
+            ).fetchall()
+        finally:
+            con.close()
+        per_year = {int(y): int(n) for y, n in rows}
+    ref = per_year.get(2024, 0)
+    return {
+        "reference_2024": ref,
+        "years": {str(y): per_year.get(y, 0) for y in YEARS},
+        "share": SHARE,
+        "ready": ref > 0 and all(per_year.get(y, 0) >= SHARE * ref for y in YEARS),
+    }
+
+
+def history_ready(db_path: Path, discipline: str) -> bool:
+    return bool(history_coverage(db_path, discipline)["ready"])
+
+
+def races_since(db_path: Path, discipline: str, start: date) -> int:
+    """Finished races of the discipline from ``start`` (the vault's supply)."""
     import duckdb
 
     if not db_path.exists():
-        return False
+        return 0
     con = duckdb.connect(str(db_path), read_only=True)
     try:
-        rows = con.execute(
-            "SELECT year(day), count(*) FROM races WHERE is_final AND country_code = 'FRA' "
-            "AND discipline = ? AND year(day) BETWEEN ? AND 2024 GROUP BY 1",
-            [discipline, min(years)],
-        ).fetchall()
+        row = con.execute(
+            "SELECT count(*) FROM races WHERE is_final AND country_code = 'FRA' "
+            "AND discipline = ? AND day >= ?",
+            [discipline, start],
+        ).fetchone()
     finally:
         con.close()
-    per_year = {int(y): int(n) for y, n in rows}
-    ref = per_year.get(2024, 0)
-    return ref > 0 and all(per_year.get(y, 0) >= share * ref for y in years)
+    return int(row[0]) if row else 0
 
 
 # --------------------------------------------------------------------------- the store

@@ -133,4 +133,20 @@ def test_history_is_ready_only_when_every_year_is_filled(tmp_path: Path) -> None
     db = make_db(tmp_path / "r.duckdb", days=30, races_per_day=2, start=date(2024, 3, 1))
     assert not history_ready(db, "PLAT"), "2024 only"
     assert not history_ready(tmp_path / "absent.duckdb", "PLAT")
-    assert history_ready(db, "PLAT", years=(2024,)), "a year compared with itself is filled"
+    from predlab.racing.champion import history_coverage, races_since
+
+    cov = history_coverage(db, "PLAT")
+    assert cov["reference_2024"] == 60 and cov["years"]["2023"] == 0 and not cov["ready"]
+    assert races_since(db, "PLAT", date(2024, 3, 21)) == 20
+
+
+def test_the_value_rule_does_not_wait_for_the_extended_history(
+    frame: pl.DataFrame, tmp_path: Path
+) -> None:
+    reg = HypothesisRegistry(AppendOnlyLedger(tmp_path / "h.jsonl"))
+    arena.register(reg, "PLAT", tmp_path)
+    df = lab.add_candidates(frame, "PLAT")
+    arena.run(reg, df, tmp_path, "PLAT", WINDOW, ready=False, now=NOW, rule_window=WINDOW)
+    by = {h.experiment: h for h in reg.current()}
+    assert "fraîches" in (by["value105:PLAT:obj1"].forward_result or "")
+    assert "historique 2020" in (by["logq2:PLAT:obj1"].forward_result or "")

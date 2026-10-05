@@ -367,6 +367,7 @@ def run(
     ready: bool,
     max_tests: int = 3,
     now: datetime | None = None,
+    rule_window: Window | None = None,
 ) -> tuple[list[str], dict[str, Any] | None]:
     """Tests whose data is ready, then at most one vault attempt per kind.
 
@@ -387,9 +388,14 @@ def run(
         and str(h.experiment).endswith(f"{PROTOCOL}{champ.current['version']}")
         and h.status in (Status.PROPOSED, Status.TESTING)
     ]
+    rule_window = rule_window or window
     if not ready or frame is None:
         for h in pending:
-            _note(reg, h, "En attente de l'historique 2020 de cette discipline.", lines)
+            c = lab.BY_ID.get(str(h.experiment).split(":")[0])
+            if c is not None and c.kind == "rule" and frame is not None:
+                _rule(reg, h, c, frame, champ, rule_window, lab_dir, discipline, now, lines)
+            else:
+                _note(reg, h, "En attente de l'historique 2020 de cette discipline.", lines)
         return lines, None
     vault_start = champ.vault_start(window)
     parts = split(frame, window, vault_start)
@@ -401,17 +407,9 @@ def run(
         if c is None:
             continue
         if c.kind == "rule":
-            n, res = evaluate_rule(frame, champ, window, RULE_FRESH_FROM, window.vault_min_races)
-            if res is None:
-                _note(
-                    reg,
-                    h,
-                    f"En attente de courses fraîches : {n}/{window.vault_min_races} "
-                    f"depuis le {RULE_FRESH_FROM.strftime('%d/%m/%Y')}.",
-                    lines,
-                )
-                continue
-        elif done >= max_tests:
+            _rule(reg, h, c, frame, champ, rule_window, lab_dir, discipline, now, lines)
+            continue
+        if done >= max_tests:
             continue
         elif c.kind == "calibration":
             res = evaluate_calibration(parts, champ)
@@ -421,33 +419,74 @@ def run(
                 continue
             res = evaluate_criterion(parts, champ, c.column)
             done += 1
-        status, text = verdict(c.kind, res)
-        payload = {
-            "experiment": h.experiment,
-            "candidate": c.id,
-            "label": c.label,
-            "discipline": discipline,
-            "kind": c.kind,
-            "protocol": PROTOCOL,
-            "champion_version": champ.current["version"],
-            "tested_at": now.isoformat(timespec="seconds"),
-            "status": status.value,
-            "conclusion": text,
-            **res,
-        }
-        _save(lab_dir, str(h.experiment), payload)
-        summary = (
-            f"{res['difference']:+.4f} [{res['ci_low']:+.4f}, {res['ci_high']:+.4f}]"
-            if "difference" in res
-            else text
-        )
-        reg.update(h.hypothesis_id, status=status, out_of_sample_result=summary, conclusion=text)
-        lines.append(f"{h.experiment} : {text}")
-        if c.kind == "rule" and status == Status.SUPPORTED:
-            champ.admit_rule(c.id)
-            champ.save()
+        _record(reg, h, c, res, champ, lab_dir, discipline, now, lines)
     promotion = attempt_vault(reg, frame, lab_dir, discipline, window, champ, now, lines)
     return lines, promotion
+
+
+def _record(
+    reg: HypothesisRegistry,
+    h: Hypothesis,
+    c: lab.Candidate,
+    res: dict[str, Any],
+    champ: Champion,
+    lab_dir: Path,
+    discipline: str,
+    now: datetime,
+    lines: list[str],
+) -> Status:
+    status, text = verdict(c.kind, res)
+    payload = {
+        "experiment": h.experiment,
+        "candidate": c.id,
+        "label": c.label,
+        "discipline": discipline,
+        "kind": c.kind,
+        "protocol": PROTOCOL,
+        "champion_version": champ.current["version"],
+        "tested_at": now.isoformat(timespec="seconds"),
+        "status": status.value,
+        "conclusion": text,
+        **res,
+    }
+    _save(lab_dir, str(h.experiment), payload)
+    summary = (
+        f"{res['difference']:+.4f} [{res['ci_low']:+.4f}, {res['ci_high']:+.4f}]"
+        if "difference" in res
+        else text
+    )
+    reg.update(h.hypothesis_id, status=status, out_of_sample_result=summary, conclusion=text)
+    lines.append(f"{h.experiment} : {text}")
+    return status
+
+
+def _rule(
+    reg: HypothesisRegistry,
+    h: Hypothesis,
+    c: lab.Candidate,
+    frame: pl.DataFrame,
+    champ: Champion,
+    window: Window,
+    lab_dir: Path,
+    discipline: str,
+    now: datetime,
+    lines: list[str],
+) -> None:
+    """A playing rule only needs fresh races and a champion fitted before them: it does
+    not wait for the extended history."""
+    n, res = evaluate_rule(frame, champ, window, RULE_FRESH_FROM, window.vault_min_races)
+    if res is None:
+        _note(
+            reg,
+            h,
+            f"En attente de courses fraîches : {n}/{window.vault_min_races} "
+            f"depuis le {RULE_FRESH_FROM.strftime('%d/%m/%Y')}.",
+            lines,
+        )
+        return
+    if _record(reg, h, c, res, champ, lab_dir, discipline, now, lines) == Status.SUPPORTED:
+        champ.admit_rule(c.id)
+        champ.save()
 
 
 def attempt_vault(

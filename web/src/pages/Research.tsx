@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { Card, Empty, Failure, Loading, PageHead, Segmented, disciplineLabel } from "../components/ui";
-import { api, type Discipline, type FavouriteBand, type Hypothesis, type LabExperiment } from "../lib/api";
+import {
+  api,
+  type Discipline,
+  type FavouriteBand,
+  type Hypothesis,
+  type LabExperiment,
+  type ReplayTotals,
+  type Scoreboard,
+} from "../lib/api";
 import { dateTime, int, pct, shortDay, signedPct } from "../lib/format";
 import { useApi } from "../lib/hooks";
 
@@ -24,7 +32,8 @@ const ORDER: Record<Hypothesis["status"], number> = { SUPPORTED: 0, TESTING: 1, 
 /** Log loss difference challenger − base with its 99 % interval; left of 0 = better. */
 function GainBar({ e }: { e: LabExperiment }) {
   const r = e.result;
-  if (!r) return <span className="muted small">—</span>;
+  if (!r || r.difference == null || r.ci_low == null || r.ci_high == null)
+    return <span className="muted small">—</span>;
   const W = 120;
   const R = 0.0015;
   const x = (v: number) => ((Math.max(-R, Math.min(R, v)) + R) / (2 * R)) * W;
@@ -42,6 +51,34 @@ function GainBar({ e }: { e: LabExperiment }) {
     </span>
   );
 }
+
+/** Filter 2: does the challenger's pick earn more than the champion's? (rules: than the
+ *  favourite's) */
+function Money({ e }: { e: LabExperiment }) {
+  const r = e.result;
+  if (!r) return <span className="muted small">—</span>;
+  if (e.kind === "rule" && r.roi_rule != null && r.roi_favourite != null)
+    return (
+      <span className="small num" title={`${r.bets ?? 0} paris`}>
+        {signedPct(r.roi_rule, 1)} <span className="muted">contre {signedPct(r.roi_favourite, 1)} (favori)</span>
+      </span>
+    );
+  if (e.kind === "calibration") return <span className="small muted">même choix (τ = {fmtTau(r.tau)})</span>;
+  const m = r.money;
+  if (!m) return <span className="muted small">—</span>;
+  return (
+    <span
+      className="small num"
+      title={`Retour par euro : challenger ${signedPct(m.roi_challenger, 1)}, champion ${signedPct(m.roi_champion, 1)}, favori ${signedPct(m.roi_favourite, 1)}. ${m.races_where_picks_differ} courses où les choix diffèrent sur ${m.races}.`}
+    >
+      <strong className={m.net_difference > 0 ? "pos" : undefined}>{signedEuros(m.net_difference)}</strong>{" "}
+      <span className="muted">face au champion</span>
+    </span>
+  );
+}
+
+const fmtTau = (t: number | undefined) => (t == null ? "—" : t.toFixed(2).replace(".", ","));
+const signedEuros = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x).toFixed(0)} €`;
 
 function Effect({ e }: { e: LabExperiment }) {
   const r = e.result;
@@ -73,32 +110,70 @@ function Waiting({ text }: { text: string }) {
   );
 }
 
-function Experiments({ items, rule }: { items: LabExperiment[]; rule: string }) {
-  const rows = [...items]
-    .filter((e) => e.source !== "study")
-    .sort((a, b) => ORDER[a.status] - ORDER[b.status] || a.discipline.localeCompare(b.discipline) || a.label.localeCompare(b.label));
-  const done = rows.filter((e) => e.result).length;
+const KIND: Record<string, string> = {
+  criterion: "critère",
+  calibration: "calibration",
+  rule: "règle de jeu",
+};
+
+function Experiments({ items }: { items: LabExperiment[] }) {
+  const discs = (["PLAT", "ATTELE", "MONTE"] as const).filter((d) => items.some((e) => e.discipline === d));
+  const [d, setD] = useState<Discipline>(discs[0] ?? "PLAT");
+  const sorted = [...items]
+    .filter((e) => e.source !== "study" && e.discipline === d)
+    .sort((a, b) => ORDER[a.status] - ORDER[b.status] || a.label.localeCompare(b.label));
+  const current = sorted.filter((e) => e.protocol?.startsWith("obj"));
+  const first = sorted.filter((e) => !e.protocol?.startsWith("obj"));
+  const done = current.filter((e) => e.result).length;
   return (
     <Card
-      title="Nouveaux critères pour le modèle"
+      title="Tests contre le champion"
       aside={
-        <span className="muted small">
-          {rows.length} critères pré-enregistrés · {done} testés
-        </span>
+        <div className="row" style={{ gap: 10 }}>
+          <span className="muted small">
+            {current.length} pré-enregistrés · {done} testés
+          </span>
+          {discs.length > 1 && (
+            <Segmented<Discipline>
+              label="Discipline"
+              value={d}
+              onChange={setD}
+              options={discs.map((x) => ({ value: x, label: disciplineLabel(x) }))}
+            />
+          )}
+        </div>
       }
     >
       <div className="stack" style={{ gap: 12 }}>
         <p className="small muted" style={{ margin: 0 }}>
-          Chaque nuit, l'agent du labo enregistre les nouveaux critères du catalogue <em>avant</em> tout test, puis lance
-          une seule fois ceux dont les données sont prêtes. {rule}
+          Chaque nuit, l'agent du labo enregistre les candidats du catalogue <em>avant</em> tout test, puis les teste une
+          seule fois contre le modèle en service : la prévision d'abord (intervalle à 99 %, chaque année), puis l'argent
+          (son cheval rapporte-t-il plus que celui du champion ?). Les deux tenus : un essai unique au coffre.
         </p>
-        {rows.length === 0 ? (
-          <Empty title="Aucun critère enregistré">
+        {current.length === 0 ? (
+          <Empty title="Aucun candidat enregistré">
             <p className="small">
               Ils s'enregistrent à la prochaine nuit, ou à la main : <code className="mono">uv run predlab racing lab</code>.
             </p>
           </Empty>
         ) : (
+          <ExperimentTable rows={current} money />
+        )}
+        {first.length > 0 && (
+          <details className="small">
+            <summary className="muted">Premier protocole (3/10, contre Marché+ v1 sur 2024) · {first.length} tests</summary>
+            <div style={{ marginTop: 8 }}>
+              <ExperimentTable rows={first} />
+            </div>
+          </details>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function ExperimentTable({ rows, money = false }: { rows: LabExperiment[]; money?: boolean }) {
+  return (
           <div className="table-wrap">
             <table className="compact">
               <thead>
@@ -110,6 +185,7 @@ function Experiments({ items, rule }: { items: LabExperiment[]; rule: string }) 
                   <th title="Écart de log loss avec et sans le critère, intervalle à 99 %. À gauche de 0 : meilleure prévision">
                     Gain de prévision
                   </th>
+                  {money && <th title="Le cheval choisi rapporte-t-il plus que celui du champion ? (règle : que le favori)">Argent</th>}
                   <th>Effet</th>
                   <th>Conclusion</th>
                 </tr>
@@ -120,7 +196,12 @@ function Experiments({ items, rule }: { items: LabExperiment[]; rule: string }) 
                     <td>
                       <div title={e.hypothesis}>{e.label}</div>
                       <div className="small muted">
-                        {e.source === "live" ? "cotes en direct" : "historique depuis 2024"} · {ORIGIN[e.origin]}
+                        {e.source === "live"
+                          ? "cotes en direct"
+                          : e.protocol?.startsWith("obj")
+                            ? KIND[e.kind ?? "criterion"] ?? "critère"
+                            : "historique depuis 2024"}{" "}
+                        · {ORIGIN[e.origin]}
                       </div>
                     </td>
                     <td>
@@ -133,6 +214,11 @@ function Experiments({ items, rule }: { items: LabExperiment[]; rule: string }) 
                     <td>
                       <GainBar e={e} />
                     </td>
+                    {money && (
+                      <td>
+                        <Money e={e} />
+                      </td>
+                    )}
                     <td>
                       <Effect e={e} />
                     </td>
@@ -152,9 +238,6 @@ function Experiments({ items, rule }: { items: LabExperiment[]; rule: string }) 
               </tbody>
             </table>
           </div>
-        )}
-      </div>
-    </Card>
   );
 }
 
@@ -266,6 +349,200 @@ function useFav(data: Awaited<ReturnType<typeof api.lab>> | null) {
   return data && Object.keys(data.favourites).length ? data.favourites : null;
 }
 
+function pooled(t: Record<string, ReplayTotals>, pick: "favori" | "modèle") {
+  const sg = t[`SG ${pick}`];
+  const sp = t[`SP ${pick}`];
+  const bets = (sg?.bets ?? 0) + (sp?.bets ?? 0);
+  const ret = (sg?.returned ?? 0) + (sp?.returned ?? 0);
+  return { net: ret - bets, roi: bets ? ret / bets - 1 : null };
+}
+
+function Meter({ value, of, ok, label }: { value: number; of: number; ok: boolean; label: string }) {
+  return (
+    <div className="bet-progress" title={label}>
+      <div className="bar">
+        <span style={{ width: `${of ? Math.min(100, (value / of) * 100) : 0}%`, background: ok ? "var(--accent)" : "var(--ink-3)" }} />
+      </div>
+      <span className="small muted num">{label}</span>
+    </div>
+  );
+}
+
+const signedMoney = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x).toFixed(2).replace(".", ",")} €`;
+
+/** The objective's scoreboard: who is in service, model − favourite live and on the
+ *  history, and what the lab is waiting for. */
+function ObjectiveCard({ board, objective }: { board: Partial<Record<Discipline, Scoreboard>>; objective: string }) {
+  const discs = (["PLAT", "ATTELE", "MONTE"] as const).filter((d) => board[d]);
+  const [d, setD] = useState<Discipline>(discs[0]!);
+  const b = board[d] ?? board[discs[0]!]!;
+  const live = b.live;
+  const liveDiff = live.modèle.net - live.favori.net;
+  const h = b.history;
+  const hf = h ? pooled(h.totals, "favori") : null;
+  const hm = h ? pooled(h.totals, "modèle") : null;
+  const st = b.tests.by_status;
+  const tested = (st.SUPPORTED ?? 0) + (st.REJECTED ?? 0) + (st.INCONCLUSIVE ?? 0);
+  const waiting = (st.PROPOSED ?? 0) + (st.TESTING ?? 0);
+  return (
+    <Card
+      title="Objectif : battre le favori"
+      aside={
+        discs.length > 1 ? (
+          <Segmented<Discipline>
+            label="Discipline"
+            value={d}
+            onChange={setD}
+            options={discs.map((x) => ({ value: x, label: disciplineLabel(x) }))}
+          />
+        ) : undefined
+      }
+    >
+      <div className="stack" style={{ gap: 14 }}>
+        <p className="small muted" style={{ margin: 0 }}>
+          {objective}
+        </p>
+        <div className="overview-grid">
+          <div className="card overview-card">
+            <div className="kpi-label">En service</div>
+            <div className="overview-net num">Marché+ v{b.champion.version}</div>
+            <dl className="overview-facts">
+              <dt>Facteurs</dt>
+              <dd className="num">{b.champion.features}</dd>
+              <dt>Calibration</dt>
+              <dd className="num">{b.champion.tau === 1 ? "aucune" : `τ = ${fmtTau(b.champion.tau)}`}</dd>
+              <dt>Règle de jeu</dt>
+              <dd>{b.champion.rules.length ? "valeur ≥ 1,05" : "aucune"}</dd>
+            </dl>
+            <div className="small muted">
+              {b.champion.promoted_at ? `promu le ${shortDay(b.champion.promoted_at.slice(0, 10))}` : "version de départ"}
+            </div>
+          </div>
+          <div className="card overview-card">
+            <div className="kpi-label">En direct (carnet) : modèle − favori</div>
+            <div className={`overview-net num ${live.races ? (liveDiff >= 0 ? "pos" : "neg") : ""}`}>
+              {live.races ? signedMoney(liveDiff) : "—"}
+            </div>
+            <dl className="overview-facts">
+              <dt>Modèle</dt>
+              <dd className="num">{signedPct(live.modèle.roi, 1)}</dd>
+              <dt>Favori</dt>
+              <dd className="num">{signedPct(live.favori.roi, 1)}</dd>
+              <dt>Choix différents</dt>
+              <dd className="num">
+                {live.races_where_picks_differ} / {live.races}
+              </dd>
+            </dl>
+            <div className="small muted">
+              {live.since ? `gagnant + placé, depuis le ${shortDay(live.since)}` : "pas encore de course comparée"}
+            </div>
+          </div>
+          <div className="card overview-card">
+            <div className="kpi-label">Sur l'historique : modèle − favori</div>
+            <div className={`overview-net num ${hm && hf ? (hm.net - hf.net >= 0 ? "pos" : "neg") : ""}`}>
+              {hm && hf ? signedMoney(hm.net - hf.net) : "—"}
+            </div>
+            <dl className="overview-facts">
+              <dt>Modèle</dt>
+              <dd className="num">{signedPct(hm?.roi, 1)}</dd>
+              <dt>Favori</dt>
+              <dd className="num">{signedPct(hf?.roi, 1)}</dd>
+              <dt>Quitte le favori</dt>
+              <dd className="num">{h ? pct(h.differ_share, 1) : "—"}</dd>
+            </dl>
+            <div className="small muted">
+              {h ? `${int(h.races)} courses, du ${shortDay(h.first_day)} au ${shortDay(h.last_day)} (recalculé)` : "pas encore de courbe historique"}
+            </div>
+          </div>
+          <div className="card overview-card">
+            <div className="kpi-label">Labo</div>
+            <div className="overview-net num">
+              {tested}/{b.tests.total}
+            </div>
+            <dl className="overview-facts">
+              <dt>Retenus</dt>
+              <dd className="num">{st.SUPPORTED ?? 0}</dd>
+              <dt>En attente</dt>
+              <dd className="num">{waiting}</dd>
+              <dt>Essais au coffre</dt>
+              <dd className="num">{b.attempts.length}</dd>
+            </dl>
+            <div className="small muted">tests contre la version en service</div>
+          </div>
+        </div>
+
+        <div className="grid-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+          <div className="stack" style={{ gap: 6 }}>
+            <div className="kpi-label">
+              Historique 2020-2023 {b.coverage.ready ? "· en place" : "· en cours de rattrapage"}
+            </div>
+            {Object.entries(b.coverage.years).map(([y, n]) => {
+              const share = b.coverage.reference_2024 ? n / b.coverage.reference_2024 : 0;
+              return (
+                <div key={y} className="row" style={{ gap: 8 }}>
+                  <span className="small num" style={{ width: 38 }}>
+                    {y}
+                  </span>
+                  <Meter
+                    value={n}
+                    of={b.coverage.reference_2024}
+                    ok={share >= b.coverage.share}
+                    label={`${int(n)} courses (${pct(share, 0)} de 2024)`}
+                  />
+                </div>
+              );
+            })}
+            <span className="small muted">Les tests démarrent quand chaque année atteint {pct(b.coverage.share, 0)} des courses de 2024.</span>
+          </div>
+          <div className="stack" style={{ gap: 6 }}>
+            <div className="kpi-label">Coffre (courses jamais utilisées par un test)</div>
+            <Meter
+              value={b.vault.races}
+              of={b.vault.min_races}
+              ok={b.vault.races >= b.vault.min_races}
+              label={`${int(b.vault.races)} / ${int(b.vault.min_races)} courses depuis le ${shortDay(b.vault.start)}`}
+            />
+            <span className="small muted">
+              Un candidat retenu y fait un seul essai ; chaque essai consomme le coffre.
+              {b.vault.used_until ? ` Utilisé jusqu'au ${shortDay(b.vault.used_until)}.` : " Jamais utilisé."}
+            </span>
+          </div>
+        </div>
+
+        {(b.versions.length > 1 || b.attempts.length > 0) && (
+          <div className="table-wrap">
+            <table className="compact">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Événement</th>
+                  <th className="r">Prévision (coffre)</th>
+                  <th className="r">Argent face au champion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {b.attempts.map((a) => (
+                  <tr key={a.at + a.experiment}>
+                    <td className="small">{shortDay(a.at.slice(0, 10))}</td>
+                    <td className="small">
+                      {a.passed ? "Promu" : "Refusé au coffre"} : {a.experiment.split(":")[0]}{" "}
+                      <span className="muted">
+                        ({int(a.result.races)} courses, {shortDay(a.vault[0])} → {shortDay(a.vault[1])})
+                      </span>
+                    </td>
+                    <td className="r num small">{a.result.prediction.difference.toFixed(4)}</td>
+                    <td className="r num small">{signedEuros(a.result.money.net_difference)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export function Research() {
   const lab = useApi(() => api.lab(), "lab", 300_000);
   const load = useApi(() => api.hypotheses(), "hypotheses");
@@ -294,7 +571,10 @@ export function Research() {
       )}
       {lab.state === "ready" && (
         <div className="stack">
-          <Experiments items={lab.data.experiments} rule={lab.data.rule} />
+          {lab.data.scoreboard && Object.keys(lab.data.scoreboard).length > 0 && (
+            <ObjectiveCard board={lab.data.scoreboard} objective={lab.data.objective ?? ""} />
+          )}
+          <Experiments items={lab.data.experiments} />
           {fav && <Favourites data={fav} />}
         </div>
       )}

@@ -900,24 +900,105 @@ def _lab(lab: Lab) -> dict[str, Any]:
         if f.exists():
             with contextlib.suppress(OSError, json.JSONDecodeError):
                 favourites[d] = json.loads(f.read_text(encoding="utf-8"))
-    from predlab.racing.champion import OBJECTIVE, Champion
+    from predlab.racing.champion import OBJECTIVE
 
-    champions = {
-        d: Champion.load(lab.paths.lab, d).data
-        for d in TARGETS
-        if (lab.paths.lab / f"champion_{d}.json").exists()
-    }
-    for data in champions.values():
-        for v in data["versions"]:
-            v.pop("frozen_params", None)  # parameters stay on disk, not in the page
     return {
         "objective": OBJECTIVE,
-        "champions": champions,
+        "scoreboard": _scoreboard(lab, experiments),
         "experiments": experiments,
         "favourites": favourites,
         "rule": lab_lib.RULE,
         "catalogue": len(lab_lib.CANDIDATES),
     }
+
+
+def _live_vs_favourite(lab: Lab, discipline: str) -> dict[str, Any]:
+    """The carnet, favourite against model on the races where both played (SG + SP)."""
+    tot = {"favori": [0.0, 0.0], "modèle": [0.0, 0.0]}
+    races, differ, first = 0, 0, None
+    for e in _carnet_by_race(lab).values():
+        if not e["settled"] or e["discipline"] != discipline:
+            continue
+        by = {t["strategy"]: t for t in e["tickets"]}
+        pairs = [(f"{b} favori", f"{b} top marche_plus") for b in ("SG", "SP")]
+        pairs = [(f, m) for f, m in pairs if f in by and m in by]
+        if not pairs:
+            continue
+        races += 1
+        first = min(first or e["day"], e["day"])
+        if by.get("SG favori", {}).get("numbers") != by.get("SG top marche_plus", {}).get(
+            "numbers"
+        ):
+            differ += 1
+        for f, m in pairs:
+            for pick, t in (("favori", by[f]), ("modèle", by[m])):
+                tot[pick][0] += t["stake"]
+                tot[pick][1] += t["returned"] or 0.0
+
+    def roi(pick: str) -> float | None:
+        stake, ret = tot[pick]
+        return ret / stake - 1 if stake else None
+
+    return {
+        "races": races,
+        "since": first,
+        "races_where_picks_differ": differ,
+        "favori": {
+            "stake": tot["favori"][0],
+            "net": tot["favori"][1] - tot["favori"][0],
+            "roi": roi("favori"),
+        },
+        "modèle": {
+            "stake": tot["modèle"][0],
+            "net": tot["modèle"][1] - tot["modèle"][0],
+            "roi": roi("modèle"),
+        },
+    }
+
+
+def _scoreboard(lab: Lab, experiments: list[dict[str, Any]]) -> dict[str, Any]:
+    """Per discipline: the champion and its versions, model − favourite live (carnet) and
+    on the history (replay), the extended history's coverage, the vault, the tests."""
+    from predlab.racing.champion import EXTENDED, Champion, history_coverage, races_since
+
+    out: dict[str, Any] = {}
+    for d in TARGETS:
+        if not (lab.paths.lab / f"champion_{d}.json").exists():
+            continue
+        champ = Champion.load(lab.paths.lab, d)
+        versions = [
+            {k: v for k, v in x.items() if k != "frozen_params"} for x in champ.data["versions"]
+        ]
+        start = champ.vault_start(EXTENDED)
+        replay = latest_report(lab.paths.runs, "replay", d)
+        protocol = f"obj{champ.current['version']}"
+        mine = [e for e in experiments if e["discipline"] == d and e.get("protocol") == protocol]
+        counts: dict[str, int] = {}
+        for e in mine:
+            counts[e["status"]] = counts.get(e["status"], 0) + 1
+        out[d] = {
+            "champion": {
+                "version": champ.current["version"],
+                "origin": champ.current.get("origin"),
+                "promoted_at": champ.current.get("promoted_at"),
+                "features": len(champ.features),
+                "tau": champ.tau,
+                "rules": champ.rules,
+            },
+            "versions": versions,
+            "attempts": champ.data.get("attempts", []),
+            "coverage": history_coverage(lab.paths.database, d),
+            "vault": {
+                "start": start.isoformat(),
+                "races": races_since(lab.paths.database, d, start),
+                "min_races": EXTENDED.vault_min_races,
+                "used_until": champ.data.get("vault_used_until"),
+            },
+            "live": _live_vs_favourite(lab, d),
+            "history": (replay or {}).get("summary"),
+            "tests": {"protocol": protocol, "total": len(mine), "by_status": counts},
+        }
+    return out
 
 
 def _merge_series(groups: list[list[dict[str, Any]]], since: str | None) -> list[dict[str, Any]]:

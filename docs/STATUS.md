@@ -19,16 +19,16 @@ Dernière mise à jour : 2026-10-05.
   - trot : historique remonté à octobre 2024 ; modèle, profil, banc et critères du trot
     démarrent quand il couvre le 1er semestre 2024 ;
   - historique 2020-2023 (décision du 2026-10-05) : rattrapé après 2024, plat d'abord.
-    Les tests du labo et la nouvelle cible « battre le favori » attendent qu'il soit en
-    place. La passe de nuit garde le Mac éveillé (caffeinate) : la nuit du 4 au 5, Mac
-    en veille, elle n'avait fait que 433 requêtes en 5 h.
-- **Proposé, pas lancé** : tâche planifiée hebdomadaire où Claude relit le labo et ajoute
-  des critères au catalogue ; hébergement serveur (Oracle Always Free envisagé, reporté) ;
+    Les tests des critères contre le champion attendent qu'il soit en place (la règle
+    de valeur, elle, se juge sur les courses fraîches et n'attend pas). La passe de nuit
+    garde le Mac éveillé (caffeinate) : la nuit du 4 au 5, Mac en veille, elle n'avait
+    fait que 433 requêtes en 5 h.
+- **Proposé, pas lancé** : hébergement serveur (Oracle Always Free envisagé, reporté) ;
   fichier CLAUDE.md et agents critique / hypothèses.
 - **Règles inchangées** : aucun pari réel, aucune mise, aucun compte PMU ; jamais
   d'information future dans les entrées ; le marché est la référence.
 
-## Objectif « battre le favori » — épic 1 livré le 2026-10-05
+## Objectif « battre le favori » — épics 1 à 4 livrés le 2026-10-05
 
 - **Moteur** (`racing/champion.py`, `racing/arena.py`, METHODOLOGY §13) : champion
   (Marché+ v1), candidats pré-enregistrés contre lui, deux filtres (prévision, argent),
@@ -36,12 +36,18 @@ Dernière mise à jour : 2026-10-05.
 - **Catalogue** : 15 candidats, dont 6 nouveaux (biais favori-outsider non linéaire et
   selon la taille du champ, dernière course gagnée, jeune cheval, calibration, règle de
   valeur 1,05).
-- **Les tests attendent l'historique 2020** de chaque discipline.
-- **Générateur d'idées** (épic 4, livré) : tâche planifiée chaque dimanche vers 10 h,
+- **Les tests de critères attendent l'historique 2020** de chaque discipline ; la règle
+  de valeur 1,05 attend 600 courses fraîches (à partir du 2026-10-05).
+- **Carnet côte à côte** (épic 2) : quand une version est remplacée, elle continue de
+  jouer à côté (« ancien modèle », trait noir tiret-point) ; une règle admise joue sa
+  propre ligne (« valeur modèle »). Lignes visibles seulement une fois jouées.
+- **Tableau de score** (épic 3, page Recherche) : par discipline, version en service,
+  modèle − favori en direct (carnet) et sur l'historique, compteur du labo, avancement
+  de l'historique 2020-2023 (part de 2024) et du coffre ; tests contre le champion
+  filtrés par discipline, avec la colonne argent.
+- **Générateur d'idées** (épic 4) : tâche planifiée chaque dimanche vers 10 h,
   sur le Mac ; elle ajoute 1 ou 2 critères au catalogue sans jamais les tester, tient
   docs/LAB_JOURNAL.md et résume la semaine du labo.
-- **Épics suivants** : 2) carnet côte à côte (ancien modèle, valeur) et graphique ;
-  3) tableau de score « modèle − favori » sur la page Recherche.
 
 ## Laboratoire des critères et étude des favoris — 2026-10-03
 

@@ -251,7 +251,7 @@ def _arena_pass(reg: HypothesisRegistry, paths: Any, discipline: str, max_tests:
     promote (then refit the model at once, the replaced version's parameters frozen)."""
     from predlab.racing import arena
     from predlab.racing import lab as lab_lib
-    from predlab.racing.champion import EXTENDED, Champion, history_ready
+    from predlab.racing.champion import BASE, EXTENDED, Champion, history_ready
     from predlab.racing.marketplus import latest_params
 
     added = arena.register(reg, discipline, paths.lab)
@@ -261,16 +261,24 @@ def _arena_pass(reg: HypothesisRegistry, paths: Any, discipline: str, max_tests:
         else []
     )
     ready = history_ready(paths.database, discipline)
-    frame = None
-    if ready:
-        frame = banc_lib.with_returns(
-            lab_lib.add_candidates(
-                load_finished(paths.database, discipline, since=EXTENDED.since), discipline
-            ),
-            banc_lib.load_simple_dividends(paths.database),
-        )
+    # Before the extended history: the 2024 frame, enough for the value rule (judged on
+    # fresh races); criteria and calibration wait.
+    rule_window = EXTENDED if ready else BASE
+    frame = banc_lib.with_returns(
+        lab_lib.add_candidates(
+            load_finished(paths.database, discipline, since=rule_window.since), discipline
+        ),
+        banc_lib.load_simple_dividends(paths.database),
+    )
     out, promotion = arena.run(
-        reg, frame, paths.lab, discipline, EXTENDED, ready=ready, max_tests=max_tests
+        reg,
+        frame,
+        paths.lab,
+        discipline,
+        EXTENDED,
+        ready=ready,
+        max_tests=max_tests,
+        rule_window=rule_window,
     )
     lines += out
     if promotion is not None:

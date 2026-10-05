@@ -545,17 +545,57 @@ export interface Hypothesis {
   conclusion: string | null;
 }
 
+export interface LabMoney {
+  races: number;
+  races_where_picks_differ: number;
+  roi_challenger: number | null;
+  roi_champion: number | null;
+  roi_favourite: number | null;
+  net_difference: number;
+  net_difference_low: number | null;
+  net_difference_high: number | null;
+}
+
 export interface LabResult {
-  difference: number;
-  ci_low: number;
-  ci_high: number;
-  level: number;
-  by_year: Record<string, { races: number; difference: number }>;
-  beta: number;
-  per_sd: number | null;
-  races: Record<string, number>;
-  test_days: [string, string] | null;
+  difference?: number;
+  ci_low?: number;
+  ci_high?: number;
+  level?: number;
+  by_year?: Record<string, { races: number; difference: number }>;
+  beta?: number;
+  per_sd?: number | null;
+  races: Record<string, number> | number;
+  test_days?: [string, string] | null;
   tested_at: string;
+  money?: LabMoney;
+  tau?: number;
+  bets?: number;
+  roi_rule?: number | null;
+  roi_favourite?: number | null;
+}
+
+export interface ScoreSide {
+  stake: number;
+  net: number;
+  roi: number | null;
+}
+
+export interface Scoreboard {
+  champion: { version: number; origin: string | null; promoted_at: string | null; features: number; tau: number; rules: string[] };
+  versions: { version: number; origin: string; promoted_at: string | null; features: string[]; tau: number; evidence: Record<string, unknown> | null }[];
+  attempts: { experiment: string; at: string; vault: [string, string]; passed: boolean; result: { races: number; prediction: { difference: number }; money: LabMoney } }[];
+  coverage: { reference_2024: number; years: Record<string, number>; share: number; ready: boolean };
+  vault: { start: string; races: number; min_races: number; used_until: string | null };
+  live: { races: number; since: string | null; races_where_picks_differ: number; favori: ScoreSide; modèle: ScoreSide };
+  history: {
+    races: number;
+    first_day: string;
+    last_day: string;
+    differ: number;
+    differ_share: number;
+    totals: Record<string, ReplayTotals>;
+  } | null;
+  tests: { protocol: string; total: number; by_status: Partial<Record<Hypothesis["status"], number>> };
 }
 
 export interface LabExperiment {
@@ -565,6 +605,8 @@ export interface LabExperiment {
   hypothesis: string;
   discipline: Discipline;
   source: "history" | "live" | "study";
+  kind?: "criterion" | "calibration" | "rule" | "study";
+  protocol?: string;
   origin: Hypothesis["origin"];
   status: Hypothesis["status"];
   registered_at: string | null;
@@ -592,6 +634,8 @@ export interface FavouriteBand {
 }
 
 export interface LabResponse {
+  objective?: string;
+  scoreboard?: Partial<Record<Discipline, Scoreboard>>;
   experiments: LabExperiment[];
   favourites: Partial<Record<Discipline, { first_day: string | null; last_day: string | null; generated_at: string; bands: FavouriteBand[] }>>;
   rule: string;
