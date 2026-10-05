@@ -434,13 +434,15 @@ def create_app(paths: Paths | None = None) -> FastAPI:
 
     @app.get("/api/carnet/periods")
     def carnet_periods() -> dict[str, Any]:
-        """Stake, returns and net of the fictitious bets: today, this week, month, all."""
+        """The model against the favourite on the same races: today, this week, this
+        month, since the model first played; the days ahead of it in a row."""
         today = paris_day(utcnow())
-        days = _daily(lab)
+        duels = _duels(lab)
+        days = _duel_days(duels)
         return {
             "today": today.isoformat(),
-            "periods": _periods(lab, today),
-            "streak": _streak(days),
+            "periods": _periods(duels, today),
+            "streak": _ahead_streak(days),
             "days": days[-14:],
             "series": _series(lab),
         }
@@ -781,24 +783,6 @@ def _histories(lab: Lab, race: Race, runners: list[Runner]) -> dict[str, dict[st
     return out
 
 
-def _daily(lab: Lab) -> list[dict[str, Any]]:
-    """Net of the settled fictitious bets, one row per day that has any, oldest first."""
-    by_day: dict[str, dict[str, Any]] = {}
-    for e in _carnet_by_race(lab).values():
-        if not e["settled"]:
-            continue
-        d = by_day.setdefault(
-            e["day"], {"day": e["day"], "races": 0, "stake": 0.0, "returned": 0.0}
-        )
-        d["races"] += 1
-        d["stake"] += sum(t["stake"] for t in e["tickets"])
-        d["returned"] += sum((t["returned"] or 0) for t in e["tickets"])
-    rows = [by_day[k] for k in sorted(by_day)]
-    for r in rows:
-        r["net"] = r["returned"] - r["stake"]
-    return rows
-
-
 def _pick_of(strategy: str) -> str:
     from predlab.racing.carnet import PREV, VALUE_RULE
 
@@ -1031,23 +1015,104 @@ def _merge_series(groups: list[list[dict[str, Any]]], since: str | None) -> list
     return out
 
 
-def _streak(days: list[dict[str, Any]]) -> dict[str, int]:
-    """Consecutive positive days among the days played (a day without bets is skipped).
+def _duels(lab: Lab) -> list[dict[str, Any]]:
+    """Each race where the favourite and the model both played, with what each side
+    staked and got back, oldest first.
 
-    ``current`` ends at the latest day with results -- today included, as it stands.
+    Paired per bet type, as in the chart: a simple gagnant (or placé) counts only if
+    both sides played it, so the two are always compared on exactly the same tickets.
+    The side lines (former version, value rule) stay out.
+    """
+    from predlab.racing.carnet import STRATEGIES as CORE_STRATEGIES
+
+    out = []
+    for e in sorted(_carnet_by_race(lab).values(), key=lambda e: e["off_time"]):
+        sides = {s: {"stake": 0.0, "returned": 0.0} for s in ("model", "favori")}
+        paired = differ = False
+        for bet in ("SG", "SP"):
+            by: dict[str, list[dict[str, Any]]] = {}
+            for t in e["tickets"]:
+                if t["strategy"] in CORE_STRATEGIES and t["strategy"].startswith(bet):
+                    by.setdefault(_pick_of(t["strategy"]), []).append(t)
+            if not {"favori", "modèle"} <= by.keys():
+                continue
+            paired = True
+            picks = {
+                k: sorted(n for t in ts for n in t.get("numbers") or ()) for k, ts in by.items()
+            }
+            differ = differ or picks["favori"] != picks["modèle"]
+            for side, pick in (("model", "modèle"), ("favori", "favori")):
+                sides[side]["stake"] += sum(t["stake"] for t in by[pick])
+                sides[side]["returned"] += sum(t["returned"] or 0.0 for t in by[pick])
+        if paired:
+            out.append({"day": e["day"], "settled": e["settled"], "differ": differ, **sides})
+    return out
+
+
+def _side(duels: list[dict[str, Any]], side: str) -> dict[str, Any]:
+    stake = sum(d[side]["stake"] for d in duels)
+    returned = sum(d[side]["returned"] for d in duels)
+    return {
+        "stake": stake,
+        "returned": returned,
+        "net": returned - stake,
+        "roi": (returned / stake - 1) if stake else None,
+    }
+
+
+def _state(diff: float) -> str:
+    """Who came out ahead: to the cent, so that identical choices are never split by a
+    rounding error."""
+    cents = round(diff * 100)
+    return "ahead" if cents > 0 else "behind" if cents < 0 else "same"
+
+
+def _duel_days(duels: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Per day with settled duels: the model's net, the favourite's, who was ahead."""
+    by_day: dict[str, list[dict[str, Any]]] = {}
+    for d in duels:
+        if d["settled"]:
+            by_day.setdefault(d["day"], []).append(d)
+    rows = []
+    for day in sorted(by_day):
+        items = by_day[day]
+        model, favori = _side(items, "model")["net"], _side(items, "favori")["net"]
+        rows.append(
+            {
+                "day": day,
+                "races": len(items),
+                "differ": sum(d["differ"] for d in items),
+                "model_net": model,
+                "favori_net": favori,
+                "diff": model - favori,
+                "state": _state(model - favori),
+            }
+        )
+    return rows
+
+
+def _ahead_streak(days: list[dict[str, Any]]) -> dict[str, int]:
+    """Days in a row the model ended ahead of the favourite.
+
+    A day level with it (most often the same horse everywhere) neither extends nor breaks
+    the run; a day behind breaks it. ``current`` ends at the latest settled day, today
+    included as it stands.
     """
     best = run = 0
     for d in days:
-        run = run + 1 if d["net"] > 0 else 0
+        if d["state"] == "ahead":
+            run += 1
+        elif d["state"] == "behind":
+            run = 0
         best = max(best, run)
-    return {"current": run, "best": best, "days_played": len(days)}
+    count = {s: sum(d["state"] == s for d in days) for s in ("ahead", "behind", "same")}
+    return {"current": run, "best": best, **count}
 
 
-def _periods(lab: Lab, today: date) -> list[dict[str, Any]]:
-    from predlab.racing.carnet import STRATEGIES as CORE_STRATEGIES
-
-    items = list(_carnet_by_race(lab).values())
-    first = min((date.fromisoformat(e["day"]) for e in items), default=today)
+def _periods(duels: list[dict[str, Any]], today: date) -> list[dict[str, Any]]:
+    """The model and the favourite over the same races, per period. "Depuis le début"
+    starts the first day the model played."""
+    first = min((date.fromisoformat(d["day"]) for d in duels), default=today)
     spans = [
         ("day", "Aujourd'hui", today),
         ("week", "Cette semaine", today - timedelta(days=today.weekday())),
@@ -1056,28 +1121,22 @@ def _periods(lab: Lab, today: date) -> list[dict[str, Any]]:
     ]
     out = []
     for key, label, start in spans:
-        chosen = [e for e in items if start <= date.fromisoformat(e["day"]) <= today]
-        settled = [e for e in chosen if e["settled"]]
-
-        def core(e: dict[str, Any]) -> list[dict[str, Any]]:
-            # The bilan stays favourite + model; "ancien modèle" and rules are side lines.
-            return [t for t in e["tickets"] if t["strategy"] in CORE_STRATEGIES]
-
-        stake = sum(t["stake"] for e in settled for t in core(e))
-        returned = sum((t["returned"] or 0) for e in settled for t in core(e))
-        pending = sum(t["stake"] for e in chosen if not e["settled"] for t in core(e))
+        chosen = [d for d in duels if start <= date.fromisoformat(d["day"]) <= today]
+        settled = [d for d in chosen if d["settled"]]
+        pending = [d for d in chosen if not d["settled"]]
+        model, favori = _side(settled, "model"), _side(settled, "favori")
         out.append(
             {
                 "key": key,
                 "label": label,
                 "start": start.isoformat(),
-                "races": len(chosen),
-                "settled": len(settled),
-                "stake": stake,
-                "returned": returned,
-                "net": returned - stake,
-                "roi": (returned / stake - 1) if stake else None,
-                "pending_stake": pending,
+                "races": len(settled),
+                "differ": sum(d["differ"] for d in settled),
+                "model": model,
+                "favori": favori,
+                "diff": model["net"] - favori["net"],
+                "pending": len(pending),
+                "pending_stake": sum(d["model"]["stake"] for d in pending),
             }
         )
     return out

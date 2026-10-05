@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -164,7 +164,8 @@ def test_day_list_tells_what_the_lab_played(lab: Paths) -> None:
 def test_carnet_periods_are_consistent(lab: Paths) -> None:
     body = TestClient(create_app(lab)).get("/api/carnet/periods").json()
     assert [p["key"] for p in body["periods"]] == ["day", "week", "month", "all"]
-    assert set(body["streak"]) == {"current", "best", "days_played"} and "days" in body
+    assert set(body["streak"]) == {"current", "best", "ahead", "behind", "same"}
+    assert "days" in body
     assert [(s["bet"], s["pick"]) for s in body["series"]] == [
         ("SG", "favori"),
         ("SP", "favori"),
@@ -172,16 +173,28 @@ def test_carnet_periods_are_consistent(lab: Paths) -> None:
         ("SP", "modèle"),
     ]
     for p in body["periods"]:
-        assert p["net"] == p["returned"] - p["stake"]
+        for side in ("model", "favori"):
+            assert p[side]["net"] == p[side]["returned"] - p[side]["stake"]
+        assert p["diff"] == p["model"]["net"] - p["favori"]["net"]
+        assert p["differ"] <= p["races"]
 
 
-def test_streak_counts_consecutive_positive_days() -> None:
-    from predlab.api.app import _streak
+def test_ahead_streak_skips_level_days_and_breaks_on_a_day_behind() -> None:
+    from predlab.api.app import _ahead_streak
 
-    days = [{"net": n} for n in (1.0, 2.0, -1.0, 3.0, 0.5, 0.2, -0.1, 4.0)]
-    assert _streak(days) == {"current": 1, "best": 3, "days_played": 8}
-    assert _streak([]) == {"current": 0, "best": 0, "days_played": 0}
-    assert _streak([{"net": 0.0}])["current"] == 0, "break-even is not a positive day"
+    states = ("ahead", "same", "ahead", "ahead", "behind", "ahead", "same", "ahead", "same")
+    days = [{"state": s} for s in states]
+    assert _ahead_streak(days) == {"current": 2, "best": 3, "ahead": 5, "behind": 1, "same": 3}
+    assert _ahead_streak([])["current"] == 0
+    assert _ahead_streak([{"state": "same"}])["current"] == 0, "level is not ahead"
+    assert _ahead_streak([{"state": "ahead"}, {"state": "behind"}])["best"] == 1
+
+
+def test_state_is_decided_to_the_cent() -> None:
+    from predlab.api.app import _state
+
+    assert _state(0.1 + 0.2 - 0.3) == "same"
+    assert _state(0.01) == "ahead" and _state(-0.01) == "behind"
 
 
 def test_profile_endpoints_answer_before_any_nightly_report(lab: Paths) -> None:
@@ -295,4 +308,68 @@ def test_series_compare_favourite_and_model_on_the_same_races(lab: Paths) -> Non
     picks = {s["strategy"]: s["pick"] for s in _series(Lab(lab))}
     assert picks["SG top marche_plus_prev"] == "ancien"
     body = TestClient(create_app(lab)).get("/api/carnet/periods").json()
-    assert body["periods"][-1]["stake"] == 8.0, "the bilan counts favourite + model only (not 9)"
+    every = body["periods"][-1]
+    assert every["races"] == 2, "R2C1 (favourite only) is not a duel"
+    assert every["model"]["stake"] == 3.0 and every["favori"]["stake"] == 3.0, (
+        "the former version is a side line, not the model"
+    )
+    assert every["start"] == "2026-09-30" and every["differ"] == 0
+
+
+def test_duels_pair_per_bet_type_and_tell_different_choices(lab: Paths) -> None:
+    from predlab.api.app import Lab, _duel_days, _duels, _periods
+
+    def rec(race: str, day: str, tickets: list[tuple[str, int, float]]) -> list[dict]:
+        return [
+            {
+                "kind": "freeze",
+                "race_id": f"{day}/{race}",
+                "day": day,
+                "discipline": "PLAT",
+                "off_time": f"{day}T12:00:00+00:00",
+                "frozen_at": "x",
+                "odds_as_of": "x",
+                "alpha": 1.0,
+                "tickets": [
+                    {
+                        "strategy": s,
+                        "bet_type": "SIMPLE_GAGNANT" if s.startswith("SG") else "SIMPLE_PLACE",
+                        "numbers": [n],
+                        "stake": 1.0,
+                    }
+                    for s, n, _ in tickets
+                ],
+            },
+            {
+                "kind": "settle",
+                "race_id": f"{day}/{race}",
+                "settled_at": "x",
+                "returns": [r for *_, r in tickets],
+            },
+        ]
+
+    ledger = AppendOnlyLedger(lab.carnet)
+    for r in (
+        # Same horse: level.
+        rec("R1C1", "2026-10-01", [("SG favori", 3, 2.5), ("SG top marche_plus", 3, 2.5)]),
+        # Different horses, the model's wins: ahead by 4.
+        rec("R1C1", "2026-10-02", [("SG favori", 1, 0.0), ("SG top marche_plus", 5, 4.0)]),
+        # SP played by the favourite only: only the SG pair counts.
+        rec(
+            "R1C2",
+            "2026-10-02",
+            [("SG favori", 2, 0.0), ("SG top marche_plus", 2, 0.0), ("SP favori", 2, 1.3)],
+        ),
+    ):
+        for x in r:
+            ledger.append(x)
+    duels = _duels(Lab(lab))
+    assert [d["differ"] for d in duels] == [False, True, False]
+    assert duels[2]["favori"]["stake"] == 1.0, "the unpaired SP ticket stays out"
+    days = _duel_days(duels)
+    assert [d["state"] for d in days] == ["same", "ahead"]
+    assert days[1]["diff"] == 4.0 and days[1]["differ"] == 1
+    (every,) = [p for p in _periods(duels, date(2026, 10, 2)) if p["key"] == "all"]
+    assert every["start"] == "2026-10-01" and every["races"] == 3 and every["differ"] == 1
+    assert every["model"]["net"] == 3.5 and every["favori"]["net"] == -0.5
+    assert every["diff"] == 4.0 and every["pending_stake"] == 0.0

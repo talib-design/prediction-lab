@@ -37,17 +37,43 @@ export interface CarnetState {
   returned?: number | null;
 }
 
-export interface PeriodTotals {
-  key: "day" | "week" | "month" | "all";
-  label: string;
-  start: string;
-  races: number;
-  settled: number;
+/** One side of the duel (the model or the favourite) over a period. */
+export interface DuelSide {
   stake: number;
   returned: number;
   net: number;
   roi: number | null;
+}
+
+/** The model against the favourite over one period, on the same races (paired: a
+ *  gagnant or placé ticket counts only if both played it). */
+export interface PeriodTotals {
+  key: "day" | "week" | "month" | "all";
+  label: string;
+  start: string;
+  /** Settled races where both played. */
+  races: number;
+  /** Among them, races where the model chose another horse. */
+  differ: number;
+  model: DuelSide;
+  favori: DuelSide;
+  /** Model net minus favourite net. */
+  diff: number;
+  pending: number;
+  /** The model's stake on races not settled yet. */
   pending_stake: number;
+}
+
+export type DuelState = "ahead" | "behind" | "same";
+
+export interface DuelDay {
+  day: string;
+  races: number;
+  differ: number;
+  model_net: number;
+  favori_net: number;
+  diff: number;
+  state: DuelState;
 }
 
 export interface CarnetSeries {
@@ -678,8 +704,8 @@ export const api = {
     get<{
       today: string;
       periods: PeriodTotals[];
-      streak: { current: number; best: number; days_played: number };
-      days: { day: string; races: number; stake: number; returned: number; net: number }[];
+      streak: { current: number; best: number; ahead: number; behind: number; same: number };
+      days: DuelDay[];
       series: CarnetSeries[];
     }>("/carnet/periods"),
   carnet: (day?: string) => get<CarnetResponse>(day ? `/carnet?day=${day}` : "/carnet"),

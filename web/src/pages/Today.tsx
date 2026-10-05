@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
 import { CarnetBetsChart } from "../components/BetsChart";
 import { ProfileButton, WinnersProfile } from "../components/WinnersProfile";
-import { api, type CarnetState, type Discipline, type RaceSummary } from "../lib/api";
+import { api, type CarnetState, type Discipline, type DuelState, type RaceSummary } from "../lib/api";
 import { euros, longDay, minutesUntil, relative, shiftDay, shortDay, time, todayParis } from "../lib/format";
 import { BET_LABEL, rule } from "../lib/tickets";
 import { href, useApi } from "../lib/hooks";
@@ -19,32 +19,53 @@ function statusOf(r: RaceSummary): { label: string; cls: string } {
 }
 
 const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
+const pct = (r: number | null) =>
+  r == null ? "—" : `${r >= 0 ? "+" : "−"}${Math.abs(r * 100).toFixed(1).replace(".", ",")} %`;
+const plural = (n: number) => (n > 1 ? "s" : "");
 
-/** Where the fictitious bets stand: today, this week, this month, since the start. */
+const STATE: Record<DuelState, string> = {
+  ahead: "modèle devant",
+  behind: "modèle derrière",
+  same: "à égalité",
+};
+
+/** How the duel stands over the period: by how much the model beats (or trails) the
+ *  favourite on the same races. Decided to the cent, as on the server. */
+function DeltaChip({ diff }: { diff: number }) {
+  const cents = Math.round(diff * 100);
+  if (cents === 0) return <span className="delta-chip same">à égalité avec le favori</span>;
+  return (
+    <span className={`delta-chip ${cents > 0 ? "ahead" : "behind"}`}>
+      <span aria-hidden>{cents > 0 ? "▲" : "▼"}</span> {signed(diff)} pour le modèle
+    </span>
+  );
+}
+
+/** The model against the favourite, on the same races: today, this week, this month,
+ *  since the model first played. */
 function BetsOverview() {
   const load = useApi(() => api.periods(), "periods", 120_000);
   if (load.state !== "ready") return null;
   const { periods, streak, days, series } = load.data;
-  if (periods.every((p) => p.races === 0)) return null;
-  const plural = (n: number) => (n > 1 ? "s" : "");
+  if (periods.every((p) => p.races === 0 && p.pending === 0)) return null;
   return (
-    <section className="overview" aria-label="Bilan des paris fictifs">
+    <section className="overview" aria-label="Le modèle face au favori">
       <div className="overview-head">
-        <h2>Bilan des paris fictifs</h2>
+        <h2>Modèle face au favori</h2>
         <div
           className="streak"
-          title="Jours consécutifs terminés en positif, parmi les jours joués (un jour sans pari est ignoré). Aujourd'hui compte tel qu'il est à cette heure."
+          title="Jours d'affilée où le modèle termine devant le favori, sur les mêmes courses. Un jour à égalité (le plus souvent le même cheval partout) ne prolonge pas la série et ne la casse pas ; un jour derrière la casse. Aujourd'hui compte tel qu'il est à cette heure."
         >
           <span className="streak-label">
-            Série positive <strong className="num">{streak.current} jour{plural(streak.current)}</strong>
+            Devant le favori <strong className="num">{streak.current} jour{plural(streak.current)}</strong>
             <span className="muted"> · record {streak.best}</span>
           </span>
           <span className="streak-days" aria-hidden>
             {days.map((d) => (
               <i
                 key={d.day}
-                className={d.net > 0 ? "pos" : "neg"}
-                title={`${shortDay(d.day)} : ${signed(d.net)} (${d.races} courses)`}
+                className={d.state}
+                title={`${shortDay(d.day)} : ${STATE[d.state]} — modèle ${signed(d.model_net)}, favori ${signed(d.favori_net)} (${d.races} course${plural(d.races)}, ${d.differ} choix différent${plural(d.differ)})`}
               />
             ))}
           </span>
@@ -56,23 +77,49 @@ function BetsOverview() {
       <div className="overview-grid">
         {periods.map((p) => (
           <a key={p.key} href="#/carnet" className="card overview-card">
-            <div className="kpi-label">
-              {p.label}
-              {p.key === "all" && <span className="muted"> ({shortDay(p.start)})</span>}
+            <div className="overview-card-head">
+              <span className="kpi-label">
+                {p.label}
+                {p.key === "all" && <span className="muted"> (dès le {shortDay(p.start)})</span>}
+              </span>
+              <span className="small muted num">
+                {p.races} course{plural(p.races)}
+              </span>
             </div>
-            <div className={`overview-net num ${p.net >= 0 ? "pos" : "neg"}`}>{p.settled ? signed(p.net) : "—"}</div>
-            <dl className="overview-facts">
-              <dt>Misé</dt>
-              <dd className="num">{euros(p.stake)}</dd>
-              <dt>Rapporté</dt>
-              <dd className="num">{euros(p.returned)}</dd>
-              <dt>Retour</dt>
-              <dd className="num">{p.roi == null ? "—" : `${p.roi >= 0 ? "+" : "−"}${Math.abs(p.roi * 100).toFixed(0)} %`}</dd>
-            </dl>
-            <div className="small muted">
-              {p.settled} course{p.settled > 1 ? "s" : ""} réglée{p.settled > 1 ? "s" : ""}
-              {p.pending_stake > 0 && ` · ${euros(p.pending_stake)} en attente`}
-            </div>
+            {p.races === 0 ? (
+              <>
+                <div className="overview-net num muted">—</div>
+                <div className="small muted">
+                  {p.pending > 0
+                    ? `${p.pending} course${plural(p.pending)} en attente · ${euros(p.pending_stake)} misés par le modèle`
+                    : "Aucune course réglée"}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="overview-side">
+                  <i className="side-mark model" aria-hidden />
+                  Modèle
+                </div>
+                <div className="overview-net num">
+                  {signed(p.model.net)} <span className="overview-roi">{pct(p.model.roi)}</span>
+                </div>
+                <div className="overview-favori small">
+                  <span className="overview-side">
+                    <i className="side-mark favori" aria-hidden />
+                    Favori
+                  </span>
+                  <span className="num">
+                    {signed(p.favori.net)} · {pct(p.favori.roi)}
+                  </span>
+                </div>
+                <DeltaChip diff={p.diff} />
+                <div className="small muted overview-foot">
+                  Choix différents : {p.differ} course{plural(p.differ)} sur {p.races}
+                  {p.pending_stake > 0 && ` · ${euros(p.pending_stake)} en attente`}
+                </div>
+              </>
+            )}
           </a>
         ))}
       </div>
@@ -84,8 +131,8 @@ function BetsOverview() {
         <CarnetBetsChart series={series} />
       </div>
       <p className="small muted" style={{ margin: "6px 0 0" }}>
-        Paris imaginaires, jamais placés : le favori et le choix du modèle Marché+, en gagnant et en placé, 1 € par
-        ticket.
+        Paris imaginaires, jamais placés : le choix du modèle Marché+ et le favori, comparés sur les mêmes courses, en
+        gagnant et en placé, 1 € par ticket. Les cartes comptent le modèle ; le favori sert d'étalon.
       </p>
     </section>
   );
