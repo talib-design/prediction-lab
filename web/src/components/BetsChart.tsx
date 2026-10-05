@@ -17,12 +17,12 @@ type Pick = "favori" | "modèle" | "ancien" | "valeur";
 type Range = "1w" | "1m" | "3m" | "6m" | "1y" | "all";
 
 // Colours validated with the dataviz palette checker (teal, violet, orange: CVD-safe in
-// both themes). The replaced version keeps the model's violet, told apart by its dash-dot
-// pattern, a lighter stroke and its label: it is the same family of model, one step back.
+// both themes). The replaced version is drawn in ink (black in light mode, off-white in
+// dark mode, where black would vanish), dash-dot, outside the categorical hues.
 const PICKS: { pick: Pick; label: string; color: string; dash?: string; fade?: number }[] = [
   { pick: "favori", label: "Favori", color: "var(--series-favori)" },
   { pick: "modèle", label: "Modèle", color: "var(--series-model)", dash: "7 5" },
-  { pick: "ancien", label: "Ancien modèle", color: "var(--series-model)", dash: "10 4 2 4", fade: 0.6 },
+  { pick: "ancien", label: "Ancien modèle", color: "var(--ink)", dash: "10 4 2 4" },
   { pick: "valeur", label: "Valeur modèle", color: "var(--series-value)" },
 ];
 const MAIN: Pick[] = ["favori", "modèle"];
