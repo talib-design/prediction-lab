@@ -307,6 +307,7 @@ def _write_replay(frame: pl.DataFrame, discipline: str, runs: Path) -> None:
         typer.echo(f"Courbe historique {discipline} : pas encore de modèle walk-forward.")
         return
     replay_lib.write_report(rep, runs)
+    replay_lib.write_picks(replay_lib.picks(frame), discipline, runs.parent / "normalized")
     typer.echo(
         f"Courbe historique {discipline} : {s['races']} courses depuis le {s['first_day']}, "
         f"le modèle quitte le favori sur {s['differ_share']:.0%} d'entre elles."
@@ -422,6 +423,18 @@ def backfill(
         typer.echo(f"{discipline} — {report.summary()}")
     if then_build:
         build_db()
+
+
+@racing_app.command("dossier")
+def dossier() -> None:
+    """The weekly dossier the critic agent reads: carnet, history by segment, calibration,
+    lab and data health (data/lab/dossier/). Facts only, computed by Python."""
+    from predlab.racing import dossier as dossier_lib
+
+    paths = default_paths().ensure()
+    rep = dossier_lib.build(paths, utcnow())
+    _, md = dossier_lib.write(rep, paths.lab)
+    typer.echo(f"Dossier du {rep['day']} : {md}")
 
 
 @racing_app.command("probe-foreign")
@@ -589,6 +602,10 @@ def nightly(
             )
         except Exception as exc:
             _log_line(f"{stamp} | nuit {discipline} ERREUR {exc!r}")
+    try:
+        dossier()
+    except Exception as exc:
+        _log_line(f"{stamp} | nuit dossier ERREUR {exc!r}")
     if publish:
         _log_line(f"{stamp} | nuit git : {_publish(paths.root, started)}")
 

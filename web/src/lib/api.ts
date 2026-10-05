@@ -606,6 +606,7 @@ export interface LabExperiment {
   discipline: Discipline;
   source: "history" | "live" | "study";
   kind?: "criterion" | "calibration" | "rule" | "study";
+  fresh_from?: string | null;
   protocol?: string;
   origin: Hypothesis["origin"];
   status: Hypothesis["status"];

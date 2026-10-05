@@ -884,6 +884,7 @@ def _lab(lab: Lab) -> dict[str, Any]:
                 "discipline": discipline,
                 "source": c.source if c else "study",
                 "kind": c.kind if c else "study",
+                "fresh_from": c.fresh_from.isoformat() if c and c.fresh_from else None,
                 "protocol": rest[0] if rest else "v1",
                 "origin": h.origin.value,
                 "status": h.status.value,

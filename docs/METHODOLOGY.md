@@ -345,6 +345,30 @@ Le générateur d'idées (tâche planifiée hebdomadaire) ajoute des candidats a
 en revue de code ; il ne les teste jamais lui-même et ne regarde pas leurs résultats
 avant leur pré-enregistrement.
 
+## 14. Agent critique et dossier de la semaine (ajouté le 2026-10-05)
+
+Rôle : dire **où et pourquoi** le modèle gagne ou perd face au favori, signaler ce qui
+cloche dans les données, proposer des pistes. Il complète le générateur d'idées, qui,
+lui, ne voit jamais les résultats.
+
+- **Python calcule, le LLM commente.** Chaque nuit, `predlab racing dossier` écrit
+  `data/lab/dossier/dossier_<jour>.json` et `.md` : carnet en direct (depuis le début et
+  sur 7 jours, courses où les choix diffèrent), historique reconstitué découpé par
+  segments (cote du favori, partants, distance, terrain, catégorie, quinté, hippodrome,
+  trimestre, cote du choix du modèle) avec l'écart modèle − favori en euros et un
+  intervalle bootstrap à 90 %, calibration du choix du modèle, état du labo, santé des
+  données. Un segment de moins de 50 courses où les choix diffèrent ne dit rien. Le
+  critique ne cite que des chiffres du dossier.
+- **Tout ce qu'il propose a vu les résultats.** Ses critères entrent au catalogue avec
+  `fresh_from` : ils ne sont jugés que sur des courses courues à partir de cette date,
+  et au plus tôt le lendemain de leur pré-enregistrement, une fois 1 000 courses
+  atteintes ; champion et challenger sont ajustés sur toutes les courses d'avant. Mêmes
+  filtres que §13 (sans la condition « chaque année », la fenêtre ne durant que quelques
+  mois), puis un essai au coffre sur des courses postérieures à ce test.
+- **Cloisonnement.** Le générateur d'idées ne lit ni le dossier, ni le journal du
+  critique, ni les critères a posteriori : ses idées restent jugeables sur l'historique.
+- Le critique n'a jamais la main sur le modèle, le carnet, le registre ou les seuils.
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
@@ -383,6 +407,8 @@ avant leur pré-enregistrement.
   obtenus restent au registre. Le mouvement de cote n'en profite pas (une seule cote avant
   le départ dans l'historique). Printemps 2020 : courses suspendues pendant le
   confinement, à garder en tête dans les lectures par période.
+- 2026-10-05 — §14 : agent critique hebdomadaire, dossier calculé par Python, critères a
+  posteriori jugés seulement sur des courses fraîches (1 000 au moins).
 - 2026-10-05 — §13 : objectif « battre le favori en prévoyant mieux », champion et
   challengers, deux filtres, coffre, promotion. Six candidats ajoutés avant tout regard sur
   leurs résultats (biais favori-outsider non linéaire, biais selon la taille du champ,

@@ -28,6 +28,21 @@ Dernière mise à jour : 2026-10-05.
 - **Règles inchangées** : aucun pari réel, aucune mise, aucun compte PMU ; jamais
   d'information future dans les entrées ; le marché est la référence.
 
+## Agent critique et sonde étranger — 2026-10-05
+
+- **Dossier de la semaine** (`predlab racing dossier`, chaque nuit) : carnet, historique
+  par segments avec IC 90 %, calibration, labo, santé des données ; dans
+  `data/lab/dossier/`. Les choix par course de la courbe historique sont gardés hors git
+  (`data/normalized/replay_picks_*.parquet`, ils portent les rapports officiels).
+- **Agent critique** (tâche planifiée, dimanche vers 9 h 30, avant le générateur d'idées) :
+  lit le dossier, écrit son journal (`docs/CRITIQUE.md`), propose au plus 2 critères a
+  posteriori, jugés seulement sur des courses fraîches (METHODOLOGY §14).
+- **Sonde étranger** (100 courses) : partants complets partout ; pas de cote PMU avant le
+  départ sur les grands pays de plat (DATA_SOURCES).
+- **Textes dans le flux PMU** (option 2, étudiée) : commentaire après course par partant
+  (source DATAHIPPIQUE), disponible environ un mois puis retiré ; avis de l'entraîneur
+  (positif / neutre / négatif) au trot seulement, présent avant la course depuis 2024.
+
 ## Objectif « battre le favori » — épics 1 à 4 livrés le 2026-10-05
 
 - **Moteur** (`racing/champion.py`, `racing/arena.py`, METHODOLOGY §13) : champion

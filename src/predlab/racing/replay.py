@@ -28,7 +28,8 @@ BETS = ("SG", "SP")
 
 
 def picks(frame: pl.DataFrame) -> pl.DataFrame:
-    """One row per race: the favourite's and the model's numbers and their returns."""
+    """One row per race: the favourite's and the model's numbers, their T-25 odds, the
+    model's probability for each and their returns."""
     df = frame.filter(pl.col("p_model").is_not_null() & pl.col("odds").is_not_null())
     if df.is_empty():
         return pl.DataFrame()
@@ -42,6 +43,8 @@ def picks(frame: pl.DataFrame) -> pl.DataFrame:
             pl.col("number").alias("fav_number"),
             pl.col("ret_SG").alias("fav_SG"),
             pl.col("ret_SP").alias("fav_SP"),
+            pl.col("odds").alias("fav_odds"),
+            pl.col("p_model").alias("fav_p"),
         )
     )
     top = (
@@ -53,6 +56,8 @@ def picks(frame: pl.DataFrame) -> pl.DataFrame:
             pl.col("number").alias("mod_number"),
             pl.col("ret_SG").alias("mod_SG"),
             pl.col("ret_SP").alias("mod_SP"),
+            pl.col("odds").alias("mod_odds"),
+            pl.col("p_model").alias("mod_p"),
         )
     )
     return fav.join(top, on="race_id").sort("day", "race_id")
@@ -173,3 +178,19 @@ def write_report(rep: dict[str, Any], runs: Path) -> Path:
     path = out / "report.json"
     path.write_text(json.dumps(rep, ensure_ascii=False), encoding="utf-8")
     return path
+
+
+def write_picks(per_race: pl.DataFrame, discipline: str, normalized: Path) -> Path:
+    """The per-race picks, for the weekly dossier's segments. They carry official
+    dividends (PMU data): written to the git-ignored ``data/normalized``, never committed."""
+    normalized.mkdir(parents=True, exist_ok=True)
+    path = normalized / f"replay_picks_{discipline}.parquet"
+    tmp = path.with_suffix(".tmp")
+    per_race.write_parquet(tmp)
+    tmp.replace(path)
+    return path
+
+
+def load_picks(normalized: Path, discipline: str) -> pl.DataFrame | None:
+    path = normalized / f"replay_picks_{discipline}.parquet"
+    return pl.read_parquet(path) if path.exists() else None

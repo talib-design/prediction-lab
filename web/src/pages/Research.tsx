@@ -198,9 +198,11 @@ function ExperimentTable({ rows, money = false }: { rows: LabExperiment[]; money
                       <div className="small muted">
                         {e.source === "live"
                           ? "cotes en direct"
-                          : e.protocol?.startsWith("obj")
-                            ? KIND[e.kind ?? "criterion"] ?? "critère"
-                            : "historique depuis 2024"}{" "}
+                          : e.fresh_from
+                            ? `critère a posteriori · courses dès le ${shortDay(e.fresh_from)}`
+                            : e.protocol?.startsWith("obj")
+                              ? KIND[e.kind ?? "criterion"] ?? "critère"
+                              : "historique depuis 2024"}{" "}
                         · {ORIGIN[e.origin]}
                       </div>
                     </td>

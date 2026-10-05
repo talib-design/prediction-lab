@@ -84,6 +84,10 @@ class Candidate:
     # "criterion": a new factor for the model; "calibration": the champion's
     # probabilities made honest (p ∝ p^tau); "rule": when to bet (racing/champion.py).
     kind: str = "criterion"
+    # Set for a criterion proposed after looking at results (the critic agent, the weekly
+    # dossier): it is judged only on races run from this day on -- and never before the
+    # day after its registration -- never on the history it was found in (arena.py).
+    fresh_from: date | None = None
 
     @property
     def column(self) -> str:

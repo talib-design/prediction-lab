@@ -18,12 +18,18 @@ Per candidate, registered before any result and tested once:
   gagnant tickets above the favourite's, on races after that exploration.
 
 A criterion or calibration that passes goes to the vault once (racing/champion.py).
+
+* criterion proposed after looking at results (``Candidate.fresh_from``, the critic
+  agent): the same two filters, but on races run from ``fresh_from`` -- and from the day
+  after its registration at the earliest -- once ``FRESH_MIN_RACES`` of them exist; the
+  champion and the challenger are fitted on everything before. Its vault comes after its
+  test races.
 """
 
 from __future__ import annotations
 
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +46,7 @@ from predlab.registry.hypotheses import Hypothesis, HypothesisRegistry, Status
 PROTOCOL = "obj"  # experiment keys: <candidate>:<discipline>:obj<champion version>
 RULE_FRESH_FROM = date(2026, 10, 5)  # the value threshold was explored on 2026-10-04
 TAU_GRID = tuple(round(0.5 + 0.01 * i, 2) for i in range(101))  # 0.50 → 1.50
+FRESH_MIN_RACES = 1000  # races run after a post-hoc criterion's registration
 
 RULE_TEXT = (
     "Règle fixée avant le test (objectif « battre le favori en prévoyant mieux », "
@@ -60,6 +67,17 @@ RULE_TEXT_RULE = (
     f"postérieures au {RULE_FRESH_FROM.isoformat()} ; admise au carnet si le retour par euro "
     "de ses tickets simple gagnant dépasse celui du favori sur au moins le nombre de "
     "courses du coffre."
+)
+
+
+RULE_TEXT_FRESH = (
+    "Règle fixée avant le test (critère proposé après avoir vu des résultats, donc jamais "
+    "jugé sur eux) : jugé seulement sur les courses courues à partir du {start} et au plus "
+    "tôt le lendemain de cet enregistrement, une fois {n} courses atteintes ; challenger = "
+    "champion + ce critère, ajustés sur toutes les courses d'avant. (1) IC 99 % de l'écart "
+    "de log loss sous 0 ; (2) son choix rapporte plus par euro que celui du champion, "
+    "gagnant + placé. Les deux tenus : un essai unique au coffre, sur des courses "
+    "postérieures à ce test."
 )
 
 
@@ -269,6 +287,41 @@ def evaluate_rule(
     }
 
 
+def evaluate_fresh_criterion(
+    frame: pl.DataFrame,
+    champ: Champion,
+    window: Window,
+    column: str,
+    start: date,
+    min_races: int = FRESH_MIN_RACES,
+) -> tuple[int, dict[str, Any] | None]:
+    """A post-hoc criterion on races from ``start`` only; champion and challenger fitted
+    on every race before (λ chosen on the window's validation)."""
+    fresh = _sorted(frame.filter(pl.col("day") >= start))
+    n = fresh["race_id"].n_unique()
+    if n < min_races:
+        return n, None
+    before = frame.filter(pl.col("day") < start)
+    parts = split(before, window, start)
+    base = _refit(before, _fit(parts, champ.features, LAMBDAS))
+    chal = _refit(before, _fit(parts, (*champ.features, column), LAMBDAS))
+    db, dc = _design(fresh, base), _design(fresh, chal)
+    pred = prediction(dc, chal["theta"], db, base["theta"], champ.tau, champ.tau)
+    mon = money(fresh, dc, chal["theta"], db, base["theta"])
+    beta, se = float(chal["theta"][-1]), float(chal["se"][-1])
+    return n, {
+        **pred,
+        "money": mon,
+        "lambda": {"champion": base["lambda"], "challenger": chal["lambda"]},
+        "beta": beta,
+        "beta_low": beta - 2.575829 * se,
+        "beta_high": beta + 2.575829 * se,
+        "fresh_from": start.isoformat(),
+        "fresh_until": str(fresh["day"].max()),
+        "races": {"before": int(before["race_id"].n_unique()), "fresh": n},
+    }
+
+
 def verdict(kind: str, res: dict[str, Any]) -> tuple[Status, str]:
     if kind == "rule":
         rr, rf = res.get("roi_rule"), res.get("roi_favourite")
@@ -281,12 +334,18 @@ def verdict(kind: str, res: dict[str, Any]) -> tuple[Status, str]:
         if rr > rf:
             return Status.SUPPORTED, f"Admise au carnet : {span}."
         return Status.REJECTED, f"Refusée : {span}."
-    status, text = lab.verdict(res, need_every_year=True)
+    # A post-hoc criterion is judged on a few months of fresh races: no per-year rule.
+    status, text = lab.verdict(res, need_every_year="fresh_from" not in res)
     if status != Status.SUPPORTED:
         return status, text
     span = (
         f"écart de log loss {res['difference']:+.4f} (IC 99 % {res['ci_low']:+.4f} à "
-        f"{res['ci_high']:+.4f}), gain chaque année"
+        f"{res['ci_high']:+.4f})"
+        + (
+            f", sur les courses depuis le {res['fresh_from']}"
+            if "fresh_from" in res
+            else ", gain chaque année"
+        )
     )
     if kind == "calibration":
         return Status.SUPPORTED, f"Retenu : {span}, τ = {res['tau']:.2f}. Essai au coffre."
@@ -330,6 +389,10 @@ def register(reg: HypothesisRegistry, discipline: str, lab_dir: Path) -> list[st
         if c.column in in_model or (c.kind == "calibration" and tau != 1.0):
             continue  # already part of the champion
         rule = {"calibration": RULE_TEXT_CALIBRATION, "rule": RULE_TEXT_RULE}.get(c.kind, RULE_TEXT)
+        if c.fresh_from is not None:
+            rule = RULE_TEXT_FRESH.format(
+                start=c.fresh_from.strftime("%d/%m/%Y"), n=FRESH_MIN_RACES
+            )
         reg.add(
             Hypothesis(
                 description=f"{c.label} ({discipline}). {c.hypothesis} {rule}",
@@ -389,11 +452,15 @@ def run(
         and h.status in (Status.PROPOSED, Status.TESTING)
     ]
     rule_window = rule_window or window
+    registered = _registered_on(reg)
     if not ready or frame is None:
         for h in pending:
             c = lab.BY_ID.get(str(h.experiment).split(":")[0])
             if c is not None and c.kind == "rule" and frame is not None:
                 _rule(reg, h, c, frame, champ, rule_window, lab_dir, discipline, now, lines)
+            elif c is not None and c.fresh_from is not None and frame is not None:
+                start = _fresh_start(c, registered.get(h.hypothesis_id))
+                _fresh(reg, h, c, frame, champ, rule_window, start, lab_dir, discipline, now, lines)
             else:
                 _note(reg, h, "En attente de l'historique 2020 de cette discipline.", lines)
         return lines, None
@@ -408,6 +475,10 @@ def run(
             continue
         if c.kind == "rule":
             _rule(reg, h, c, frame, champ, rule_window, lab_dir, discipline, now, lines)
+            continue
+        if c.fresh_from is not None:
+            start = _fresh_start(c, registered.get(h.hypothesis_id))
+            _fresh(reg, h, c, frame, champ, window, start, lab_dir, discipline, now, lines)
             continue
         if done >= max_tests:
             continue
@@ -489,6 +560,52 @@ def _rule(
         champ.save()
 
 
+def _registered_on(reg: HypothesisRegistry) -> dict[str, date]:
+    """Day each hypothesis was first written to the registry (its revision 0)."""
+    out: dict[str, date] = {}
+    for h in reg.history():
+        out.setdefault(h.hypothesis_id, h.created_at.date())
+    return out
+
+
+def _fresh_start(c: lab.Candidate, registered: date | None) -> date:
+    assert c.fresh_from is not None
+    if registered is None:
+        return c.fresh_from
+    return max(c.fresh_from, registered + timedelta(days=1))
+
+
+def _fresh(
+    reg: HypothesisRegistry,
+    h: Hypothesis,
+    c: lab.Candidate,
+    frame: pl.DataFrame,
+    champ: Champion,
+    window: Window,
+    start: date,
+    lab_dir: Path,
+    discipline: str,
+    now: datetime,
+    lines: list[str],
+) -> None:
+    """A post-hoc criterion: waits for its fresh races, then is tested once."""
+    if c.column not in frame.columns:
+        return
+    n, res = evaluate_fresh_criterion(
+        frame, champ, window, c.column, start, min_races=FRESH_MIN_RACES
+    )
+    if res is None:
+        _note(
+            reg,
+            h,
+            f"En attente de courses fraîches : {n}/{FRESH_MIN_RACES} depuis le "
+            f"{start.strftime('%d/%m/%Y')}.",
+            lines,
+        )
+        return
+    _record(reg, h, c, res, champ, lab_dir, discipline, now, lines)
+
+
 def attempt_vault(
     reg: HypothesisRegistry,
     frame: pl.DataFrame,
@@ -516,6 +633,8 @@ def attempt_vault(
         return None
     best = min(waiting, key=lambda r: r["difference"])
     vault_start = champ.vault_start(window)
+    if best.get("fresh_until"):  # a post-hoc criterion: its vault comes after its test
+        vault_start = max(vault_start, date.fromisoformat(best["fresh_until"]) + timedelta(days=1))
     parts = split(frame, window, vault_start)
     vault = _sorted(parts["vault"])
     n = vault["race_id"].n_unique()

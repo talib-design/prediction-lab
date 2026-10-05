@@ -150,3 +150,43 @@ def test_the_value_rule_does_not_wait_for_the_extended_history(
     by = {h.experiment: h for h in reg.current()}
     assert "fraîches" in (by["value105:PLAT:obj1"].forward_result or "")
     assert "historique 2020" in (by["logq2:PLAT:obj1"].forward_result or "")
+
+
+FRESH = replace(LEAK, id="leakpost", fresh_from=date(2025, 1, 1))
+
+
+@pytest.fixture
+def with_fresh(monkeypatch: pytest.MonkeyPatch) -> None:
+    cands = (*lab.CANDIDATES, FRESH)
+    monkeypatch.setattr(lab, "CANDIDATES", cands)
+    monkeypatch.setattr(lab, "BY_ID", {c.id: c for c in cands})
+
+
+def test_a_post_hoc_criterion_is_judged_on_fresh_races_only(
+    frame: pl.DataFrame, tmp_path: Path, with_fresh: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reg = HypothesisRegistry(AppendOnlyLedger(tmp_path / "h.jsonl"))
+    arena.register(reg, "PLAT", tmp_path)
+    h = next(h for h in reg.current() if h.experiment == "leakpost:PLAT:obj1")
+    assert "proposé après avoir vu des résultats" in h.description
+    # Registered (in the test's world) on 2024-12-20: fresh races start on 2025-01-01.
+    monkeypatch.setattr(arena, "_registered_on", lambda _reg: {h.hypothesis_id: date(2024, 12, 20)})
+    df = lab.add_candidates(frame, "PLAT")
+    monkeypatch.setattr(arena, "FRESH_MIN_RACES", 10_000)
+    arena.run(reg, df, tmp_path, "PLAT", WINDOW, ready=False, now=NOW, rule_window=WINDOW)
+    assert "courses fraîches" in (reg.get(h.hypothesis_id).forward_result or "")
+    monkeypatch.setattr(arena, "FRESH_MIN_RACES", 200)
+    lines, promo = arena.run(
+        reg, df, tmp_path, "PLAT", WINDOW, ready=True, max_tests=0, now=NOW, rule_window=WINDOW
+    )
+    assert reg.get(h.hypothesis_id).status == Status.SUPPORTED, lines
+    res = lab.results(tmp_path)["leakpost:PLAT:obj1"]
+    assert res["fresh_from"] == "2025-01-01" and res["races"]["fresh"] >= 200
+    # Its vault comes after its own test races, which run to the end of the data.
+    assert promo is None and any("en attente du coffre" in x for x in lines)
+
+
+def test_fresh_start_is_never_before_the_day_after_registration() -> None:
+    assert arena._fresh_start(FRESH, date(2025, 2, 1)) == date(2025, 2, 2)
+    assert arena._fresh_start(FRESH, date(2024, 6, 1)) == date(2025, 1, 1)
+    assert arena._fresh_start(FRESH, None) == date(2025, 1, 1)
