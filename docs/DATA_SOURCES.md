@@ -83,6 +83,41 @@ Depuis les environnements Cowork (bac à sable cloud et shell de la session sur 
 le domaine est refusé par la politique réseau (`403 from proxy`). Le collecteur tourne
 donc depuis macOS via `launchd` (`ops/install_collector.sh`).
 
+### Courses étrangères — sonde du 2026-10-05 (`predlab racing probe-foreign`)
+
+Le programme PMU liste aussi les courses étrangères sur lesquelles le PMU prend des paris
+(≈ 5 500 à 6 200 par an depuis 2024 ; plus de courses de plat qu'en France). Sonde sur
+100 courses terminées depuis 2024, 42 couples pays × discipline, 300 requêtes ; rapport
+agrégé : `data/lab/probe_foreign.json`.
+
+| Mesure | Plat (60) | Attelé (30) | Monté (10) |
+|---|---|---|---|
+| Partants lus, parseur sans erreur | 100 % | 100 % | 100 % |
+| Musique, âge, sexe, origines, jockey/driver, entraîneur, œillères | ≈ 100 % | 100 % | 100 % |
+| Poids (en dixièmes de kg, comme en France), corde | 100 % | — | — |
+| Valeur de handicap | 45 % (GBR, IRL, HKG, USA, AUS, ZAF, DEU…) | — | — |
+| Recul (distance) / déferré | — | 100 % / 31 % | 100 % / 31 % |
+| Arrivée (ordreArrivee) | 98 % | 83 % | 82 % |
+| Courses passées détaillées (au moins une) | 82 % des partants, médiane 5 | 30 %, médiane 0 | 51 % |
+| Cote de référence PMU | 42 % des partants | 68 % | 45 % |
+| Rapports simple gagnant / placé | 40 % des courses | 63 % | 40 % |
+
+Constats :
+
+- **Pas de cote PMU avant le départ** sur les grands pays de plat (Royaume-Uni, Irlande,
+  Hong Kong, Australie, États-Unis, Chili, Argentine…) ni sur le trot suédois ; leurs
+  rapports, quand ils existent, sont de type `*_INTERNATIONAL` [non vérifié : masse
+  commune avec l'organisateur local, probablement]. Ces courses servent au modèle de
+  fond (sans cote), pas à mesurer « battre le favori ».
+- Quand elle existe, la cote de référence est prise **30 min avant le départ**, comme en
+  France.
+- **Compteurs de carrière** (`nombreCourses`, gains) à 0 dans plusieurs pays (trot
+  étranger, Japon, Corée, Pologne) alors que la musique montre des courses : non fiables
+  là-bas ; la musique l'est.
+- Code pays `AAA` = Hong Kong (Happy Valley, Sha Tin) avant l'apparition de `HKG`.
+- Les captures de la sonde entrent dans la base à la reconstruction ; le modèle, le
+  carnet, le banc et le labo ne lisent que `country_code = 'FRA'`.
+
 ## Autres sources
 
 | Source | Statut | Usage prévu |
