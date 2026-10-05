@@ -217,10 +217,26 @@ def run_backfill(
     return report
 
 
-# From 2024 for every discipline (decision of Chris, 2026-09-30, replacing 2023): the
-# horses running now and their recent careers; nothing older is useful. The backfill
-# stops at this date -- nothing already stored is refetched or deleted.
-DEFAULT_PLAN = "PLAT:2024-01-01,ATTELE:2024-01-01,MONTE:2024-01-01"
+# Plan, in priority order (each entry is finished before the next starts; days already
+# complete are skipped without a request, programmes are shared across disciplines):
+# 1. 2024 for every discipline (decision of Chris, 2026-09-30): what the models train on
+#    today, and what unlocks the trot model;
+# 2. then 2020-2023 (decision of Chris, 2026-10-05): more races to train on and to judge
+#    the lab's tests faster. The PMU reference odds sit ~30 min before the off since 2017,
+#    so the T-25 market is the same over the whole window.
+# Nothing already stored is refetched or deleted.
+DEFAULT_PLAN = (
+    "PLAT:2024-01-01,ATTELE:2024-01-01,MONTE:2024-01-01,"
+    "PLAT:2020-01-01,ATTELE:2020-01-01,MONTE:2020-01-01"
+)
+
+
+def targets(plan: list[tuple[str, date]]) -> list[tuple[str, date]]:
+    """One entry per discipline, at its earliest start, in order of first appearance."""
+    out: dict[str, date] = {}
+    for discipline, start in plan:
+        out[discipline] = min(start, out.get(discipline, start))
+    return list(out.items())
 
 
 def parse_plan(text: str) -> list[tuple[str, date]]:

@@ -1,8 +1,8 @@
 # Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
-Dernière mise à jour : 2026-10-04.
+Dernière mise à jour : 2026-10-05.
 
-## Où on en est — 2026-10-04
+## Où on en est — 2026-10-05
 
 - **Tourne seul** sur le Mac (launchd) : collecte toutes les 5 min (carnet et banc figés à
   T-25 puis réglés), rattrapage de jour par tranches, passe de nuit à 1 h 30 (rattrapage,
@@ -16,8 +16,12 @@ Dernière mise à jour : 2026-10-04.
 - **En attente de données** :
   - mouvement de cote (Marché+ v2) : 71/1 000 courses de plat suivies en direct
     (attelé 44, monté 10) ; demande le Mac éveillé pendant les réunions ;
-  - trot : historique encore limité à 2026 ; modèle, profil, banc et critères du trot
-    démarrent quand il couvre le 1er semestre 2024.
+  - trot : historique remonté à octobre 2024 ; modèle, profil, banc et critères du trot
+    démarrent quand il couvre le 1er semestre 2024 ;
+  - historique 2020-2023 (décision du 2026-10-05) : rattrapé après 2024, plat d'abord.
+    Les tests du labo et la nouvelle cible « battre le favori » attendent qu'il soit en
+    place. La passe de nuit garde le Mac éveillé (caffeinate) : la nuit du 4 au 5, Mac
+    en veille, elle n'avait fait que 433 requêtes en 5 h.
 - **Proposé, pas lancé** : tâche planifiée hebdomadaire où Claude relit le labo et ajoute
   des critères au catalogue ; hébergement serveur (Oracle Always Free envisagé, reporté) ;
   fichier CLAUDE.md et agents critique / hypothèses.

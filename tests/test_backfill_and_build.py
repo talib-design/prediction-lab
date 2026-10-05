@@ -161,11 +161,13 @@ def test_build_is_reproducible(tmp_path: Path) -> None:
 
 
 def test_backfill_plan_is_parsed_in_priority_order() -> None:
-    from predlab.racing.backfill import DEFAULT_PLAN, parse_plan
+    from predlab.racing.backfill import DEFAULT_PLAN, parse_plan, targets
 
     plan = parse_plan(DEFAULT_PLAN)
-    assert [d for d, _ in plan] == ["PLAT", "ATTELE", "MONTE"]
-    assert all(start == date(2024, 1, 1) for _, start in plan)
+    assert [d for d, _ in plan] == ["PLAT", "ATTELE", "MONTE"] * 2
+    assert [s for _, s in plan[:3]] == [date(2024, 1, 1)] * 3, "2024 first, for every discipline"
+    assert [s for _, s in plan[3:]] == [date(2020, 1, 1)] * 3, "then back to 2020"
+    assert targets(plan) == [(d, date(2020, 1, 1)) for d in ("PLAT", "ATTELE", "MONTE")]
     with pytest.raises(ValueError):
         parse_plan("PLAT")
 

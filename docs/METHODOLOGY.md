@@ -334,6 +334,16 @@ qu'ils ne coûtent en gagnant » (IC 95 % du retour au-dessus de 0).
   concluants, sans gain mesurable. Mouvement de cote en attente (71/1 000 courses).
   Favoris < 1,5 : 392 courses, gagnent 58 % pour 66 % promis, retour gagnant −9,0 %
   (IC 95 % −17 % à −1 %) : hypothèse rejetée.
+- 2026-10-05 — historique étendu à 2020 (décision de Chris : plus de courses pour
+  apprendre et pour juger plus vite). Le rattrapage termine 2024 pour toutes les
+  disciplines, puis remonte à 2020 (cote de référence vers T-30 depuis 2017 : même marché
+  T-25 sur toute la fenêtre). Une fois cet historique en place, et avant tout nouveau test
+  du labo : début de l'historique au 2020-01-01, découpage train 2020-2023, validation
+  2024, test ≥ 2025 (inchangé). Les critères du labo seront alors enregistrés comme de
+  nouvelles expériences (base Marché+ entraînée sur 2020-2023) ; les résultats déjà
+  obtenus restent au registre. Le mouvement de cote n'en profite pas (une seule cote avant
+  le départ dans l'historique). Printemps 2020 : courses suspendues pendant le
+  confinement, à garder en tête dans les lectures par période.
 - 2026-09-30 — §11 : banc d'essai des stratégies ; jauge stricte 0/200 sur le plat.
 - 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
   première lecture du test datée ; trois témoins « modèle » au carnet.

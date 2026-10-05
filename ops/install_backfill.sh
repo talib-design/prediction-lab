@@ -1,6 +1,7 @@
 #!/bin/bash
 # Installe la passe de nuit, chaque nuit à 1 h 30, sans intervention :
-#   1. rattrapage de l'historique (2023 → avant-hier), 5 h maximum, reprise automatique ;
+#   1. rattrapage de l'historique (2024, puis 2020-2023 ; jusqu'à avant-hier), 5 h maximum,
+#      reprise automatique ;
 #   2. reconstruction de la base ;
 #   3. backtest et paris fictifs pour chaque discipline assez fournie ;
 #   4. commit + push de data/carnet.jsonl et data/runs (nos décisions et rapports,
@@ -9,7 +10,9 @@
 #
 # Usage : bash ops/install_backfill.sh      Désinstaller : bash ops/uninstall_backfill.sh
 #
-# Mac en veille à 1 h 30 : launchd lance le passage manqué au réveil.
+# Mac en veille à 1 h 30 : launchd lance le passage manqué au réveil. Pendant le passage,
+# caffeinate empêche la mise en veille (secteur branché ; un portable capot fermé sans écran
+# externe s'endort quand même).
 # Une fois tout l'historique récupéré, chaque passage ne fait plus que
 # reconstruire la base (quelques minutes).
 set -euo pipefail
@@ -30,6 +33,7 @@ cat > "$PLIST" <<PLIST
   <key>Label</key><string>$LABEL</string>
   <key>ProgramArguments</key>
   <array>
+    <string>/usr/bin/caffeinate</string><string>-i</string><string>-s</string>
     <string>$UV</string><string>run</string><string>--project</string><string>$REPO</string>
     <string>predlab</string><string>racing</string><string>nightly</string>
     <string>--hours</string><string>5</string>

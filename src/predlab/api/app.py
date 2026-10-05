@@ -1027,9 +1027,9 @@ def _status(lab: Lab) -> dict[str, Any]:
     last = max((c.retrieved_at for c in captures), default=None)
     today = paris_day(utcnow())
     backfill = []
-    from predlab.racing.backfill import DEFAULT_PLAN, parse_plan
+    from predlab.racing.backfill import DEFAULT_PLAN, parse_plan, targets
 
-    for discipline, start in parse_plan(DEFAULT_PLAN):
+    for discipline, start in targets(parse_plan(DEFAULT_PLAN)):
         suffix = "" if discipline == "PLAT" else f"_{discipline}"
         f = paths.raw_pmu / f"backfill_done_v2{suffix}.json"
         done = json.loads(f.read_text()) if f.exists() else []
