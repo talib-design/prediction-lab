@@ -263,6 +263,25 @@ CANDIDATES = (
         ),
     ),
     Candidate(
+        "trainer_opinion",
+        "Avis de l'entraîneur",
+        "Au trot, le PMU publie avant la course l'avis de l'entraîneur (positif, neutre ou "
+        "négatif). Le public n'en tient pas assez compte : un avis positif gagne plus souvent, "
+        "un avis négatif moins souvent, que la cote ne le dit. Mesure : +1 positif, −1 négatif, "
+        "0 neutre ou absent. Ajouté le 2026-10-05 sans aucun regard sur les résultats "
+        "(seulement sa présence : 82 à 100 % des partants du trot depuis 2024, positif ou "
+        "négatif pour 11 à 18 %).",
+        ("ATTELE", "MONTE"),
+        Origin.HUMAN,
+        expr=lambda: (
+            pl.when(pl.col("trainer_opinion") == "POSITIF")
+            .then(1.0)
+            .when(pl.col("trainer_opinion") == "NEGATIF")
+            .then(-1.0)
+            .otherwise(0.0)
+        ),
+    ),
+    Candidate(
         "calibration",
         "Calibrer les probabilités du modèle",
         "Les probabilités de Marché+ sont trop confiantes sur ses meilleurs choix (annoncé "

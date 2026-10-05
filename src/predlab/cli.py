@@ -437,6 +437,37 @@ def dossier() -> None:
     typer.echo(f"Dossier du {rep['day']} : {md}")
 
 
+@racing_app.command("comments")
+def comments(
+    max_requests: Annotated[int, typer.Option(help="Plafond de requêtes pour ce passage.")] = 1500,
+) -> None:
+    """Read again, 4 to 30 days after the off, the runners of French races not yet read
+    that late: the post-race comments are complete then and gone after a month. Then
+    extract them to data/normalized/comments.parquet (never committed)."""
+    import fcntl
+
+    from predlab.racing import comments as comments_lib
+
+    paths = default_paths().ensure()
+    store = RawStore(paths.raw_pmu)
+    lock = (paths.logs / "backfill.lock").open("a")
+    try:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        races = comments_lib.due(paths.database, store, utcnow())
+        report = comments_lib.fetch(
+            PmuClient(), store, races, max_requests=max_requests, progress=typer.echo
+        )
+    finally:
+        lock.close()
+    frame = comments_lib.extract(store)
+    comments_lib.write(frame, paths.normalized)
+    typer.echo(
+        f"{report.summary()} ; {frame.height} commentaires gardés sur "
+        f"{frame['race_id'].n_unique()} courses."
+    )
+    _log_line(f"{utcnow().isoformat(timespec='seconds')} | {report.summary()}")
+
+
 @racing_app.command("probe-foreign")
 def probe_foreign(
     races: Annotated[int, typer.Option(help="Courses étrangères lues.")] = 100,
@@ -570,6 +601,10 @@ def nightly(
     datés dans git. Lancée chaque nuit par launchd."""
     started = utcnow()
     stamp = started.isoformat(timespec="seconds")
+    try:
+        comments()  # before the backfill: comments vanish after a month, history waits
+    except Exception as exc:
+        _log_line(f"{stamp} | nuit commentaires ERREUR {exc!r}")
     backfill(plan=DEFAULT_PLAN, end=None, hours=hours, max_requests=20_000, then_build=True)
     paths = default_paths().ensure()
     for discipline in ("PLAT", "ATTELE", "MONTE"):

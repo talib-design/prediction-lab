@@ -75,6 +75,8 @@ RAW_SCHEMA: dict[str, Any] = {
     "musique": pl.Utf8,
     "blinkers": pl.Utf8,
     "jockey_changed": pl.Boolean,
+    # Added 2026-10-05: the trainer's opinion published before the race (trot only).
+    "trainer_opinion": pl.Utf8,
 }
 
 # The factors of the profile, in display order: column, French name, which disciplines.
@@ -211,8 +213,11 @@ def load_finished(db_path: Path, discipline: str, *, since: date = HISTORY_START
 
     con = duckdb.connect(str(db_path), read_only=True)
     try:
+        # A database built before 2026-10-05 has no trainer_opinion column yet.
+        cols = {r[0] for r in con.execute("DESCRIBE runners").fetchall()}
+        opinion = "u.trainer_opinion" if "trainer_opinion" in cols else "NULL"
         cur = con.execute(
-            """
+            f"""
             WITH q AS (
                 SELECT o.race_id, o.number, arg_max(o.odds, o.reported_at) AS odds
                 FROM odds o JOIN races r USING (race_id)
@@ -230,7 +235,8 @@ def load_finished(db_path: Path, discipline: str, *, since: date = HISTORY_START
                    CAST(u.handicap_distance AS BIGINT) AS handicap_distance,
                    q.odds, CAST(u.finish_position AS BIGINT) AS position, TRUE AS finished,
                    r.venue_name, r.category, CAST(r.prize_eur AS BIGINT) AS prize_eur,
-                   u.form AS musique, u.blinkers, u.jockey_changed
+                   u.form AS musique, u.blinkers, u.jockey_changed,
+                   {opinion} AS trainer_opinion
             FROM runners u JOIN races r USING (race_id)
             LEFT JOIN q ON q.race_id = u.race_id AND q.number = u.number
             WHERE r.is_final AND r.country_code = 'FRA' AND r.discipline = ?
@@ -299,6 +305,7 @@ def live_frame(
                 "musique": x.form,
                 "blinkers": x.blinkers,
                 "jockey_changed": x.jockey_changed,
+                "trainer_opinion": getattr(x, "trainer_opinion", None),
             }
         )
     df = pl.DataFrame(rows, schema=RAW_SCHEMA)

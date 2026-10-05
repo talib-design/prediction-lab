@@ -105,6 +105,7 @@ RUNNER_SCHEMA: dict[str, Any] = {
     "shoeing": pl.Utf8,
     "handicap_distance": pl.Int32,
     "reduction_km_ms": pl.Int64,
+    "trainer_opinion": pl.Utf8,
     "retrieved_at": pl.Datetime("us", "UTC"),
 }
 
@@ -278,6 +279,7 @@ def build(store: RawStore, out_dir: Path, db_path: Path) -> BuildReport:
                             "shoeing": x.shoeing,
                             "handicap_distance": x.handicap_distance,
                             "reduction_km_ms": x.reduction_km_ms,
+                            "trainer_opinion": x.trainer_opinion,
                             "retrieved_at": cap.retrieved_at,
                         }
                     )

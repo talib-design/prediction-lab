@@ -265,6 +265,7 @@ def parse_participants(raw: bytes | str | dict[str, Any], race_id: str) -> list[
                 shoeing=_opt(p, "deferre", str),
                 handicap_distance=_opt(p, "handicapDistance", int),
                 reduction_km_ms=_opt(p, "reductionKilometrique", int),
+                trainer_opinion=_opt(p, "avisEntraineur", str),
             )
         )
     return runners

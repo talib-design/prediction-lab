@@ -39,9 +39,13 @@ Dernière mise à jour : 2026-10-05.
   posteriori, jugés seulement sur des courses fraîches (METHODOLOGY §14).
 - **Sonde étranger** (100 courses) : partants complets partout ; pas de cote PMU avant le
   départ sur les grands pays de plat (DATA_SOURCES).
-- **Textes dans le flux PMU** (option 2, étudiée) : commentaire après course par partant
-  (source DATAHIPPIQUE), disponible environ un mois puis retiré ; avis de l'entraîneur
-  (positif / neutre / négatif) au trot seulement, présent avant la course depuis 2024.
+- **Textes dans le flux PMU** (option 2) : commentaire après course par partant (source
+  DATAHIPPIQUE), disponible environ un mois puis retiré ; relu chaque nuit 4 à 30 jours
+  après la course (`predlab racing comments`, avant le rattrapage), extrait dans
+  `data/normalized/comments.parquet`. Avis de l'entraîneur (positif / neutre / négatif) au
+  trot seulement, présent avant la course depuis 2024 : dans la base et au catalogue
+  (critère « Avis de l'entraîneur », attelé et monté, testé quand l'historique 2020 du trot
+  sera en place).
 
 ## Objectif « battre le favori » — épics 1 à 4 livrés le 2026-10-05
 

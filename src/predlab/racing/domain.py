@@ -126,6 +126,9 @@ class Runner(BaseModel, frozen=True):
     shoeing: str | None = None  # "deferre": which feet are unshod -- a pre-race decision
     handicap_distance: int | None = None  # metres this runner covers (distance handicap)
     reduction_km_ms: int | None = None  # post-race: time per km in ms -- history, never input
+    # "avisEntraineur": POSITIF / NEUTRE / NEGATIF, published before the race (trot only;
+    # identical before and after the off on 190 races checked on 2026-10-05).
+    trainer_opinion: str | None = None
 
     @property
     def identity_key(self) -> str | None:

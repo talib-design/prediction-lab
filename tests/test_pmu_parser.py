@@ -144,3 +144,14 @@ def test_trot_runner_fields() -> None:
     assert runner.handicap_distance == 2850
     assert runner.reduction_km_ms == 74600, "post-race field: history only, never an input"
     assert runner.jockey == "N. BAZIRE"
+
+
+def test_trainer_opinion_is_read() -> None:
+    doc = {
+        "participants": [
+            {"numPmu": 1, "nom": "A", "statut": "PARTANT", "avisEntraineur": "POSITIF"},
+            {"numPmu": 2, "nom": "B", "statut": "PARTANT"},
+        ]
+    }
+    a, b = parse_participants(json.dumps(doc).encode(), "2026-10-05/R1C1")
+    assert a.trainer_opinion == "POSITIF" and b.trainer_opinion is None

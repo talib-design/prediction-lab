@@ -407,6 +407,11 @@ lui, ne voit jamais les résultats.
   obtenus restent au registre. Le mouvement de cote n'en profite pas (une seule cote avant
   le départ dans l'historique). Printemps 2020 : courses suspendues pendant le
   confinement, à garder en tête dans les lectures par période.
+- 2026-10-05 — avis de l'entraîneur (trot, publié avant la course, identique avant et
+  après le départ sur 190 courses vérifiées) ajouté aux données et au catalogue comme
+  critère du trot, sans regard sur les résultats. Commentaires après course : relus 4 à
+  30 jours après le départ (complets à 4-7 jours, retirés du flux après un mois), gardés
+  hors git ; un critère qui s'en servira ne pourra être jugé que sur des courses à venir.
 - 2026-10-05 — §14 : agent critique hebdomadaire, dossier calculé par Python, critères a
   posteriori jugés seulement sur des courses fraîches (1 000 au moins).
 - 2026-10-05 — §13 : objectif « battre le favori en prévoyant mieux », champion et

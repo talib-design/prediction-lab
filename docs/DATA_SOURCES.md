@@ -83,6 +83,13 @@ Depuis les environnements Cowork (bac à sable cloud et shell de la session sur 
 le domaine est refusé par la politique réseau (`403 from proxy`). Le collecteur tourne
 donc depuis macOS via `launchd` (`ops/install_collector.sh`).
 
+### Textes et avis dans le flux des partants (vérifiés le 2026-10-05)
+
+| Champ | Contenu | Disponibilité | Usage |
+|---|---|---|---|
+| `commentaireApresCourse.texte` (source `DATAHIPPIQUE`) | commentaire de course par partant, en français | ~50 % des partants le lendemain, 100 % à 4-7 jours, **0 % au-delà d'un mois** (retiré du flux) | relu chaque nuit 4 à 30 jours après le départ (`predlab racing comments`), extrait dans `data/normalized/comments.parquet`, jamais commité |
+| `avisEntraineur` | `POSITIF` / `NEUTRE` / `NEGATIF` | trot seulement : 82 à 100 % des partants depuis 2024 (positif ou négatif 11 à 18 %), absent en plat ; présent avant la course, identique avant et après le départ sur 190 courses | colonne `trainer_opinion` de la base, critère « Avis de l'entraîneur » ; présence en 2020-2023 [non vérifié] |
+
 ### Courses étrangères — sonde du 2026-10-05 (`predlab racing probe-foreign`)
 
 Le programme PMU liste aussi les courses étrangères sur lesquelles le PMU prend des paris
