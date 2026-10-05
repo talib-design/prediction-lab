@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { api, type CarnetSeries } from "../lib/api";
+import { api, type CarnetEntry, type CarnetSeries } from "../lib/api";
 import { euros, shortDay } from "../lib/format";
 import { useApi } from "../lib/hooks";
 import { Segmented } from "./ui";
@@ -14,7 +14,7 @@ import { Segmented } from "./ui";
 
 type Mode = "ALL" | "SG" | "SP";
 type Pick = "favori" | "modèle" | "ancien" | "valeur";
-type Range = "1w" | "1m" | "3m" | "6m" | "1y" | "all";
+type Range = "1d" | "1w" | "1m" | "3m" | "6m" | "1y" | "all";
 
 // Colours validated with the dataviz palette checker (teal, violet, orange: CVD-safe in
 // both themes). The replaced version is drawn in ink (black in light mode, off-white in
@@ -28,6 +28,7 @@ const PICKS: { pick: Pick; label: string; color: string; dash?: string; fade?: n
 const MAIN: Pick[] = ["favori", "modèle"];
 
 const RANGES: { value: Range; label: string; days: number }[] = [
+  { value: "1d", label: "1J", days: 1 },
   { value: "1w", label: "1S", days: 7 },
   { value: "1m", label: "1M", days: 31 },
   { value: "3m", label: "3M", days: 92 },
@@ -39,6 +40,10 @@ const RANGES: { value: Range; label: string; days: number }[] = [
 const MONTHS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
 type Point = { day: string; races: number; stake: number; net: number; cum: number; cumStake: number };
+
+/** One day, race by race: series whose points are keyed by the off time (ISO, so they
+ *  sort), with a label per key ("14:05 · R1C3 Deauville"). */
+export type Intraday = { day: string; series: CarnetSeries[]; labels: Record<string, string> };
 type Lines = Record<Pick, Point[]>;
 
 const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
@@ -117,6 +122,15 @@ function xLabels(days: string[], narrow: boolean): { i: number; text: string }[]
   return starts.filter((_, k) => k % every === 0);
 }
 
+/** Race-by-race labels: the off time, a few across the axis. */
+function timeLabels(keys: string[], labels: Record<string, string>, narrow: boolean): { i: number; text: string }[] {
+  const max = narrow ? 4 : 8;
+  const every = Math.max(1, Math.ceil(keys.length / max));
+  return keys
+    .map((k, i) => ({ i, text: (labels[k] ?? k).slice(0, 5) }))
+    .filter((_, i) => i % every === 0 || i === keys.length - 1);
+}
+
 export function BetsChart({
   series,
   height = 280,
@@ -124,6 +138,7 @@ export function BetsChart({
   overlayOn = false,
   onOverlay,
   ranges = false,
+  intraday,
   note,
 }: {
   series: CarnetSeries[];
@@ -132,8 +147,11 @@ export function BetsChart({
   overlay?: CarnetSeries[] | null;
   overlayOn?: boolean;
   onOverlay?: (on: boolean) => void;
-  /** Show the period selector (1S … Tout). */
-  ranges?: boolean;
+  /** Show the period selector (1S … Tout): true, only the periods the history covers;
+   *  "every", all of them. */
+  ranges?: boolean | "every";
+  /** The last day race by race: adds « 1J » to the period selector. */
+  intraday?: Intraday | null;
   note?: ReactNode;
 }) {
   const [mode, setMode] = useState<Mode>("ALL");
@@ -143,20 +161,30 @@ export function BetsChart({
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(760);
 
-  const showOverlay = overlayOn && !!overlay && overlay.length > 0;
-  const unit: "eur" | "pct" = showOverlay ? "pct" : "eur";
   const first = edgeDay(series, "first");
   const last = edgeDay(series, "last");
   const spanDays = first && last ? dayNum(last) - dayNum(first) : 0;
-  const choices = RANGES.filter((r) => r.value === "all" || r.days < spanDays + 1);
+  // "every": all periods offered, as on a stock chart (a period longer than the history
+  // shows the whole history); true: only the periods shorter than the history. « 1J »
+  // needs the race-by-race view.
+  const choices = RANGES.filter((r) => {
+    if (r.value === "1d") return intraday != null;
+    if (!ranges) return false;
+    return ranges === "every" || r.value === "all" || r.days < spanDays + 1;
+  });
   const active = choices.some((c) => c.value === range) ? range : "all";
+  const today = active === "1d" && intraday != null;
+  const showOverlay = !today && overlayOn && !!overlay && overlay.length > 0;
+  const unit: "eur" | "pct" = showOverlay ? "pct" : "eur";
   const from = useMemo(() => {
     const r = RANGES.find((x) => x.value === active)!;
-    if (!last || !Number.isFinite(r.days)) return null;
+    if (!last || !Number.isFinite(r.days) || r.value === "1d") return null;
     return new Date((dayNum(last) - r.days + 1) * DAY_MS).toISOString().slice(0, 10);
   }, [active, last]);
 
-  const data = useMemo(() => lines(series, mode, from), [series, mode, from]);
+  const source = today ? intraday!.series : series;
+  const data = useMemo(() => lines(source, mode, from), [source, mode, from]);
+  const label = (d: string) => (today ? (intraday!.labels[d] ?? d) : shortDay(d));
   const extra = useMemo(
     () => (showOverlay && overlay ? lines(overlay, mode, from ?? first) : null),
     [showOverlay, overlay, mode, from, first],
@@ -201,7 +229,7 @@ export function BetsChart({
         )}
       </div>
       <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-        {onOverlay && (
+        {onOverlay && !today && (
           <label className="small check">
             <input type="checkbox" checked={overlayOn} onChange={(e) => onOverlay(e.target.checked)} /> Toutes les courses
             (recalculé)
@@ -222,7 +250,7 @@ export function BetsChart({
   );
 
   const rangeBar =
-    ranges && choices.length > 1 ? (
+    choices.length > 1 ? (
       <div className="range-bar" role="group" aria-label="Période">
         {choices.map((r) => (
           <button key={r.value} aria-pressed={r.value === active} onClick={() => setRange(r.value)}>
@@ -237,7 +265,7 @@ export function BetsChart({
       <div className="stack" style={{ gap: 10 }}>
         {controls}
         <p className="small muted" style={{ margin: 0 }}>
-          La courbe apparaît après deux jours de paris réglés.
+          {today ? "La courbe du jour apparaît après deux courses réglées." : "La courbe apparaît après deux jours de paris réglés."}
         </p>
         {rangeBar}
       </div>
@@ -306,7 +334,8 @@ export function BetsChart({
           </span>
           {p ? (
             <span className="num">
-              {fmtVal(val(p))} <span className="muted">(jour {signed(p.net)}, {p.races} c.)</span>
+              {fmtVal(val(p))}{" "}
+              <span className="muted">{today ? `(course ${signed(p.net)})` : `(jour ${signed(p.net)}, ${p.races} c.)`}</span>
             </span>
           ) : (
             <span className="muted">pas joué</span>
@@ -325,7 +354,7 @@ export function BetsChart({
           width={W}
           height={H}
           role="img"
-          aria-label={`Gains cumulés par jour, favori et modèle${unit === "pct" ? ", en retour sur mise" : ""}`}
+          aria-label={`Gains cumulés ${today ? "course par course" : "par jour"}, favori et modèle${unit === "pct" ? ", en retour sur mise" : ""}`}
         >
           {ticks.map((v) => (
             <g key={v}>
@@ -339,7 +368,7 @@ export function BetsChart({
               </text>
             </g>
           ))}
-          {xLabels(days, narrow).map(({ i, text }) => (
+          {(today ? timeLabels(days, intraday!.labels, narrow) : xLabels(days, narrow)).map(({ i, text }) => (
             <text key={i} x={x(i)} y={H - 8} textAnchor="middle">
               {text}
             </text>
@@ -381,7 +410,7 @@ export function BetsChart({
             className="chart-tip"
             style={{ left: `${(hx / W) * 100}%`, transform: hx > W * 0.55 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
           >
-            <strong>{shortDay(hd)}</strong>
+            <strong>{label(hd)}</strong>
             {tipRows(data, "")}
             {extra && tipRows(extra, " (toutes)")}
           </div>
@@ -392,20 +421,21 @@ export function BetsChart({
       <p className="small muted" style={{ margin: 0 }}>
         {same && !extra ? "Les deux courbes sont confondues : le modèle a choisi le favori sur toutes ces courses. " : ""}
         {unit === "pct" ? "Retour sur mise cumulé, depuis le début de la période affichée. " : ""}
+        {today ? `Le ${shortDay(intraday!.day)}, course par course, dans l'ordre des départs. ` : ""}
         {note}
       </p>
 
       <details className="small">
-        <summary className="muted">Voir les chiffres jour par jour</summary>
+        <summary className="muted">{today ? "Voir les chiffres course par course" : "Voir les chiffres jour par jour"}</summary>
         <div className="table-wrap" style={{ maxHeight: 320, overflowY: "auto" }}>
           <table className="compact">
             <thead>
               <tr>
-                <th>Jour</th>
+                <th>{today ? "Course" : "Jour"}</th>
                 <th className="r">Courses</th>
                 {shown.map((k) => (
                   <th key={k.pick} className="r">
-                    {k.label} (jour → cumul)
+                    {k.label} ({today ? "course" : "jour"} → cumul)
                   </th>
                 ))}
               </tr>
@@ -416,7 +446,7 @@ export function BetsChart({
                 const mo = data.modèle.find((q) => q.day === d);
                 return (
                   <tr key={d}>
-                    <td>{shortDay(d)}</td>
+                    <td>{label(d)}</td>
                     <td className="r num">{f?.races ?? mo?.races ?? "—"}</td>
                     {shown.map((k) => {
                       const p = data[k.pick].find((q) => q.day === d);
@@ -442,17 +472,29 @@ export function BetsChart({
 export function CarnetBetsChart({ series }: { series: CarnetSeries[] }) {
   const [on, setOn] = useState(false);
   const since = edgeDay(series, "first") ?? undefined;
+  const lastDay = edgeDay(series, "last");
   const load = useApi(
     () => (on ? api.replay("ALL", since) : Promise.resolve(null)),
     `carnet-overlay-${on}-${since}`,
   );
   const overlay = load.state === "ready" ? (load.data?.report?.series ?? []) : null;
+  const dayLoad = useApi(
+    () => (lastDay ? api.carnet(lastDay) : Promise.resolve(null)),
+    `carnet-day-${lastDay}-${series.length}`,
+    120_000,
+  );
+  const intraday = useMemo(
+    () => (dayLoad.state === "ready" && dayLoad.data && lastDay ? raceByRace(series, dayLoad.data.entries, lastDay) : null),
+    [dayLoad, series, lastDay],
+  );
   return (
     <BetsChart
       series={series}
       overlay={overlay}
       overlayOn={on}
       onOverlay={setOn}
+      ranges="every"
+      intraday={intraday}
       note={
         on && overlay && overlay.length === 0 ? (
           "Pas encore de reconstitution : elle est calculée chaque nuit."
@@ -467,4 +509,38 @@ export function CarnetBetsChart({ series }: { series: CarnetSeries[] }) {
       }
     />
   );
+}
+
+const TIME = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
+
+/** The carnet's last day, race by race: one point per settled race, in off-time order,
+ *  for each of the day series' strategies. */
+function raceByRace(series: CarnetSeries[], entries: CarnetEntry[], day: string): Intraday | null {
+  const settled = entries.filter((e) => e.day === day && e.settled).sort((a, b) => a.off_time.localeCompare(b.off_time));
+  if (settled.length === 0) return null;
+  const labels: Record<string, string> = {};
+  for (const e of settled) labels[e.off_time] = `${TIME.format(new Date(e.off_time))} · ${e.rc}${e.venue ? ` ${e.venue}` : ""}`;
+  const out: CarnetSeries[] = series.map((s) => ({ ...s, points: [] }));
+  const byStrategy = new Map(out.map((s) => [s.strategy, s]));
+  for (const e of settled) {
+    const sums = new Map<string, { stake: number; returned: number }>();
+    for (const t of e.tickets) {
+      if (!byStrategy.has(t.strategy)) continue;
+      const x = sums.get(t.strategy) ?? { stake: 0, returned: 0 };
+      x.stake += t.stake;
+      x.returned += t.returned ?? 0;
+      sums.set(t.strategy, x);
+    }
+    for (const [strategy, x] of sums) {
+      byStrategy.get(strategy)!.points.push({
+        day: e.off_time,
+        races: 1,
+        stake: x.stake,
+        returned: x.returned,
+        net: x.returned - x.stake,
+        cum: 0, // recomputed by lines()
+      });
+    }
+  }
+  return { day, series: out, labels };
 }
