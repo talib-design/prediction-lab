@@ -37,9 +37,11 @@ Dernière mise à jour : 2026-10-05.
   selon la taille du champ, dernière course gagnée, jeune cheval, calibration, règle de
   valeur 1,05).
 - **Les tests attendent l'historique 2020** de chaque discipline.
+- **Générateur d'idées** (épic 4, livré) : tâche planifiée chaque dimanche vers 10 h,
+  sur le Mac ; elle ajoute 1 ou 2 critères au catalogue sans jamais les tester, tient
+  docs/LAB_JOURNAL.md et résume la semaine du labo.
 - **Épics suivants** : 2) carnet côte à côte (ancien modèle, valeur) et graphique ;
-  3) tableau de score « modèle − favori » sur la page Recherche ; 4) générateur d'idées
-  hebdomadaire (tâche planifiée).
+  3) tableau de score « modèle − favori » sur la page Recherche.
 
 ## Laboratoire des critères et étude des favoris — 2026-10-03
 
