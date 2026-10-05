@@ -428,6 +428,7 @@ input[type="date"] {
 
 .table-wrap {
   overflow-x: auto;
+  position: relative; /* clips absolutely positioned children (screen-reader text) too */
 }
 table {
   width: 100%;
@@ -1014,14 +1015,175 @@ tr.is-played td {
 .nowrap {
   white-space: nowrap;
 }
-/* A race where the model chose another horse: marked by a rule in the model's series
-   colour and the "≠" before its number, never by the colour alone. */
+/* A race where the model chose another horse stands out (tint and rule in the model's
+   colour, "favori n°8 → modèle n°5" in words); the same horse on both sides, or no
+   model, fades. The words carry the meaning, never the colour alone. */
+.duel-table tr.differ td {
+  background: var(--series-model-bg);
+}
 .duel-table tr.differ td:first-child {
   box-shadow: inset 3px 0 0 var(--series-model);
 }
+.duel-table tr.same td,
+.duel-table tr.solo td,
+.duel-table tr.same td a,
+.duel-table tr.solo td a {
+  color: var(--ink-3);
+}
+.duel-table tr.same .badge,
+.duel-table tr.solo .badge {
+  opacity: 0.55;
+}
+.duel-table .venue {
+  color: var(--ink-3);
+}
 .pick-differ {
-  font-weight: 650;
   color: var(--ink);
+}
+.pick-differ strong {
+  font-weight: 650;
+}
+.duel-table tbody tr.clickable.differ:hover td {
+  background: var(--series-model-bg-hover);
+}
+@keyframes rowflash {
+  from {
+    outline-color: var(--series-model);
+  }
+  to {
+    outline-color: transparent;
+  }
+}
+.duel-table tr.flash {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  animation: rowflash 1.6s ease-out;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* The period at a glance: one bar per race. */
+.diff-strip {
+  padding: var(--s3) var(--s4) 0;
+}
+.strip-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+  color: var(--ink-2);
+}
+.strip-keys {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--ink-3);
+}
+.key {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: 3px;
+  vertical-align: -1px;
+}
+.key.differ {
+  background: var(--series-model);
+}
+.key.same {
+  background: var(--line-strong);
+}
+.key.solo {
+  background: var(--line);
+}
+.strip-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 52px;
+  padding-top: 18px;
+  border-bottom: 1px solid var(--line-strong);
+}
+.strip-day {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  flex-basis: 0;
+  min-width: 0;
+  height: 100%;
+}
+.strip-bars .bar {
+  flex: 1 1 0;
+  min-width: 1px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px 2px 0 0;
+  background: var(--line-strong);
+  position: relative;
+}
+.strip-bars .bar.solo {
+  height: 4px;
+  background: var(--line);
+}
+.bar-slot {
+  flex: 1 1 0;
+  min-width: 4px;
+  height: 100%;
+  position: relative;
+  display: flex;
+}
+.strip-bars .bar.differ {
+  width: 100%;
+  height: 100%;
+  background: var(--series-model);
+  cursor: pointer;
+}
+.strip-bars .bar.differ.pending {
+  background: repeating-linear-gradient(135deg, var(--series-model) 0 3px, transparent 3px 6px);
+  box-shadow: inset 0 0 0 1px var(--series-model);
+}
+.strip-bars .bar.differ:hover,
+.strip-bars .bar.differ:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.bar-label {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.bar-label.ahead {
+  color: var(--good);
+}
+.bar-label.behind {
+  color: var(--warn);
+}
+.strip-axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 3px;
+  color: var(--ink-3);
+}
+.strip-day-label {
+  flex-basis: 0;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
 }
 .diff {
   font-weight: 600;
@@ -1283,6 +1445,8 @@ table.banc td {
   --duel-behind: #d98a3a;
   --good: #1d6a35;
   --good-bg: #e4f1e7;
+  --series-model-bg: #f1effc;
+  --series-model-bg-hover: #e7e3fa;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -1293,6 +1457,8 @@ table.banc td {
     --duel-behind: #a05a1c;
     --good: #8fd6a2;
     --good-bg: #1c3324;
+    --series-model-bg: #25213d;
+    --series-model-bg-hover: #2d2849;
   }
 }
 .bets-evolution {

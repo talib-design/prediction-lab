@@ -196,42 +196,57 @@ function Net({ v, pending }: { v: number | null | undefined; pending: boolean })
   return <span className="num">{signed(v)}</span>;
 }
 
-function DuelRow({ e, open, toggle, withDay }: { e: CarnetEntry; open: boolean; toggle: () => void; withDay: boolean }) {
+/** What each side chose, in one cell: "n°7 · les deux", or "favori n°8 → modèle n°5". */
+function Choice({ e }: { e: CarnetEntry }) {
+  const d = e.duel;
+  const fav = favouriteNumbers(e).join("-") || "?";
+  if (!d) return <span title="Le modèle n'a pas joué cette course : hors comparaison">n°{fav} · favori seul</span>;
+  if (!d.differ) return <span>n°{fav} · les deux</span>;
+  return (
+    <span className="pick-differ" title="Le modèle a choisi un autre cheval que le favori">
+      favori n°{fav} <span aria-hidden>→</span>
+      <span className="sr-only">, </span> <strong>modèle n°{d.model.numbers.join("-")}</strong>
+    </span>
+  );
+}
+
+function DuelRow({
+  e,
+  open,
+  toggle,
+  withDay,
+  flash,
+}: {
+  e: CarnetEntry;
+  open: boolean;
+  toggle: () => void;
+  withDay: boolean;
+  flash: boolean;
+}) {
   const d = e.duel;
   const diff = diffOf(e);
   const state = diff == null ? null : duelState(diff);
   const top = e.finish_order?.slice(0, 3).map((g) => g.join("=")).join("-");
+  // Same horse on both sides (or no model): faded, so the differences stand out.
+  const kind = !d ? "solo" : d.differ ? "differ" : "same";
   return (
     <>
-      <tr className={`clickable${d?.differ ? " differ" : ""}`} onClick={toggle}>
+      <tr id={rowId(e)} className={`clickable ${kind}${flash ? " flash" : ""}`} onClick={toggle}>
         <td className="num nowrap">{withDay ? weekdayTime(e.off_time) : time(e.off_time)}</td>
         <td>
           <span className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
             <a href={href("course", e.day, e.rc)} onClick={(ev) => ev.stopPropagation()} className="nowrap">
               {e.rc}
             </a>
-            <span className="muted small nowrap">{e.venue}</span>
+            <span className="small nowrap venue">{e.venue}</span>
             <DisciplineBadge d={e.discipline} />
             {e.has_quinte && <span className="badge k-assoc">Quinté+</span>}
           </span>
         </td>
-        <td className="r num">{favouriteNumbers(e).map((n) => `n°${n}`).join("-") || "—"}</td>
-        <td className="r num">
-          {d ? (
-            d.differ ? (
-              <strong className="pick-differ" title="Le modèle a choisi un autre cheval que le favori">
-                ≠ n°{d.model.numbers.join("-")}
-              </strong>
-            ) : (
-              `n°${d.model.numbers.join("-")}`
-            )
-          ) : (
-            <span className="muted" title="Le modèle n'a pas joué cette course : hors comparaison">
-              —
-            </span>
-          )}
+        <td className="nowrap">
+          <Choice e={e} />
         </td>
-        <td className="num small">{e.settled ? top || "—" : <span className="muted">—</span>}</td>
+        <td className="num small">{e.settled ? top || "—" : "—"}</td>
         <td className="r">
           <Net v={d?.favori.net} pending={!e.settled && !!d} />
         </td>
@@ -240,11 +255,9 @@ function DuelRow({ e, open, toggle, withDay }: { e: CarnetEntry; open: boolean; 
         </td>
         <td className="r">
           {state == null || diff == null ? (
-            <span className="muted">—</span>
+            <span>—</span>
           ) : state === "same" ? (
-            <span className="muted" title="Même résultat">
-              =
-            </span>
+            <span title="Même résultat">=</span>
           ) : (
             <span className={`diff ${state}`}>
               <span aria-hidden>{state === "ahead" ? "▲" : "▼"}</span> {signed(diff)}
@@ -267,7 +280,7 @@ function DuelRow({ e, open, toggle, withDay }: { e: CarnetEntry; open: boolean; 
       </tr>
       {open && (
         <tr className="duel-detail">
-          <td colSpan={9}>
+          <td colSpan={8}>
             <div className="stack" style={{ gap: 8 }}>
               <TicketList tickets={e.tickets} settled={e.settled} />
               <span className="small muted">
@@ -283,10 +296,123 @@ function DuelRow({ e, open, toggle, withDay }: { e: CarnetEntry; open: boolean; 
   );
 }
 
+const rowId = (e: CarnetEntry) => `carnet-${e.race_id.replace(/[^A-Za-z0-9-]/g, "-")}`;
+
+const shortWeekday = (d: string) =>
+  new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${d}T00:00:00Z`));
+
+/** The period at a glance: one bar per race in start order, tall and in the model's
+ *  colour where it chose another horse than the favourite (its gap above when there is
+ *  room), short and grey where both took the same horse, a stub where the model did not
+ *  play. A tall bar is a button: it brings its row into view. */
+function DiffStrip({ entries, onPick, multiDay }: { entries: CarnetEntry[]; onPick: (e: CarnetEntry) => void; multiDay: boolean }) {
+  const ordered = [...entries].sort((a, b) => a.off_time.localeCompare(b.off_time));
+  const days: { day: string; items: CarnetEntry[] }[] = [];
+  for (const e of ordered) {
+    const last = days[days.length - 1];
+    if (last && last.day === e.day) last.items.push(e);
+    else days.push({ day: e.day, items: [e] });
+  }
+  const paired = ordered.filter((e) => e.duel);
+  const differ = paired.filter((e) => e.duel!.differ);
+  const roomy = ordered.length <= 40; // gaps written above the bars only when they fit
+  let lastLabel = -9;
+  let i = -1;
+  return (
+    <div className="diff-strip">
+      <div className="strip-legend small">
+        <span>
+          <strong className="num">{differ.length}</strong> choix différent{plural(differ.length)} sur {paired.length} course
+          {plural(paired.length)} comparée{plural(paired.length)}
+        </span>
+        <span className="strip-keys" aria-hidden>
+          <span>
+            <i className="key differ" /> modèle ≠ favori
+          </span>
+          <span>
+            <i className="key same" /> même cheval
+          </span>
+          {paired.length < ordered.length && (
+            <span>
+              <i className="key solo" /> favori seul
+            </span>
+          )}
+        </span>
+      </div>
+      <div className="strip-bars">
+        {days.map((g) => (
+          <div key={g.day} className="strip-day" style={{ flexGrow: g.items.length }}>
+            {g.items.map((e) => {
+              i += 1;
+              const d = e.duel;
+              if (!d || !d.differ)
+                return (
+                  <i
+                    key={e.race_id}
+                    className={`bar ${d ? "same" : "solo"}`}
+                    title={`${weekdayTime(e.off_time)} · ${e.rc} ${e.venue ?? ""} · ${d ? "même cheval" : "favori seul"}`}
+                  />
+                );
+              const diff = diffOf(e);
+              const state = diff == null ? null : duelState(diff);
+              const text = diff == null ? "en attente" : state === "same" ? "=" : signed(diff);
+              const label = roomy && i - lastLabel >= 3;
+              if (label) lastLabel = i;
+              const what = `${weekdayTime(e.off_time)} · ${e.rc} ${e.venue ?? ""} · favori n°${favouriteNumbers(e).join("-")}, modèle n°${d.model.numbers.join("-")} · ${text}`;
+              return (
+                <span key={e.race_id} className="bar-slot">
+                  {label && (
+                    <span className={`bar-label ${state ?? ""}`} aria-hidden>
+                      {text.replace(/\s*€/u, "")}
+                    </span>
+                  )}
+                  <button
+                    className={`bar differ${e.settled ? "" : " pending"}`}
+                    title={what}
+                    aria-label={`Aller à la course : ${what}`}
+                    onClick={() => onPick(e)}
+                  />
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      <div className="strip-axis small">
+        {multiDay && days.length <= 31 ? (
+          days.map((g) => (
+            <span key={g.day} style={{ flexGrow: g.items.length }} className="strip-day-label">
+              {shortWeekday(g.day)}
+            </span>
+          ))
+        ) : (
+          <>
+            <span>{ordered.length ? (multiDay ? shortDay(ordered[0]!.day) : time(ordered[0]!.off_time)) : ""}</span>
+            <span>
+              {ordered.length
+                ? multiDay
+                  ? shortDay(ordered[ordered.length - 1]!.day)
+                  : time(ordered[ordered.length - 1]!.off_time)
+                : ""}
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function DuelTable({ entries, withDay }: { entries: CarnetEntry[]; withDay: boolean }) {
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "off", desc: true });
   const [show, setShow] = useState<Show>("all");
   const [open, setOpen] = useState<Set<string>>(new Set());
+  const [flash, setFlash] = useState<string | null>(null);
+  const pick = (e: CarnetEntry) => {
+    setOpen((s) => new Set(s).add(e.race_id));
+    setFlash(e.race_id);
+    window.setTimeout(() => setFlash((f) => (f === e.race_id ? null : f)), 1600);
+    window.setTimeout(() => document.getElementById(rowId(e))?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
+  };
   const paired = entries.filter((e) => e.duel);
   const differ = paired.filter((e) => e.duel!.differ);
   const rows = useMemo(() => {
@@ -316,6 +442,7 @@ function DuelTable({ entries, withDay }: { entries: CarnetEntry[]; withDay: bool
     });
   return (
     <>
+      <DiffStrip entries={entries} onPick={pick} multiDay={withDay} />
       <div className="duel-filters">
         <Segmented<Show>
           label="Courses affichées"
@@ -344,8 +471,7 @@ function DuelTable({ entries, withDay }: { entries: CarnetEntry[]; withDay: bool
               <tr>
                 <SortHead k="off" label="Départ" sort={sort} setSort={setSort} />
                 <th>Course</th>
-                <th className="r">Favori</th>
-                <th className="r">Modèle</th>
+                <th>Choix</th>
                 <th>Arrivée</th>
                 <SortHead k="favori" label="Net favori" sort={sort} setSort={setSort} right />
                 <SortHead k="model" label="Net modèle" sort={sort} setSort={setSort} right />
@@ -355,7 +481,14 @@ function DuelTable({ entries, withDay }: { entries: CarnetEntry[]; withDay: bool
             </thead>
             <tbody>
               {rows.map((e) => (
-                <DuelRow key={e.race_id} e={e} open={open.has(e.race_id)} toggle={() => toggle(e.race_id)} withDay={withDay} />
+                <DuelRow
+                  key={e.race_id}
+                  e={e}
+                  open={open.has(e.race_id)}
+                  toggle={() => toggle(e.race_id)}
+                  withDay={withDay}
+                  flash={flash === e.race_id}
+                />
               ))}
             </tbody>
           </table>
