@@ -80,7 +80,12 @@ function BetsOverview() {
             <div className="overview-card-head">
               <span className="kpi-label">
                 {p.label}
-                {p.key === "all" && <span className="muted"> (dès le {shortDay(p.start)})</span>}
+                {p.key === "all" && (
+                  <span className="muted" title={`Premier jour où le modèle a joué : ${shortDay(p.start)}`}>
+                    {" "}
+                    · {p.start.slice(8, 10)}/{p.start.slice(5, 7)}
+                  </span>
+                )}
               </span>
               <span className="small muted num">
                 {p.races} course{plural(p.races)}

@@ -878,8 +878,12 @@ tr.is-played td {
   letter-spacing: 0;
   color: var(--ink-2);
 }
+.overview-card-head .num {
+  white-space: nowrap;
+}
 .overview-favori {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--s2);
   padding-top: 6px;
@@ -915,6 +919,11 @@ tr.is-played td {
 @media (max-width: 900px) {
   .overview-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .overview-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
