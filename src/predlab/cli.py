@@ -424,6 +424,50 @@ def backfill(
         build_db()
 
 
+@racing_app.command("probe-foreign")
+def probe_foreign(
+    races: Annotated[int, typer.Option(help="Courses étrangères lues.")] = 100,
+    seed: Annotated[str, typer.Option(help="Graine du tirage (même graine, mêmes courses).")] = (
+        "2026-10-05"
+    ),
+) -> None:
+    """Read a sample of the foreign races the PMU lists (runners, dividends, past
+    performances) and measure what the feed gives on them. Nothing is tested."""
+    import fcntl
+
+    from predlab.racing import probe as probe_lib
+
+    paths = default_paths().ensure()
+    if not paths.database.exists():
+        typer.echo("Base absente : lancez d'abord `predlab racing build`.")
+        raise typer.Exit(code=1)
+    targets = probe_lib.sample(paths.database, races, seed=seed)
+    if not targets:
+        typer.echo("Aucune course étrangère terminée dans la base.")
+        raise typer.Exit(code=1)
+    groups = len({(t.country, t.discipline) for t in targets})
+    typer.echo(
+        f"{len(targets)} courses étrangères tirées ({groups} pays × discipline), "
+        f"jusqu'à {3 * len(targets)} requêtes, une par seconde."
+    )
+    # Never alongside a backfill pass: the same lock, so the feed sees one reader.
+    lock = (paths.logs / "backfill.lock").open("a")
+    try:
+        fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        made = probe_lib.fetch(PmuClient(), RawStore(paths.raw_pmu), targets, typer.echo)
+    finally:
+        lock.close()
+    rep = probe_lib.report(RawStore(paths.raw_pmu), targets, utcnow())
+    path = probe_lib.write_report(rep, paths.lab)
+    o = rep["overall"]
+    typer.echo(
+        f"{made} requêtes. Partants lus : {o['fetched']['participants']:.0%} des courses, "
+        f"cote de référence : {o['odds_reference'] or 0:.0%} des partants, "
+        f"musique : {o['fields'].get('musique') or 0:.0%}. Rapport : {path}"
+    )
+    _log_line(f"{utcnow().isoformat(timespec='seconds')} | sonde étranger : {made} requêtes")
+
+
 def _backfill_locked(
     plan: str, end: str | None, hours: float, max_requests: int, *, blocking: bool, log: bool = True
 ) -> list[tuple[str, Any]] | None:
