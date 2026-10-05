@@ -45,7 +45,7 @@ function App() {
       body = <Horse id={args[0]!} />;
       break;
     case "carnet":
-      body = <Carnet />;
+      body = <Carnet period={args[0]} day={args[1]} />;
       break;
     case "banc":
       body = <Banc />;

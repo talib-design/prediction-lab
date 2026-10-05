@@ -366,6 +366,14 @@ def test_duels_pair_per_bet_type_and_tell_different_choices(lab: Paths) -> None:
     duels = _duels(Lab(lab))
     assert [d["differ"] for d in duels] == [False, True, False]
     assert duels[2]["favori"]["stake"] == 1.0, "the unpaired SP ticket stays out"
+    assert duels[1]["model"]["numbers"] == [5] and duels[1]["favori"]["numbers"] == [1]
+    assert duels[1]["model"]["win"] is True and duels[1]["favori"]["win"] is False
+    assert duels[1]["model"]["net"] == 3.0 and duels[1]["favori"]["net"] == -1.0
+    rows = TestClient(create_app(lab)).get("/api/carnet").json()["entries"]
+    by = {r["race_id"]: r["duel"] for r in rows}
+    assert (
+        by["2026-10-02/R1C1"]["differ"] is True and by["2026-10-02/R1C2"]["model"]["stake"] == 1.0
+    )
     days = _duel_days(duels)
     assert [d["state"] for d in days] == ["same", "ahead"]
     assert days[1]["diff"] == 4.0 and days[1]["differ"] == 1

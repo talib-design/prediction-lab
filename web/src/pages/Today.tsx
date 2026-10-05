@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { DisciplineBadge, Empty, Failure, Loading, PageHead, Segmented } from "../components/ui";
 import { CarnetBetsChart } from "../components/BetsChart";
+import { DeltaChip, pct1 as pct, plural, signed } from "../components/duel";
 import { ProfileButton, WinnersProfile } from "../components/WinnersProfile";
 import { api, type CarnetState, type Discipline, type DuelState, type RaceSummary } from "../lib/api";
 import { euros, longDay, minutesUntil, relative, shiftDay, shortDay, time, todayParis } from "../lib/format";
@@ -18,28 +19,13 @@ function statusOf(r: RaceSummary): { label: string; cls: string } {
   return { label: "À venir", cls: "outline" };
 }
 
-const signed = (x: number) => `${x >= 0 ? "+" : "−"}${euros(Math.abs(x))}`;
-const pct = (r: number | null) =>
-  r == null ? "—" : `${r >= 0 ? "+" : "−"}${Math.abs(r * 100).toFixed(1).replace(".", ",")} %`;
-const plural = (n: number) => (n > 1 ? "s" : "");
+const CARNET_PERIOD = { day: "jour", week: "semaine", month: "mois", all: "tout" } as const;
 
 const STATE: Record<DuelState, string> = {
   ahead: "modèle devant",
   behind: "modèle derrière",
   same: "à égalité",
 };
-
-/** How the duel stands over the period: by how much the model beats (or trails) the
- *  favourite on the same races. Decided to the cent, as on the server. */
-function DeltaChip({ diff }: { diff: number }) {
-  const cents = Math.round(diff * 100);
-  if (cents === 0) return <span className="delta-chip same">à égalité avec le favori</span>;
-  return (
-    <span className={`delta-chip ${cents > 0 ? "ahead" : "behind"}`}>
-      <span aria-hidden>{cents > 0 ? "▲" : "▼"}</span> {signed(diff)} pour le modèle
-    </span>
-  );
-}
 
 /** The model against the favourite, on the same races: today, this week, this month,
  *  since the model first played. */
@@ -76,7 +62,12 @@ function BetsOverview() {
       </div>
       <div className="overview-grid">
         {periods.map((p) => (
-          <a key={p.key} href="#/carnet" className="card overview-card">
+          <a
+            key={p.key}
+            href={href("carnet", CARNET_PERIOD[p.key], load.data.today)}
+            className="card overview-card"
+            title="Voir ces courses dans le carnet"
+          >
             <div className="overview-card-head">
               <span className="kpi-label">
                 {p.label}

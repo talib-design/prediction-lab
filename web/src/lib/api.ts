@@ -196,6 +196,25 @@ export interface CarnetEntry {
   settled_at: string | null;
   finish_order: number[][] | null;
   note: string | null;
+  /** The favourite against the model on this race; null if they did not both play it. */
+  duel: RaceDuel | null;
+}
+
+/** One side of a race's duel, on the paired tickets only (gagnant and/or placé). */
+export interface DuelPick {
+  numbers: number[];
+  stake: number;
+  returned: number;
+  /** null until the race is settled. */
+  net: number | null;
+  /** Whether its simple gagnant paid; null if not paired in gagnant or not settled. */
+  win: boolean | null;
+}
+
+export interface RaceDuel {
+  differ: boolean;
+  model: DuelPick;
+  favori: DuelPick;
 }
 
 export interface CarnetRow extends StrategyRow {

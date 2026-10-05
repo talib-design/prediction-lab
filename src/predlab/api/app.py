@@ -429,7 +429,10 @@ def create_app(paths: Paths | None = None) -> FastAPI:
             "races": len(items),
             "settled": sum(e["settled"] for e in items),
             "summary": summarise_entries(items),
-            "entries": sorted(shown, key=lambda e: e["off_time"], reverse=True),
+            "entries": [
+                {**e, "duel": _duel_of(e)}
+                for e in sorted(shown, key=lambda e: e["off_time"], reverse=True)
+            ],
         }
 
     @app.get("/api/carnet/periods")
@@ -1015,37 +1018,54 @@ def _merge_series(groups: list[list[dict[str, Any]]], since: str | None) -> list
     return out
 
 
-def _duels(lab: Lab) -> list[dict[str, Any]]:
-    """Each race where the favourite and the model both played, with what each side
-    staked and got back, oldest first.
+def _duel_of(e: dict[str, Any]) -> dict[str, Any] | None:
+    """The favourite against the model on one carnet race, or None if they did not both
+    play it.
 
     Paired per bet type, as in the chart: a simple gagnant (or placé) counts only if
     both sides played it, so the two are always compared on exactly the same tickets.
-    The side lines (former version, value rule) stay out.
+    The side lines (former version, value rule) stay out. ``net`` is None until the race
+    is settled; ``win`` says whether the side's simple gagnant paid (None if not paired
+    in gagnant, or not settled).
     """
     from predlab.racing.carnet import STRATEGIES as CORE_STRATEGIES
 
+    sides: dict[str, dict[str, Any]] = {
+        s: {"numbers": [], "stake": 0.0, "returned": 0.0, "win": None} for s in ("model", "favori")
+    }
+    paired = differ = False
+    for bet in ("SG", "SP"):
+        by: dict[str, list[dict[str, Any]]] = {}
+        for t in e["tickets"]:
+            if t["strategy"] in CORE_STRATEGIES and t["strategy"].startswith(bet):
+                by.setdefault(_pick_of(t["strategy"]), []).append(t)
+        if not {"favori", "modèle"} <= by.keys():
+            continue
+        paired = True
+        picks = {k: sorted(n for t in ts for n in t.get("numbers") or ()) for k, ts in by.items()}
+        differ = differ or picks["favori"] != picks["modèle"]
+        for side, pick in (("model", "modèle"), ("favori", "favori")):
+            v = sides[side]
+            v["numbers"] = v["numbers"] or picks[pick]
+            v["stake"] += sum(t["stake"] for t in by[pick])
+            v["returned"] += sum(t["returned"] or 0.0 for t in by[pick])
+            if bet == "SG" and e["settled"]:
+                v["win"] = any((t["returned"] or 0.0) > 0 for t in by[pick])
+    if not paired:
+        return None
+    for v in sides.values():
+        v["net"] = v["returned"] - v["stake"] if e["settled"] else None
+    return {"differ": differ, **sides}
+
+
+def _duels(lab: Lab) -> list[dict[str, Any]]:
+    """Each race where the favourite and the model both played, with what each side
+    staked and got back, oldest first."""
     out = []
     for e in sorted(_carnet_by_race(lab).values(), key=lambda e: e["off_time"]):
-        sides = {s: {"stake": 0.0, "returned": 0.0} for s in ("model", "favori")}
-        paired = differ = False
-        for bet in ("SG", "SP"):
-            by: dict[str, list[dict[str, Any]]] = {}
-            for t in e["tickets"]:
-                if t["strategy"] in CORE_STRATEGIES and t["strategy"].startswith(bet):
-                    by.setdefault(_pick_of(t["strategy"]), []).append(t)
-            if not {"favori", "modèle"} <= by.keys():
-                continue
-            paired = True
-            picks = {
-                k: sorted(n for t in ts for n in t.get("numbers") or ()) for k, ts in by.items()
-            }
-            differ = differ or picks["favori"] != picks["modèle"]
-            for side, pick in (("model", "modèle"), ("favori", "favori")):
-                sides[side]["stake"] += sum(t["stake"] for t in by[pick])
-                sides[side]["returned"] += sum(t["returned"] or 0.0 for t in by[pick])
-        if paired:
-            out.append({"day": e["day"], "settled": e["settled"], "differ": differ, **sides})
+        d = _duel_of(e)
+        if d is not None:
+            out.append({"day": e["day"], "settled": e["settled"], **d})
     return out
 
 

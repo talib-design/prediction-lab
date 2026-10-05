@@ -927,6 +927,146 @@ tr.is-played td {
   }
 }
 
+/* ---------------------------------------------------------------- carnet: periods and duel table */
+
+.carnet-nav {
+  gap: var(--s2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.period-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--s3) var(--s4);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+}
+.period-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+.period-duel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+.period-duel .overview-side {
+  font-size: 13px;
+  gap: 8px;
+}
+.period-net {
+  font-size: 17px;
+  color: var(--ink);
+}
+.duel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: var(--s3) var(--s4) var(--s2);
+}
+.duel-table th:first-child,
+.duel-table td:first-child {
+  padding-left: var(--s4);
+}
+.duel-table th:last-child,
+.duel-table td:last-child {
+  padding-right: var(--s4);
+}
+.duel-table td {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  font-size: 13px;
+}
+.th-sort {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+.th-sort:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.th-sort.on {
+  color: var(--ink);
+}
+.th-arrow {
+  font-size: 11px;
+  opacity: 0.6;
+}
+.th-sort.on .th-arrow {
+  opacity: 1;
+}
+.nowrap {
+  white-space: nowrap;
+}
+/* A race where the model chose another horse: marked by a rule in the model's series
+   colour and the "≠" before its number, never by the colour alone. */
+.duel-table tr.differ td:first-child {
+  box-shadow: inset 3px 0 0 var(--series-model);
+}
+.pick-differ {
+  font-weight: 650;
+  color: var(--ink);
+}
+.diff {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.diff.ahead {
+  color: var(--good);
+}
+.diff.behind {
+  color: var(--warn);
+}
+.duel-detail td {
+  background: var(--surface-2);
+  padding-left: var(--s4);
+}
+.row-toggle {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-3);
+}
+.duel-table tr:hover .row-toggle,
+.row-toggle[aria-expanded="true"] {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.duel-filters .segmented button {
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .card-head {
+    flex-wrap: wrap;
+  }
+  .carnet-nav {
+    justify-content: flex-start;
+  }
+  .duel-filters .segmented button {
+    padding: 0 7px;
+    font-size: 12px;
+  }
+}
+
 /* ---------------------------------------------------------------- winners' profile modal */
 
 .modal {
