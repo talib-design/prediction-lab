@@ -1072,11 +1072,13 @@ table.banc td {
 :root {
   --series-favori: #0f8a7a;
   --series-model: #5a48c8;
+  --series-value: #c2560e;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --series-favori: #22a090;
     --series-model: #8b7cf0;
+    --series-value: #e0702a;
   }
 }
 .bets-evolution {

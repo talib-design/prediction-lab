@@ -799,33 +799,52 @@ def _daily(lab: Lab) -> list[dict[str, Any]]:
     return rows
 
 
+def _pick_of(strategy: str) -> str:
+    from predlab.racing.carnet import PREV, VALUE_RULE
+
+    if PREV in strategy:
+        return "ancien"
+    if VALUE_RULE in strategy:
+        return "valeur"
+    return "modèle" if "marche_plus" in strategy else "favori"
+
+
 def _series(lab: Lab) -> list[dict[str, Any]]:
     """Per strategy of the carnet, its settled results day by day and the running total:
-    the chart "is it going up, down or flat?", favourite against model on the same races."""
-    from predlab.racing.carnet import STRATEGIES, strategy_label
+    the chart "is it going up, down or flat?", favourite against model on the same races.
+    The side lines (version replaced by a promotion, admitted rule) are counted on those
+    same races and appear once they have played."""
+    from predlab.racing.carnet import OPTIONAL, STRATEGIES, strategy_label
 
-    per: dict[str, dict[str, dict[str, float]]] = {s: {} for s in STRATEGIES}
+    per: dict[str, dict[str, dict[str, float]]] = {s: {} for s in (*STRATEGIES, *OPTIONAL)}
     for e in _carnet_by_race(lab).values():
         if not e["settled"]:
             continue
         for bet in ("SG", "SP"):
             # Paired: a race counts for a bet type only if the favourite AND the model
-            # played it, so the two lines are compared on exactly the same races.
-            pair = [t for t in e["tickets"] if t["strategy"].startswith(bet)]
-            if {("marche_plus" in t["strategy"]) for t in pair} != {True, False}:
+            # played it, so the lines are compared on exactly the same races.
+            mine = [t for t in e["tickets"] if t["strategy"].startswith(bet)]
+            picks = {_pick_of(t["strategy"]) for t in mine}
+            if not {"favori", "modèle"} <= picks:
                 continue
-            for t in pair:
-                day = per.setdefault(t["strategy"], {}).setdefault(
+            by: dict[str, list[dict[str, Any]]] = {}
+            for t in mine:
+                by.setdefault(t["strategy"], []).append(t)
+            for strategy, ts in by.items():
+                day = per.setdefault(strategy, {}).setdefault(
                     e["day"], {"races": 0, "stake": 0.0, "returned": 0.0}
                 )
                 day["races"] += 1
-                day["stake"] += t["stake"]
-                day["returned"] += t["returned"] or 0.0
+                day["stake"] += sum(t["stake"] for t in ts)
+                day["returned"] += sum(t["returned"] or 0.0 for t in ts)
     out = []
-    for strategy in STRATEGIES:
+    for strategy in (*STRATEGIES, *OPTIONAL):
+        days = per.get(strategy, {})
+        if strategy in OPTIONAL and not days:
+            continue
         cum, points = 0.0, []
-        for d in sorted(per.get(strategy, {})):
-            v = per[strategy][d]
+        for d in sorted(days):
+            v = days[d]
             net = v["returned"] - v["stake"]
             cum += net
             points.append({"day": d, **v, "net": net, "cum": cum})
@@ -834,7 +853,7 @@ def _series(lab: Lab) -> list[dict[str, Any]]:
                 "strategy": strategy,
                 "label": strategy_label(strategy),
                 "bet": "SG" if strategy.startswith("SG") else "SP",
-                "pick": "modèle" if "marche_plus" in strategy else "favori",
+                "pick": _pick_of(strategy),
                 "points": points,
             }
         )
@@ -943,6 +962,8 @@ def _streak(days: list[dict[str, Any]]) -> dict[str, int]:
 
 
 def _periods(lab: Lab, today: date) -> list[dict[str, Any]]:
+    from predlab.racing.carnet import STRATEGIES as CORE_STRATEGIES
+
     items = list(_carnet_by_race(lab).values())
     first = min((date.fromisoformat(e["day"]) for e in items), default=today)
     spans = [
@@ -955,9 +976,14 @@ def _periods(lab: Lab, today: date) -> list[dict[str, Any]]:
     for key, label, start in spans:
         chosen = [e for e in items if start <= date.fromisoformat(e["day"]) <= today]
         settled = [e for e in chosen if e["settled"]]
-        stake = sum(t["stake"] for e in settled for t in e["tickets"])
-        returned = sum((t["returned"] or 0) for e in settled for t in e["tickets"])
-        pending = sum(t["stake"] for e in chosen if not e["settled"] for t in e["tickets"])
+
+        def core(e: dict[str, Any]) -> list[dict[str, Any]]:
+            # The bilan stays favourite + model; "ancien modèle" and rules are side lines.
+            return [t for t in e["tickets"] if t["strategy"] in CORE_STRATEGIES]
+
+        stake = sum(t["stake"] for e in settled for t in core(e))
+        returned = sum((t["returned"] or 0) for e in settled for t in core(e))
+        pending = sum(t["stake"] for e in chosen if not e["settled"] for t in core(e))
         out.append(
             {
                 "key": key,

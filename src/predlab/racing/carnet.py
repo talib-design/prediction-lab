@@ -82,7 +82,19 @@ RETIRED = (
     f"SG valeur {PLUS}",
 )
 
+# Beside the champion (racing/champion.py, decision of Chris 2026-10-05): after a
+# promotion, the version it replaced keeps playing ("ancien modèle"), and a playing rule
+# admitted by the lab gets its own line. Played only when they exist; they enter the
+# chart and the summary, never the "bilan" totals (favourite + model, as before).
+PREV = "marche_plus_prev"
+VALUE_RULE = "value105"
+OPTIONAL = (f"SG top {PREV}", f"SP top {PREV}", f"SG {VALUE_RULE} {PLUS}")
+PLAYED = (*STRATEGIES, *OPTIONAL)
+
 STRATEGY_LABELS = {
+    f"SG top {PREV}": "SG ancien modèle",
+    f"SP top {PREV}": "SP ancien modèle",
+    f"SG {VALUE_RULE} {PLUS}": "SG valeur modèle (p × cote ≥ 1,05)",
     "SG valeur market_calibrated": "SG valeur (marché calibré)",
     f"SG top {PLUS}": "SG modèle",
     f"SP top {PLUS}": "SP modèle",
@@ -91,16 +103,39 @@ STRATEGY_LABELS = {
 
 # Given the race, its card at the horizon and the starters' details: the model's win
 # probabilities in card order, and the id of the report its parameters come from.
-ModelFor = Callable[[Race, RaceCard, list[Runner]], tuple[np.ndarray, str] | None]
+# An optional third element (dict) says what plays beside the champion: "previous" (the
+# replaced version's probabilities), "previous_version", "version", "rules".
+ModelFor = Callable[[Race, RaceCard, list[Runner]], tuple[Any, ...] | None]
 
 
 def strategy_label(name: str) -> str:
     return STRATEGY_LABELS.get(name, name)
 
 
-def _strategies(with_model: bool = False) -> dict[str, Any]:
-    every = simple_strategies([MODEL, PLUS])
-    return {n: every[n] for n in STRATEGIES if with_model or PLUS not in n}
+def _value_rule(e: Any, f: dict[str, np.ndarray], offered: set[str]) -> list[Any]:
+    """Simple gagnant on every starter the champion finds mispriced: p × odds ≥ 1.05."""
+    from predlab.racing.betting import SIMPLE_WIN, STAKE, Ticket
+    from predlab.racing.champion import VALUE_EDGE
+
+    if SIMPLE_WIN not in offered:
+        return []
+    odds = np.array([s.odds or 0.0 for s in e.card.starters], dtype=float)
+    return [
+        Ticket(SIMPLE_WIN, (e.card.starters[int(i)].number,), STAKE[SIMPLE_WIN])
+        for i in np.flatnonzero(f[PLUS] * odds >= VALUE_EDGE)
+    ]
+
+
+def _strategies(
+    with_model: bool = False, with_previous: bool = False, rules: tuple[str, ...] = ()
+) -> dict[str, Any]:
+    every = simple_strategies([MODEL, PLUS, PREV])
+    out = {n: every[n] for n in STRATEGIES if with_model or PLUS not in n}
+    if with_model and with_previous:
+        out.update({n: every[n] for n in OPTIONAL if PREV in n})
+    if with_model and VALUE_RULE in rules:
+        out[f"SG {VALUE_RULE} {PLUS}"] = _value_rule
+    return out
 
 
 @dataclass
@@ -212,7 +247,7 @@ def freeze_race(
     alpha: float | None,
     now: datetime,
     capture_hashes: list[str],
-    model: tuple[np.ndarray, str] | None = None,
+    model: tuple[Any, ...] | None = None,
     model_error: str | None = None,
 ) -> dict[str, Any]:
     odds = np.array([s.odds for s in card.starters], dtype=float)
@@ -221,25 +256,45 @@ def freeze_race(
     p = np.power(q, a)
     p = p / p.sum()
     forecasts = {"market": q, MODEL: p}
-    if model is not None:
-        forecasts[PLUS] = model[0]
+    parts: list[Any] = list(model) if model is not None else []
+    extras: dict[str, Any] = parts[2] if len(parts) > 2 else {}
+    if parts:
+        forecasts[PLUS] = parts[0]
+    if extras.get("previous") is not None:
+        forecasts[PREV] = np.asarray(extras["previous"], dtype=float)
     event = RaceEvent(card=card, outcome=RaceOutcome(card.race_id, {}), known_at=race.off_time)
     offered = set(race.bet_types)
     tickets = [
         _ticket_dict(name, t)
-        for name, strategy in _strategies(with_model=model is not None).items()
+        for name, strategy in _strategies(
+            with_model=model is not None,
+            with_previous=PREV in forecasts,
+            rules=tuple(extras.get("rules", ())),
+        ).items()
         for t in strategy(event, forecasts, offered)
     ]
     extra: dict[str, Any] = {}
     if model is not None:
         extra["model"] = {
             "name": PLUS,
-            "report": model[1],
+            "report": parts[1],
             "probabilities": {
                 str(s.number): round(float(x), 6)
-                for s, x in zip(card.starters, model[0], strict=True)
+                for s, x in zip(card.starters, parts[0], strict=True)
             },
         }
+        if "version" in extras:
+            extra["model"]["version"] = extras["version"]
+        if extras.get("rules"):
+            extra["model"]["rules"] = list(extras["rules"])
+        if PREV in forecasts:
+            extra["model"]["previous"] = {
+                "version": extras.get("previous_version"),
+                "probabilities": {
+                    str(s.number): round(float(x), 6)
+                    for s, x in zip(card.starters, forecasts[PREV], strict=True)
+                },
+            }
     elif model_error:
         extra["model_error"] = model_error
     return {
@@ -439,7 +494,7 @@ def entries(ledger: AppendOnlyLedger) -> list[dict[str, Any]]:
                 "returned": s["returns"][i] if s else None,
             }
             for i, t in enumerate(r["tickets"])
-            if t["strategy"] in STRATEGIES  # retired witnesses stay in the ledger only
+            if t["strategy"] in PLAYED  # retired witnesses stay in the ledger only
         ]
         out.append(
             {
@@ -469,8 +524,10 @@ def summarise_entries(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     from predlab.racing.betting import StrategyLedger
     from predlab.racing.betting import summarise as summarise_ledgers
 
-    ledgers = {name: StrategyLedger(name) for name in STRATEGIES}
-    pending: dict[str, int] = dict.fromkeys(STRATEGIES, 0)
+    played = {t["strategy"] for e in items for t in e["tickets"]}
+    names = [*STRATEGIES, *(n for n in OPTIONAL if n in played)]
+    ledgers = {name: StrategyLedger(name) for name in names}
+    pending: dict[str, int] = dict.fromkeys(names, 0)
     for e in sorted(items, key=lambda e: e["off_time"]):
         by: dict[str, list[dict[str, Any]]] = {}
         for t in e["tickets"]:

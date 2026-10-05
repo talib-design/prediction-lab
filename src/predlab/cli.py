@@ -130,7 +130,7 @@ def _run_carnet_pass() -> CarnetReport:
         AppendOnlyLedger(paths.carnet),
         now=utcnow(),
         alpha_for=lambda d: latest_alpha(paths.runs, d),
-        model_for=model_for_paths(paths.runs, paths.database),
+        model_for=model_for_paths(paths.runs, paths.database, paths.lab),
     )
     if rep.frozen or rep.settled or rep.errors:
         _log_line(f"{utcnow().isoformat(timespec='seconds')} | {rep.summary()}")

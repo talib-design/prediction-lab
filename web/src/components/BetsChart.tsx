@@ -13,13 +13,19 @@ import { Segmented } from "./ui";
  *  - optional period selector, stock-chart style: the totals restart at the window's start. */
 
 type Mode = "ALL" | "SG" | "SP";
-type Pick = "favori" | "modèle";
+type Pick = "favori" | "modèle" | "ancien" | "valeur";
 type Range = "1w" | "1m" | "3m" | "6m" | "1y" | "all";
 
-const PICKS = [
-  { pick: "favori", label: "Favori", color: "var(--series-favori)", dash: undefined },
+// Colours validated with the dataviz palette checker (teal, violet, orange: CVD-safe in
+// both themes). The replaced version keeps the model's violet, told apart by its dash-dot
+// pattern, a lighter stroke and its label: it is the same family of model, one step back.
+const PICKS: { pick: Pick; label: string; color: string; dash?: string; fade?: number }[] = [
+  { pick: "favori", label: "Favori", color: "var(--series-favori)" },
   { pick: "modèle", label: "Modèle", color: "var(--series-model)", dash: "7 5" },
-] as const;
+  { pick: "ancien", label: "Ancien modèle", color: "var(--series-model)", dash: "10 4 2 4", fade: 0.6 },
+  { pick: "valeur", label: "Valeur modèle", color: "var(--series-value)" },
+];
+const MAIN: Pick[] = ["favori", "modèle"];
 
 const RANGES: { value: Range; label: string; days: number }[] = [
   { value: "1w", label: "1S", days: 7 },
@@ -43,8 +49,8 @@ const dayNum = (d: string) => Date.parse(`${d}T00:00:00Z`) / DAY_MS;
 /** One line per pick for the chosen bet type ("ALL" adds win and place day by day), from
  *  ``from`` on, with running totals restarting there. */
 function lines(series: CarnetSeries[], mode: Mode, from: string | null): Lines {
-  const out: Lines = { favori: [], modèle: [] };
-  for (const pick of ["favori", "modèle"] as const) {
+  const out: Lines = { favori: [], modèle: [], ancien: [], valeur: [] };
+  for (const { pick } of PICKS) {
     const byDay = new Map<string, Point>();
     for (const s of series) {
       if (s.pick !== pick || (mode !== "ALL" && s.bet !== mode)) continue;
@@ -155,8 +161,10 @@ export function BetsChart({
     () => (showOverlay && overlay ? lines(overlay, mode, from ?? first) : null),
     [showOverlay, overlay, mode, from, first],
   );
+  // Favourite and model always; the side lines only once they have played.
+  const shown = PICKS.filter((k) => MAIN.includes(k.pick) || data[k.pick].length > 0);
   const days = useMemo(() => {
-    const all = [...data.favori, ...data.modèle, ...(extra ? [...extra.favori, ...extra.modèle] : [])];
+    const all = [...PICKS.flatMap((k) => data[k.pick]), ...(extra ? [...extra.favori, ...extra.modèle] : [])];
     return [...new Set(all.map((p) => p.day))].sort();
   }, [data, extra]);
 
@@ -175,10 +183,10 @@ export function BetsChart({
   const controls = (
     <div className="row" style={{ justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
       <div className="legend" aria-label="Légende">
-        {PICKS.map((k) => (
+        {shown.map((k) => (
           <span key={k.pick}>
             <svg width="26" height="10" aria-hidden>
-              <line x1="1" x2="25" y1="5" y2="5" stroke={k.color} strokeWidth={3} strokeDasharray={k.dash} strokeLinecap="round" />
+              <line x1="1" x2="25" y1="5" y2="5" stroke={k.color} strokeWidth={3} strokeDasharray={k.dash} strokeLinecap="round" opacity={k.fade ?? 1} />
             </svg>
             {k.label}
           </span>
@@ -242,8 +250,8 @@ export function BetsChart({
   const iw = W - m.left - m.right;
   const ih = H - m.top - m.bottom;
   const groups: { pts: Point[]; k: (typeof PICKS)[number]; thin: boolean }[] = [
-    ...(extra ? PICKS.map((k) => ({ pts: extra[k.pick], k, thin: true })) : []),
-    ...PICKS.map((k) => ({ pts: data[k.pick], k, thin: false })),
+    ...(extra ? PICKS.filter((k) => MAIN.includes(k.pick)).map((k) => ({ pts: extra[k.pick], k, thin: true })) : []),
+    ...shown.map((k) => ({ pts: data[k.pick], k, thin: false })),
   ];
   const vals = groups.flatMap((g) => g.pts.map(val));
   const lo0 = Math.min(0, ...vals);
@@ -287,11 +295,11 @@ export function BetsChart({
   const hx = hover == null ? 0 : x(hover);
 
   const tipRows = (pts: Lines, suffix: string) =>
-    PICKS.map((k) => {
+    (suffix ? PICKS.filter((k) => MAIN.includes(k.pick)) : shown).map((k) => {
       const p = pts[k.pick].find((q) => q.day === hd);
       return (
         <div key={k.pick + suffix} className="tip-row">
-          <i style={{ background: k.color, opacity: suffix ? 0.55 : 1 }} />
+          <i style={{ background: k.color, opacity: suffix ? 0.55 : (k.fade ?? 1) }} />
           <span>
             {k.label}
             {suffix}
@@ -337,7 +345,7 @@ export function BetsChart({
             </text>
           ))}
           {groups.map(({ pts, k, thin }) => (
-            <g key={k.pick + (thin ? "-all" : "")} opacity={thin ? 0.75 : 1}>
+            <g key={k.pick + (thin ? "-all" : "")} opacity={thin ? 0.75 : (k.fade ?? 1)}>
               <polyline
                 points={pts.map((p) => `${x(idx.get(p.day)!)},${y(val(p))}`).join(" ")}
                 fill="none"
@@ -395,8 +403,11 @@ export function BetsChart({
               <tr>
                 <th>Jour</th>
                 <th className="r">Courses</th>
-                <th className="r">Favori (jour → cumul)</th>
-                <th className="r">Modèle (jour → cumul)</th>
+                {shown.map((k) => (
+                  <th key={k.pick} className="r">
+                    {k.label} (jour → cumul)
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -407,8 +418,14 @@ export function BetsChart({
                   <tr key={d}>
                     <td>{shortDay(d)}</td>
                     <td className="r num">{f?.races ?? mo?.races ?? "—"}</td>
-                    <td className="r num">{f ? `${signed(f.net)} → ${signed(f.cum)}` : "—"}</td>
-                    <td className="r num">{mo ? `${signed(mo.net)} → ${signed(mo.cum)}` : "—"}</td>
+                    {shown.map((k) => {
+                      const p = data[k.pick].find((q) => q.day === d);
+                      return (
+                        <td key={k.pick} className="r num">
+                          {p ? `${signed(p.net)} → ${signed(p.cum)}` : "—"}
+                        </td>
+                      );
+                    })}
                   </tr>
                 );
               })}

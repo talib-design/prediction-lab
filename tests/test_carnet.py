@@ -180,6 +180,52 @@ def test_model_tickets_are_frozen_with_the_model_probabilities(tmp_path: Path) -
     assert ledger.records()[0]["model"]["probabilities"]["3"] == 0.5
 
 
+def test_the_replaced_version_and_an_admitted_rule_play_beside_the_champion(
+    tmp_path: Path,
+) -> None:
+    import numpy as np
+
+    from predlab.racing.carnet import summarise_entries
+
+    store, ledger = RawStore(tmp_path / "raw"), AppendOnlyLedger(tmp_path / "carnet.jsonl")
+    _record(store, _programme(), "programme/2026-09-28", "programme", OFF - timedelta(hours=3))
+    _record(
+        store,
+        _participants(),
+        "participants/2026-09-28/R2C1",
+        "participants",
+        OFF - timedelta(minutes=8),
+    )
+
+    def model_for(race, card, runners):
+        extras = {
+            "previous": np.array([0.1, 0.3, 0.1, 0.5]),  # v1 still picks the favourite no. 4
+            "previous_version": 1,
+            "version": 2,
+            "rules": ["value105"],
+        }
+        return np.array([0.2, 0.2, 0.5, 0.1]), "model_PLAT_v2", extras
+
+    run_carnet(
+        store, ledger, now=OFF - timedelta(minutes=5), alpha_for=lambda d: 1.0, model_for=model_for
+    )
+    (entry,) = entries(ledger)
+    got = {t["strategy"]: t["numbers"] for t in entry["tickets"]}
+    assert got["SG top marche_plus"] == [3] and got["SG top marche_plus_prev"] == [4]
+    assert "SP top marche_plus_prev" in got
+    # p × odds: 0.2×5.0 = 1.0, 0.2×3.2, 0.5×8.0 = 4.0, 0.1×1.9 -> only no. 3 is mispriced.
+    assert got["SG value105 marche_plus"] == [3]
+    rec = ledger.records()[0]["model"]
+    assert rec["version"] == 2 and rec["previous"]["version"] == 1 and rec["rules"] == ["value105"]
+    names = [r["strategy"] for r in summarise_entries(entries(ledger))]
+    assert names[:4] == ["SG favori", "SP favori", "SG top marche_plus", "SP top marche_plus"]
+    assert set(names[4:]) == {
+        "SG top marche_plus_prev",
+        "SP top marche_plus_prev",
+        "SG value105 marche_plus",
+    }
+
+
 def test_a_failing_model_never_blocks_the_other_tickets(tmp_path: Path) -> None:
     store, ledger = RawStore(tmp_path / "raw"), AppendOnlyLedger(tmp_path / "carnet.jsonl")
     _record(store, _programme(), "programme/2026-09-28", "programme", OFF - timedelta(hours=3))

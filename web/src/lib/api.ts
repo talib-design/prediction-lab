@@ -54,7 +54,7 @@ export interface CarnetSeries {
   strategy: string;
   label: string;
   bet: "SG" | "SP";
-  pick: "favori" | "modèle";
+  pick: "favori" | "modèle" | "ancien" | "valeur";
   points: { day: string; races: number; stake: number; returned: number; net: number; cum: number }[];
 }
 

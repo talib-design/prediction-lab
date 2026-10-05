@@ -287,3 +287,12 @@ def test_series_compare_favourite_and_model_on_the_same_races(lab: Paths) -> Non
     series = {s["strategy"]: s["points"] for s in _series(Lab(lab))}
     assert series["SG favori"][0]["races"] == 1 and series["SG top marche_plus"][0]["races"] == 1
     assert series["SG favori"][0]["cum"] == 1.0
+    assert "SG top marche_plus_prev" not in series, "side lines appear once they have played"
+    for rec in freeze(
+        "2026-09-30/R3C1", ["SG favori", "SG top marche_plus", "SG top marche_plus_prev"]
+    ):
+        ledger.append(rec)
+    picks = {s["strategy"]: s["pick"] for s in _series(Lab(lab))}
+    assert picks["SG top marche_plus_prev"] == "ancien"
+    body = TestClient(create_app(lab)).get("/api/carnet/periods").json()
+    assert body["periods"][-1]["stake"] == 8.0, "the bilan counts favourite + model only (not 9)"
