@@ -47,15 +47,18 @@ cat > "$PLIST" <<PLIST
 PLIST
 
 launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
-# Let the previous instance release the port before the new one binds it.
-for _ in 1 2 3 4 5 6 7 8 9 10; do
-  curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 || break
+# Let the previous instance release the port before the new one binds it: it can take
+# several seconds to exit, and a new instance that finds the port taken waits 30 s
+# (launchd's ThrottleInterval) before trying again.
+echo "Arrêt de l'ancienne version…"
+for _ in $(seq 1 30); do
+  lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1 || break
   sleep 1
 done
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
-echo "Démarrage du tableau de bord…"
+echo "Démarrage du tableau de bord (jusqu'à 2 minutes)…"
 ok=""
-for _ in $(seq 1 40); do
+for _ in $(seq 1 120); do
   if curl -fs "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1; then ok=1; break; fi
   sleep 1
 done
@@ -63,6 +66,9 @@ if [ -n "$ok" ]; then
   echo "Tableau de bord actif : http://127.0.0.1:$PORT  (ouvert automatiquement à chaque session)"
   open "http://127.0.0.1:$PORT/" || true
 else
-  echo "Le service démarre encore, ou le port $PORT est pris. Journal :"
+  echo "Le tableau de bord ne répond pas encore après 2 minutes. Dernières lignes du journal :"
+  tail -n 5 "$LOGS/dashboard.out.log" 2>/dev/null || true
   tail -n 5 "$LOGS/dashboard.err.log" 2>/dev/null || true
+  echo "Le port $PORT est tenu par :"
+  lsof -nP -iTCP:"$PORT" -sTCP:LISTEN 2>/dev/null || echo "  (personne)"
 fi
