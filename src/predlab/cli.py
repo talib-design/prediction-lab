@@ -164,8 +164,28 @@ def banc(
     if not paths.database.exists():
         typer.echo("Base absente : lancez d'abord `predlab racing build`.")
         raise typer.Exit(code=1)
-    frame = banc_lib.build_frame(paths.database, paths.runs, discipline)
-    _write_replay(frame, discipline, paths.runs)
+    from predlab.racing.champion import EXTENDED, Champion, history_ready
+
+    champ = Champion.load(paths.lab, discipline)
+    frame = banc_lib.build_frame(
+        paths.database, paths.runs, discipline, features=champ.features, tau=champ.tau
+    )
+    if history_ready(paths.database, discipline):
+        # The historical curve covers the extended history; the bench keeps its 2024 window.
+        _write_replay(
+            banc_lib.build_frame(
+                paths.database,
+                paths.runs,
+                discipline,
+                since=EXTENDED.since,
+                features=champ.features,
+                tau=champ.tau,
+            ),
+            discipline,
+            paths.runs,
+        )
+    else:
+        _write_replay(frame, discipline, paths.runs)
     explored = frame.filter(pl.col("day") <= banc_lib.EXPLORATION_END)
     if explored["race_id"].n_unique() < NIGHTLY_MIN_RACES:
         typer.echo(f"Trop peu de courses d'exploration ({discipline}) : banc non mis à jour.")
@@ -217,11 +237,56 @@ def lab(
             f"Labo {discipline} : favoris < 1,5 → {top['races']} courses, gagnent "
             f"{top['win_rate']:.0%}, retour gagnant {top['roi_sg']:+.1%}."
         )
-    for line in lab_lib.run_pending(
+    lines = lab_lib.run_pending(
         reg, frame, paths.database, paths.lab, discipline, max_tests=max_tests
-    ):
+    )
+    lines += _arena_pass(reg, paths, discipline, max_tests)
+    for line in lines:
         typer.echo(f"Labo {line}")
         _log_line(f"{utcnow().isoformat(timespec='seconds')} | labo {line}")
+
+
+def _arena_pass(reg: HypothesisRegistry, paths: Any, discipline: str, max_tests: int) -> list[str]:
+    """Objective "beat the favourite": register, test against the champion, try the vault,
+    promote (then refit the model at once, the replaced version's parameters frozen)."""
+    from predlab.racing import arena
+    from predlab.racing import lab as lab_lib
+    from predlab.racing.champion import EXTENDED, Champion, history_ready
+    from predlab.racing.marketplus import latest_params
+
+    added = arena.register(reg, discipline, paths.lab)
+    lines = (
+        [f"{len(added)} candidat(s) pré-enregistré(s) pour l'objectif : {', '.join(added)}"]
+        if added
+        else []
+    )
+    ready = history_ready(paths.database, discipline)
+    frame = None
+    if ready:
+        frame = banc_lib.with_returns(
+            lab_lib.add_candidates(
+                load_finished(paths.database, discipline, since=EXTENDED.since), discipline
+            ),
+            banc_lib.load_simple_dividends(paths.database),
+        )
+    out, promotion = arena.run(
+        reg, frame, paths.lab, discipline, EXTENDED, ready=ready, max_tests=max_tests
+    )
+    lines += out
+    if promotion is not None:
+        champ = Champion.load(paths.lab, discipline)
+        new = champ.promote(
+            features=tuple(promotion["features"]),
+            tau=float(promotion["tau"]),
+            origin=promotion["origin"],
+            evidence=promotion["evidence"],
+            now=utcnow(),
+            params_before=latest_params(paths.runs, discipline),
+        )
+        champ.save()
+        lines.append(f"Marché+ v{new['version']} en service : {promotion['origin']}")
+        model(discipline=discipline)
+    return lines
 
 
 def _write_replay(frame: pl.DataFrame, discipline: str, runs: Path) -> None:
@@ -249,8 +314,21 @@ def replay(
     if not paths.database.exists():
         typer.echo("Base absente : lancez d'abord `predlab racing build`.")
         raise typer.Exit(code=1)
+    from predlab.racing.champion import EXTENDED, Champion, history_ready
+
+    champ = Champion.load(paths.lab, discipline)
+    since = EXTENDED.since if history_ready(paths.database, discipline) else None
     _write_replay(
-        banc_lib.build_frame(paths.database, paths.runs, discipline), discipline, paths.runs
+        banc_lib.build_frame(
+            paths.database,
+            paths.runs,
+            discipline,
+            since=since,
+            features=champ.features,
+            tau=champ.tau,
+        ),
+        discipline,
+        paths.runs,
     )
 
 
@@ -624,9 +702,33 @@ def model(
     if not paths.database.exists():
         typer.echo("Base absente : lancez d'abord `predlab racing build`.")
         raise typer.Exit(code=1)
-    frame = load_finished(paths.database, discipline)
+    from predlab.backtest.splits import TimeSplit
+    from predlab.racing import lab as lab_lib
+    from predlab.racing.champion import EXTENDED, Champion, history_ready
+
+    champ = Champion.load(paths.lab, discipline)
+    if history_ready(paths.database, discipline):
+        # Extended history in place (decision of 2026-10-05): train 2020-2023, λ on 2024.
+        since = EXTENDED.since
+        split = TimeSplit(
+            train_end=EXTENDED.train_end,
+            validation_end=EXTENDED.validation_end,
+            test_end=PREREGISTERED_SPLIT.test_end,
+        )
+    else:
+        since, split = None, PREREGISTERED_SPLIT
+    frame = lab_lib.add_candidates(
+        load_finished(paths.database, discipline, **({"since": since} if since else {})),
+        discipline,
+    )
     rep = run_marketplus(
-        frame, discipline, PREREGISTERED_SPLIT, load_simple_dividends(paths.database)
+        frame,
+        discipline,
+        split,
+        load_simple_dividends(paths.database),
+        features=champ.features,
+        tau=champ.tau,
+        champion_version=champ.current["version"],
     )
     if rep is None:
         typer.echo(f"Pas assez de courses d'apprentissage ({discipline}) : modèle non ajusté.")

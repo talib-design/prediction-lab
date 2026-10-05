@@ -149,10 +149,19 @@ def model_bands(df: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def walk_forward_model(frame: pl.DataFrame, lam: float, min_races: int = 300) -> pl.DataFrame:
-    """``p_model`` for every row, from a Marché+ fitted on earlier months only."""
+def walk_forward_model(
+    frame: pl.DataFrame,
+    lam: float,
+    min_races: int = 300,
+    features: tuple[str, ...] | None = None,
+    tau: float = 1.0,
+) -> pl.DataFrame:
+    """``p_model`` for every row, from a Marché+ fitted on earlier months only.
+    ``features``: the champion's (Marché+ v1's by default)."""
     from predlab.racing.features import MODEL_FEATURES
     from predlab.racing.marketplus import design, fit, predict
+
+    feats = tuple(features) if features else MODEL_FEATURES
 
     frame = frame.with_columns(pl.col("day").dt.truncate("1mo").alias("_month"))
     months = sorted(frame["_month"].unique().to_list())
@@ -163,13 +172,14 @@ def walk_forward_model(frame: pl.DataFrame, lam: float, min_races: int = 300) ->
         if past["race_id"].n_unique() < min_races:
             parts.append(now.with_columns(pl.lit(None, pl.Float64).alias("p_model")))
             continue
-        x = past.select(MODEL_FEATURES).to_numpy().astype(np.float64)
+        x = past.select(feats).to_numpy().astype(np.float64)
         means, stds = x.mean(0), x.std(0)
         stds = np.where(stds > 1e-9, stds, 0.0)
         mask = np.r_[True, stds > 0]
-        theta = fit(design(past, means, stds), lam, mask)["theta"]
+        theta = fit(design(past, means, stds, feats), lam, mask)["theta"]
         params = {
-            "features": list(MODEL_FEATURES),
+            "features": list(feats),
+            "tau": tau,
             "means": means.tolist(),
             "stds": stds.tolist(),
             "theta": theta.tolist(),
@@ -778,6 +788,7 @@ def live_stats(ledger: AppendOnlyLedger) -> tuple[dict[str, dict[str, Any]], dic
 
 def frame_for_paths(runs: Path, database: Path) -> FrameFor:
     """Live criteria for a race: features as of yesterday's build, Marché+ on the card."""
+    from predlab.racing import lab
     from predlab.racing.features import history, live_frame
     from predlab.racing.marketplus import latest_params, predict
 
@@ -790,6 +801,7 @@ def frame_for_paths(runs: Path, database: Path) -> FrameFor:
         ordered = [by_number[s.number] for s in card.starters]
         odds = {s.number: s.odds for s in card.starters}
         frame = live_frame(race, ordered, odds, history(database, race.discipline))
+        frame = lab.add_candidates(frame, race.discipline)
         params = cache[race.discipline]
         p = predict(params, frame) if params else None
         return model_bands(
@@ -801,12 +813,25 @@ def frame_for_paths(runs: Path, database: Path) -> FrameFor:
     return frame_for
 
 
-def build_frame(database: Path, runs: Path, discipline: str) -> pl.DataFrame:
-    """Every finished race since 2024 with criteria, walk-forward Marché+ and returns."""
-    from predlab.racing.features import load_finished
+def build_frame(
+    database: Path,
+    runs: Path,
+    discipline: str,
+    *,
+    since: date | None = None,
+    features: tuple[str, ...] | None = None,
+    tau: float = 1.0,
+) -> pl.DataFrame:
+    """Every finished race since ``since`` (2024 by default) with criteria, walk-forward
+    Marché+ (the champion's features when given) and returns."""
+    from predlab.racing import lab
+    from predlab.racing.features import HISTORY_START, load_finished
     from predlab.racing.profile import latest
 
     rep = latest(runs, "model", discipline)
     lam = float(rep["lambda"]) if rep else 1000.0
-    frame = walk_forward_model(load_finished(database, discipline), lam)
+    frame = lab.add_candidates(
+        load_finished(database, discipline, since=since or HISTORY_START), discipline
+    )
+    frame = walk_forward_model(frame, lam, features=features, tau=tau)
     return with_returns(frame, load_simple_dividends(database))

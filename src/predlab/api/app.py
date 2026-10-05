@@ -854,7 +854,7 @@ def _lab(lab: Lab) -> dict[str, Any]:
         exp = h.experiment or ""
         if ":" not in exp:
             continue
-        cid, discipline = exp.split(":", 1)
+        cid, discipline, *rest = exp.split(":")
         c = lab_lib.BY_ID.get(cid)
         experiments.append(
             {
@@ -864,6 +864,8 @@ def _lab(lab: Lab) -> dict[str, Any]:
                 "hypothesis": c.hypothesis if c else h.description,
                 "discipline": discipline,
                 "source": c.source if c else "study",
+                "kind": c.kind if c else "study",
+                "protocol": rest[0] if rest else "v1",
                 "origin": h.origin.value,
                 "status": h.status.value,
                 "registered_at": first.get(h.hypothesis_id),
@@ -879,7 +881,19 @@ def _lab(lab: Lab) -> dict[str, Any]:
         if f.exists():
             with contextlib.suppress(OSError, json.JSONDecodeError):
                 favourites[d] = json.loads(f.read_text(encoding="utf-8"))
+    from predlab.racing.champion import OBJECTIVE, Champion
+
+    champions = {
+        d: Champion.load(lab.paths.lab, d).data
+        for d in TARGETS
+        if (lab.paths.lab / f"champion_{d}.json").exists()
+    }
+    for data in champions.values():
+        for v in data["versions"]:
+            v.pop("frozen_params", None)  # parameters stay on disk, not in the page
     return {
+        "objective": OBJECTIVE,
+        "champions": champions,
         "experiments": experiments,
         "favourites": favourites,
         "rule": lab_lib.RULE,

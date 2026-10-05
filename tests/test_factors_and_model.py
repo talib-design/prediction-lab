@@ -91,6 +91,15 @@ def test_live_frame_equals_the_historical_row(frame: pl.DataFrame) -> None:
     live = live_frame(race, runners, odds, frame)
     for col in ("log_q", *MODEL_FEATURES):
         assert np.allclose(live[col].to_numpy(), rows[col].to_numpy()), col
+    # The lab's candidates too: a promoted criterion must be computable on a live race.
+    from predlab.racing import lab
+
+    live_c, rows_c = lab.add_candidates(live, "PLAT"), lab.add_candidates(rows, "PLAT")
+    for c in lab.CANDIDATES:
+        if c.kind == "criterion" and c.source == "history" and "PLAT" in c.disciplines:
+            assert np.allclose(
+                live_c[c.column].to_numpy(), rows_c[c.column].to_numpy(), equal_nan=True
+            ), c.column
 
 
 def test_profile_race_conditions_look_at_the_favourite(frame: pl.DataFrame) -> None:

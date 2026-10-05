@@ -221,18 +221,21 @@ def run(
     discipline: str,
     split: TimeSplit,
     dividends: pl.DataFrame | None = None,
+    features: tuple[str, ...] = MODEL_FEATURES,
+    tau: float = 1.0,
+    champion_version: int = 1,
 ) -> dict[str, Any] | None:
     """The whole pre-registered procedure. None when the train window is too small."""
     parts = _split(df, split)
     if parts["train"]["race_id"].n_unique() < MIN_TRAIN_RACES:
         return None
-    x_train = parts["train"].select(MODEL_FEATURES).to_numpy().astype(np.float64)
+    x_train = parts["train"].select(features).to_numpy().astype(np.float64)
     means, stds = x_train.mean(0), x_train.std(0)
     stds = np.where(stds > 1e-9, stds, 0.0)
     mask = np.r_[True, stds > 0]
-    d = {k: design(v, means, stds) for k, v in parts.items()}
+    d = {k: design(v, means, stds, features) for k, v in parts.items()}
 
-    market = fit(d["train"], 0.0, mask=np.r_[True, np.zeros(len(MODEL_FEATURES), bool)])
+    market = fit(d["train"], 0.0, mask=np.r_[True, np.zeros(len(features), bool)])
     tries = []
     for lam in LAMBDAS:
         f = fit(d["train"], lam, mask)
@@ -240,12 +243,12 @@ def run(
     _, best_lam, best = min(tries, key=lambda t: t[0])
 
     coefficients = []
-    for i, name in enumerate(("log_q", *MODEL_FEATURES)):
+    for i, name in enumerate(("log_q", *features)):
         b, se = float(best["theta"][i]), float(best["se"][i])
         active = bool(mask[i])
         row: dict[str, Any] = {
             "feature": name,
-            "label": FEATURE_LABELS[name],
+            "label": FEATURE_LABELS.get(name, name),
             "active": active,
             "beta": b,
             "low": b - Z * se if active else None,
@@ -258,11 +261,12 @@ def run(
             row["sd"] = float(stds[i - 1])
         coefficients.append(row)
 
-    live = fit(design(df, means, stds), best_lam, mask)
+    live = fit(design(df, means, stds, features), best_lam, mask)
     report = {
         "kind": "model",
         "model": NAME,
         "version": VERSION,
+        "champion_version": champion_version,
         "generated_at": utcnow().isoformat(timespec="seconds"),
         "discipline": discipline,
         "discipline_label": discipline_label(discipline),
@@ -279,7 +283,9 @@ def run(
         "test": _compare(d["test"], best["theta"], market["theta"]),
         "test_bets": _bets(d["test"], best["theta"], parts["test"], dividends),
         "params": {
-            "features": list(MODEL_FEATURES),
+            "features": list(features),
+            "tau": tau,
+            "champion_version": champion_version,
             "means": means.tolist(),
             "stds": stds.tolist(),
             "theta": live["theta"].tolist(),
@@ -292,13 +298,15 @@ def run(
 
 def predict(params: dict[str, Any], frame: pl.DataFrame) -> np.ndarray:
     """Win probabilities for the rows of one race, in ``frame`` order."""
-    if list(params["features"]) != list(MODEL_FEATURES):
-        raise ValueError("paramètres d'une autre version du modèle")
+    features = list(params["features"])
     means, stds = np.array(params["means"]), np.array(params["stds"])
-    x = frame.select(MODEL_FEATURES).to_numpy().astype(np.float64)
+    if len(means) != len(features):
+        raise ValueError("paramètres incohérents avec leur liste de facteurs")
+    x = frame.select(features).to_numpy().astype(np.float64)
     x = np.where(stds > 0, (x - means) / np.where(stds > 0, stds, 1.0), 0.0)
     z = np.hstack([frame["log_q"].to_numpy().astype(np.float64)[:, None], x])
-    s = z @ np.array(params["theta"])
+    # tau: calibration of the champion (p ∝ p^tau), 1 for an uncalibrated version.
+    s = (z @ np.array(params["theta"])) * float(params.get("tau", 1.0))
     e = np.exp(s - s.max())
     return e / e.sum()
 
@@ -414,14 +422,18 @@ def fitted_until(params: dict[str, Any]) -> date:
     return date.fromisoformat(params["fitted_through"])
 
 
-def model_for_paths(runs: Path, database: Path) -> Any:
-    """The carnet's ``model_for``: latest parameters of the discipline, history from the
-    database as of its last nightly build, starters in card order. None without a model."""
+def model_for_paths(runs: Path, database: Path, lab_dir: Path | None = None) -> Any:
+    """The carnet's ``model_for``: latest parameters of the discipline (the champion),
+    history from the database as of its last nightly build, starters in card order.
+    None without a model. With ``lab_dir``, a third element carries what plays beside
+    the champion: the version it replaced (frozen parameters) and the admitted rules."""
+    from predlab.racing import lab
+    from predlab.racing.champion import Champion
     from predlab.racing.features import history, live_frame
 
     cache: dict[str, dict[str, Any] | None] = {}
 
-    def model_for(race: Any, card: Any, runners: list[Any]) -> tuple[np.ndarray, str] | None:
+    def model_for(race: Any, card: Any, runners: list[Any]) -> tuple[Any, ...] | None:
         if race.discipline not in cache:
             cache[race.discipline] = latest_params(runs, race.discipline)
         params = cache[race.discipline]
@@ -431,6 +443,16 @@ def model_for_paths(runs: Path, database: Path) -> Any:
         ordered = [by_number[s.number] for s in card.starters]
         odds = {s.number: s.odds for s in card.starters}
         frame = live_frame(race, ordered, odds, history(database, race.discipline))
-        return predict(params, frame), str(params["report"])
+        frame = lab.add_candidates(frame, race.discipline)
+        p = predict(params, frame)
+        if lab_dir is None:
+            return p, str(params["report"])
+        champ = Champion.load(lab_dir, race.discipline)
+        prev = champ.previous
+        extras: dict[str, Any] = {"rules": champ.rules, "version": champ.current["version"]}
+        if prev is not None and prev.get("frozen_params"):
+            extras["previous"] = predict(prev["frozen_params"], frame)
+            extras["previous_version"] = prev["version"]
+        return p, str(params["report"]), extras
 
     return model_for

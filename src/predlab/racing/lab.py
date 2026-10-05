@@ -81,6 +81,9 @@ class Candidate:
     source: str = "history"  # or "live"
     expr: Callable[[], pl.Expr] | None = None
     min_races: int = 1000  # live candidates only
+    # "criterion": a new factor for the model; "calibration": the champion's
+    # probabilities made honest (p ∝ p^tau); "rule": when to bet (racing/champion.py).
+    kind: str = "criterion"
 
     @property
     def column(self) -> str:
@@ -204,6 +207,79 @@ CANDIDATES: tuple[Candidate, ...] = (
     ),
 )
 
+# Added 2026-10-05 with the objective "beat the favourite" (racing/champion.py), before
+# any of them was looked at against results.
+CANDIDATES = (
+    *CANDIDATES,
+    Candidate(
+        "logq2",
+        "Biais favori-outsider non linéaire",
+        "Le marché ne se trompe pas de la même façon sur les favoris et sur les outsiders : "
+        "un terme en carré de log q (probabilité de la cote) corrige une erreur que la "
+        "correction en puissance actuelle ne capte pas.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.LITERATURE,
+        expr=lambda: (pl.col("log_q") ** 2).fill_null(0.0).fill_nan(0.0),
+    ),
+    Candidate(
+        "fls_field",
+        "Biais de la cote selon la taille du champ",
+        "Le biais favori-outsider change avec le nombre de partants : log q × (partants − 10) "
+        "/ 5 laisse le modèle corriger davantage la cote dans les grands champs.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.LITERATURE,
+        expr=lambda: (
+            (pl.col("log_q") * (pl.col("n").cast(pl.Float64) - 10.0) / 5.0)
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+    ),
+    Candidate(
+        "last_win",
+        "A gagné sa dernière course",
+        "Un cheval qui vient de gagner est surjoué par le public : il gagne moins souvent que "
+        "sa cote ne le dit. Mesure : 1 si la musique commence par une victoire.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.FOLK_HEURISTIC,
+        expr=lambda: (pl.col("mus_last") == 1).cast(pl.Float64).fill_null(0.0),
+    ),
+    Candidate(
+        "young",
+        "Jeune cheval en progrès",
+        "Les chevaux de 2 et 3 ans (4 ans et moins au trot) progressent vite d'une course à "
+        "l'autre, plus vite que la cote ne l'intègre.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.FOLK_HEURISTIC,
+        expr=lambda: (
+            pl.when(pl.col("discipline") == "PLAT")
+            .then(pl.col("age") <= 3)
+            .otherwise(pl.col("age") <= 4)
+            .cast(pl.Float64)
+            .fill_null(0.0)
+        ),
+    ),
+    Candidate(
+        "calibration",
+        "Calibrer les probabilités du modèle",
+        "Les probabilités de Marché+ sont trop confiantes sur ses meilleurs choix (annoncé "
+        "61 %, réalisé 52 %). Une correction p ∝ p^τ, τ ajusté sur la validation, rend la "
+        "prévision plus juste. Elle ne change pas le cheval choisi, seulement sa probabilité.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.HUMAN,
+        kind="calibration",
+    ),
+    Candidate(
+        "value105",
+        "Ne jouer que les chevaux mal cotés",
+        "Parier en simple gagnant seulement quand probabilité du modèle × cote ≥ 1,05 rapporte "
+        "plus, par euro misé, que le favori. Seuil trouvé en explorant tout l'historique le "
+        "2026-10-04 : jugé uniquement sur des courses postérieures à cette exploration.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.HUMAN,
+        kind="rule",
+    ),
+)
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 
@@ -266,7 +342,10 @@ def add_candidates(frame: pl.DataFrame, discipline: str) -> pl.DataFrame:
     exprs = [
         c.expr().alias(c.column)
         for c in CANDIDATES
-        if c.source == "history" and c.expr is not None and discipline in c.disciplines
+        if c.source == "history"
+        and c.kind == "criterion"
+        and c.expr is not None
+        and discipline in c.disciplines
     ]
     return frame.with_columns(exprs) if exprs else frame
 
@@ -380,12 +459,20 @@ def _current_by_experiment(reg: HypothesisRegistry) -> dict[str, Hypothesis]:
     return {h.experiment: h for h in reg.current() if h.experiment}
 
 
+SUPERSEDED = (
+    "Remplacé avant tout test par le protocole « battre le favori » du 2026-10-05 "
+    "(racing/champion.py) : le même critère y est réenregistré contre le champion, sur "
+    "l'historique étendu à 2020."
+)
+
+
 def register(reg: HypothesisRegistry, discipline: str) -> list[str]:
-    """Pre-register every catalogue candidate of this discipline not yet in the registry."""
+    """Protocol 1 (2026-10-03), kept for the live candidate only: the odds movement, judged
+    on races followed live. Every other candidate goes through racing/arena.py."""
     known = _current_by_experiment(reg)
     added = []
     for c in CANDIDATES:
-        if discipline not in c.disciplines or key(c, discipline) in known:
+        if c.source != "live" or discipline not in c.disciplines or key(c, discipline) in known:
             continue
         reg.add(
             Hypothesis(
@@ -425,11 +512,19 @@ def run_pending(
     """
     now = now or utcnow()
     lines: list[str] = []
-    pending = [
-        h
-        for h in _current_by_experiment(reg).values()
-        if h.dataset == discipline and h.status in (Status.PROPOSED, Status.TESTING)
-    ]
+    pending = []
+    for h in _current_by_experiment(reg).values():
+        if h.dataset != discipline or h.status not in (Status.PROPOSED, Status.TESTING):
+            continue
+        parts = str(h.experiment).split(":")
+        c = BY_ID.get(parts[0])
+        if len(parts) == 2 and c is not None and c.source != "live":
+            # Protocol-1 history test never run: superseded, said so in the registry.
+            reg.update(h.hypothesis_id, status=Status.INCONCLUSIVE, conclusion=SUPERSEDED)
+            lines.append(f"{h.experiment} : remplacé par le protocole « battre le favori »")
+            continue
+        if len(parts) == 2:
+            pending.append(h)
     if not pending:
         return lines
     hist = add_candidates(frame, discipline)

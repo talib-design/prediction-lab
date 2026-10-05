@@ -28,6 +28,19 @@ Dernière mise à jour : 2026-10-05.
 - **Règles inchangées** : aucun pari réel, aucune mise, aucun compte PMU ; jamais
   d'information future dans les entrées ; le marché est la référence.
 
+## Objectif « battre le favori » — épic 1 livré le 2026-10-05
+
+- **Moteur** (`racing/champion.py`, `racing/arena.py`, METHODOLOGY §13) : champion
+  (Marché+ v1), candidats pré-enregistrés contre lui, deux filtres (prévision, argent),
+  coffre à partir d'avril 2026, promotion automatique en Marché+ v2 avec réajustement.
+- **Catalogue** : 15 candidats, dont 6 nouveaux (biais favori-outsider non linéaire et
+  selon la taille du champ, dernière course gagnée, jeune cheval, calibration, règle de
+  valeur 1,05).
+- **Les tests attendent l'historique 2020** de chaque discipline.
+- **Épics suivants** : 2) carnet côte à côte (ancien modèle, valeur) et graphique ;
+  3) tableau de score « modèle − favori » sur la page Recherche ; 4) générateur d'idées
+  hebdomadaire (tâche planifiée).
+
 ## Laboratoire des critères et étude des favoris — 2026-10-03
 
 - **Labo** (`predlab racing lab`, chaque nuit après le banc) : 9 critères au catalogue,

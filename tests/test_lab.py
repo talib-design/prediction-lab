@@ -67,39 +67,33 @@ def test_verdict_rules() -> None:
     assert status == Status.INCONCLUSIVE and "Aucun gain mesurable" in text
 
 
-def test_registration_comes_first_then_each_test_runs_once(world, tmp_path: Path) -> None:
+def test_protocol_1_keeps_only_the_live_test_and_supersedes_the_rest(world, tmp_path: Path) -> None:
     db, frame = world
     reg = HypothesisRegistry(AppendOnlyLedger(tmp_path / "hypotheses.jsonl"))
-    added = lab.register(reg, "PLAT")
-    plat = [c for c in lab.CANDIDATES if "PLAT" in c.disciplines]
-    assert sorted(added) == sorted(lab.key(c, "PLAT") for c in plat)
-    assert all(
-        h.status == Status.PROPOSED and "Règle fixée" in h.description for h in reg.current()
-    )
-    assert lab.register(reg, "PLAT") == [], "idempotent"
+    # A history test registered under protocol 1 and never run (as on 2026-10-03 for trot).
+    from predlab.registry.hypotheses import Hypothesis
 
+    reg.add(Hypothesis(description="ancien", dataset="PLAT", experiment="class_drop:PLAT"))
+    assert lab.register(reg, "PLAT") == ["drift:PLAT"]
+    assert lab.register(reg, "PLAT") == [], "idempotent"
     lines = lab.run_pending(reg, frame, db, tmp_path / "lab", "PLAT", max_tests=20, now=NOW)
     by = {h.experiment: h for h in reg.current()}
-    drift = by["drift:PLAT"]
-    assert drift.status == Status.TESTING and "0/1000" in (drift.forward_result or "")
-    history = [lab.key(c, "PLAT") for c in plat if c.source == "history"]
-    assert all(by[k].status not in (Status.PROPOSED, Status.TESTING) for k in history)
-    assert set(lab.results(tmp_path / "lab")) == set(history)
-    assert len(lines) == len(history) + 1
-    again = lab.run_pending(reg, frame, db, tmp_path / "lab", "PLAT", max_tests=20, now=NOW)
-    assert again == [], "nothing is retested, the waiting note is not rewritten"
+    assert by["drift:PLAT"].status == Status.TESTING
+    assert "0/1000" in (by["drift:PLAT"].forward_result or "")
+    old = by["class_drop:PLAT"]
+    assert old.status == Status.INCONCLUSIVE and old.conclusion == lab.SUPERSEDED
+    assert len(lines) == 2
+    assert lab.run_pending(reg, frame, db, tmp_path / "lab", "PLAT", now=NOW) == []
     reg.verify()
 
 
-def test_trot_candidates_wait_for_their_history(world, tmp_path: Path) -> None:
-    db, _ = world
+def test_trot_candidates_go_to_the_arena(tmp_path: Path) -> None:
+    from predlab.racing import arena
+
     reg = HypothesisRegistry(AppendOnlyLedger(tmp_path / "h.jsonl"))
-    lab.register(reg, "ATTELE")
-    empty = load_finished(db, "ATTELE")
-    assert empty.is_empty()
-    lab.run_pending(reg, empty, db, tmp_path / "lab", "ATTELE", now=NOW)
-    statuses = {h.experiment: h.status for h in reg.current()}
-    assert statuses["deferre4:ATTELE"] == Status.PROPOSED
+    assert lab.register(reg, "ATTELE") == ["drift:ATTELE"]
+    added = arena.register(reg, "ATTELE", tmp_path)
+    assert "deferre4:ATTELE:obj1" in added and "blinkers_first:ATTELE:obj1" not in added
 
 
 def test_drift_is_the_change_in_normalised_probability() -> None:

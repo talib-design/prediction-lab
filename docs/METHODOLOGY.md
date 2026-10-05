@@ -306,6 +306,45 @@ tranche de cote : victoires contre probabilité promise, retour en gagnant et en
 Hypothèse unique, fixée avant de regarder : « les favoris à moins de 1,5 rapportent plus
 qu'ils ne coûtent en gagnant » (IC 95 % du retour au-dessus de 0).
 
+## 13. Objectif « battre le favori » et versions du modèle (ajouté le 2026-10-05)
+
+Objectif fixé par Chris : **battre le favori en prévoyant mieux**. Sur les mêmes
+courses, le cheval choisi par le modèle rapporte plus, par euro misé, que le favori,
+en simple gagnant et en simple placé (`racing/champion.py`).
+
+Le modèle en service est le **champion** (Marché+ v1 au départ). Chaque candidat du
+catalogue est pré-enregistré contre le champion en place, puis testé une fois
+(`racing/arena.py`) :
+
+- **critère** (nouveau facteur) : challenger = champion + le facteur, mêmes procédures.
+  Filtre 1, prévision : IC 99 % de l'écart de log loss sous 0 et gain chaque année de
+  test. Filtre 2, argent : le cheval choisi par le challenger rapporte plus par euro
+  que celui du champion (gagnant + placé). Ce second filtre est une estimation ponctuelle :
+  un intervalle sur l'argent demanderait des années de courses ; le coffre puis le carnet
+  servent de garde-fous ;
+- **calibration** (p ∝ p^τ, τ sur la validation) : filtre 1 seulement, le cheval choisi
+  ne change pas ;
+- **règle de jeu** (parier quand p × cote ≥ 1,05) : seuil trouvé en explorant tout
+  l'historique le 2026-10-04, donc jugée seulement sur les courses postérieures au
+  2026-10-05 : admise au carnet si son retour par euro dépasse celui du favori sur au
+  moins 600 courses.
+
+Fenêtres, quand l'historique 2020 est en place pour la discipline : train 2020-2023,
+validation 2024, test du 2025-01-01 au 2026-03-31, **coffre** à partir du 2026-04-01.
+Un critère ou une calibration qui passe ses filtres est essayé **une seule fois** au
+coffre (courses jamais utilisées par un test, au moins 600) : promu s'il y prévoit encore
+mieux et ne perd pas d'argent face au champion. Chaque essai consomme le coffre : le
+suivant attend des courses nouvelles. Le profil des vainqueurs a décrit ces périodes,
+sans qu'aucune règle n'en soit tirée.
+
+Une promotion crée Marché+ vN+1, réajusté aussitôt ; la version remplacée garde ses
+paramètres figés pour continuer à jouer à côté dans le carnet (« ancien modèle »). Après
+une promotion, les autres candidats sont réenregistrés contre le nouveau champion.
+
+Le générateur d'idées (tâche planifiée hebdomadaire) ajoute des candidats au catalogue
+en revue de code ; il ne les teste jamais lui-même et ne regarde pas leurs résultats
+avant leur pré-enregistrement.
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
@@ -344,6 +383,12 @@ qu'ils ne coûtent en gagnant » (IC 95 % du retour au-dessus de 0).
   obtenus restent au registre. Le mouvement de cote n'en profite pas (une seule cote avant
   le départ dans l'historique). Printemps 2020 : courses suspendues pendant le
   confinement, à garder en tête dans les lectures par période.
+- 2026-10-05 — §13 : objectif « battre le favori en prévoyant mieux », champion et
+  challengers, deux filtres, coffre, promotion. Six candidats ajoutés avant tout regard sur
+  leurs résultats (biais favori-outsider non linéaire, biais selon la taille du champ,
+  dernière course gagnée, jeune cheval, calibration, règle de valeur 1,05). Le protocole
+  du 2026-10-03 ne garde que le mouvement de cote ; ses tests d'historique jamais lancés
+  (trot) sont marqués remplacés.
 - 2026-09-30 — §11 : banc d'essai des stratégies ; jauge stricte 0/200 sur le plat.
 - 2026-09-30 — §10 : profil des vainqueurs et modèle Marché+ v1, entrées pré-enregistrées,
   première lecture du test datée ; trois témoins « modèle » au carnet.
