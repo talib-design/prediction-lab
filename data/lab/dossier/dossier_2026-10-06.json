@@ -1,0 +1,1753 @@
+{
+ "generated_at": "2026-10-06T07:44:52+00:00",
+ "day": "2026-10-06",
+ "method": "1 € gagnant + 1 € placé sur le favori (plus petite cote à 25 min) et sur le choix du modèle ; « modèle − favori » en euros, intervalle bootstrap à 90 % sur les courses ; un segment de moins de 50 courses où les choix diffèrent ne dit rien. Historique : reconstitution walk-forward depuis 2024.",
+ "carnet": {
+  "week": [
+   "2026-09-29",
+   "2026-10-05"
+  ],
+  "PLAT": {
+   "since": "2026-09-30",
+   "all": {
+    "races": 48,
+    "favori": {
+     "stake": 96.0,
+     "returned": 116.65,
+     "net": 20.65,
+     "roi": 0.2151
+    },
+    "modèle": {
+     "stake": 96.0,
+     "returned": 118.95,
+     "net": 22.95,
+     "roi": 0.2391
+    }
+   },
+   "week": {
+    "races": 48,
+    "favori": {
+     "stake": 96.0,
+     "returned": 116.65,
+     "net": 20.65,
+     "roi": 0.2151
+    },
+    "modèle": {
+     "stake": 96.0,
+     "returned": 118.95,
+     "net": 22.95,
+     "roi": 0.2391
+    }
+   },
+   "week_differ": [
+    {
+     "day": "2026-10-02",
+     "race_id": "2026-10-02/R4C6",
+     "venue": "SAINT-CLOUD",
+     "favori": [
+      8
+     ],
+     "modèle": [
+      4
+     ],
+     "arrivée": [
+      11,
+      9,
+      6
+     ],
+     "net_favori": -2.0,
+     "net_modèle": -2.0
+    },
+    {
+     "day": "2026-10-04",
+     "race_id": "2026-10-04/R1C3",
+     "venue": "ParisLongchamp",
+     "favori": [
+      12
+     ],
+     "modèle": [
+      15
+     ],
+     "arrivée": [
+      9,
+      12,
+      7
+     ],
+     "net_favori": 0.0,
+     "net_modèle": -2.0
+    },
+    {
+     "day": "2026-10-05",
+     "race_id": "2026-10-05/R3C2",
+     "venue": "LE MANS",
+     "favori": [
+      9
+     ],
+     "modèle": [
+      1
+     ],
+     "arrivée": [
+      1,
+      9,
+      4
+     ],
+     "net_favori": -0.4,
+     "net_modèle": 1.3
+    },
+    {
+     "day": "2026-10-05",
+     "race_id": "2026-10-05/R4C2",
+     "venue": "DEAUVILLE",
+     "favori": [
+      8
+     ],
+     "modèle": [
+      5
+     ],
+     "arrivée": [
+      9,
+      3,
+      5
+     ],
+     "net_favori": -2.0,
+     "net_modèle": 0.6
+    }
+   ]
+  },
+  "ATTELE": {
+   "since": "2026-10-05",
+   "all": {
+    "races": 5,
+    "favori": {
+     "stake": 10.0,
+     "returned": 10.3,
+     "net": 0.3,
+     "roi": 0.03
+    },
+    "modèle": {
+     "stake": 10.0,
+     "returned": 15.3,
+     "net": 5.3,
+     "roi": 0.53
+    }
+   },
+   "week": {
+    "races": 5,
+    "favori": {
+     "stake": 10.0,
+     "returned": 10.3,
+     "net": 0.3,
+     "roi": 0.03
+    },
+    "modèle": {
+     "stake": 10.0,
+     "returned": 15.3,
+     "net": 5.3,
+     "roi": 0.53
+    }
+   },
+   "week_differ": [
+    {
+     "day": "2026-10-05",
+     "race_id": "2026-10-05/R1C3",
+     "venue": "ENGHIEN",
+     "favori": [
+      18
+     ],
+     "modèle": [
+      8
+     ],
+     "arrivée": [
+      8,
+      16,
+      6
+     ],
+     "net_favori": -2.0,
+     "net_modèle": 3.0
+    }
+   ]
+  },
+  "MONTE": {
+   "since": "2026-10-05",
+   "all": {
+    "races": 2,
+    "favori": {
+     "stake": 4.0,
+     "returned": 1.8,
+     "net": -2.2,
+     "roi": -0.55
+    },
+    "modèle": {
+     "stake": 4.0,
+     "returned": 1.8,
+     "net": -2.2,
+     "roi": -0.55
+    }
+   },
+   "week": {
+    "races": 2,
+    "favori": {
+     "stake": 4.0,
+     "returned": 1.8,
+     "net": -2.2,
+     "roi": -0.55
+    },
+    "modèle": {
+     "stake": 4.0,
+     "returned": 1.8,
+     "net": -2.2,
+     "roi": -0.55
+    }
+   },
+   "week_differ": []
+  }
+ },
+ "history": {
+  "PLAT": {
+   "first_day": "2024-03-01",
+   "last_day": "2026-10-05",
+   "races": 9521,
+   "differ": 838,
+   "model_minus_favourite": 95.5,
+   "low": -109.27,
+   "high": 290.12,
+   "small": false,
+   "segments": {
+    "cote du favori": [
+     {
+      "segment": "< 1,5",
+      "races": 370,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "1,5 – 2",
+      "races": 790,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "2 – 3",
+      "races": 1916,
+      "differ": 25,
+      "model_minus_favourite": 4.5,
+      "low": -19.61,
+      "high": 28.11,
+      "small": true
+     },
+     {
+      "segment": "3 – 5",
+      "races": 4127,
+      "differ": 314,
+      "model_minus_favourite": -51.0,
+      "low": -156.31,
+      "high": 47.11,
+      "small": false
+     },
+     {
+      "segment": "≥ 5",
+      "races": 2318,
+      "differ": 499,
+      "model_minus_favourite": 142.0,
+      "low": -26.31,
+      "high": 301.6,
+      "small": false
+     }
+    ],
+    "partants": [
+     {
+      "segment": "≤ 8",
+      "races": 2042,
+      "differ": 88,
+      "model_minus_favourite": 27.2,
+      "low": -23.32,
+      "high": 76.6,
+      "small": false
+     },
+     {
+      "segment": "9 – 11",
+      "races": 2750,
+      "differ": 212,
+      "model_minus_favourite": 19.9,
+      "low": -74.56,
+      "high": 112.11,
+      "small": false
+     },
+     {
+      "segment": "12 – 14",
+      "races": 2434,
+      "differ": 252,
+      "model_minus_favourite": 0.4,
+      "low": -99.88,
+      "high": 111.32,
+      "small": false
+     },
+     {
+      "segment": "≥ 15",
+      "races": 2295,
+      "differ": 286,
+      "model_minus_favourite": 48.0,
+      "low": -78.92,
+      "high": 175.67,
+      "small": false
+     }
+    ],
+    "distance": [
+     {
+      "segment": "< 1 400 m",
+      "races": 1050,
+      "differ": 102,
+      "model_minus_favourite": 7.8,
+      "low": -56.72,
+      "high": 70.2,
+      "small": false
+     },
+     {
+      "segment": "1 400 – 1 799 m",
+      "races": 2898,
+      "differ": 263,
+      "model_minus_favourite": 80.4,
+      "low": -19.72,
+      "high": 186.7,
+      "small": false
+     },
+     {
+      "segment": "1 800 – 2 399 m",
+      "races": 3461,
+      "differ": 288,
+      "model_minus_favourite": -70.3,
+      "low": -194.91,
+      "high": 64.14,
+      "small": false
+     },
+     {
+      "segment": "≥ 2 400 m",
+      "races": 2112,
+      "differ": 185,
+      "model_minus_favourite": 77.6,
+      "low": -20.14,
+      "high": 173.35,
+      "small": false
+     }
+    ],
+    "catégorie": [
+     {
+      "segment": "COURSE_A_CONDITIONS",
+      "races": 3187,
+      "differ": 138,
+      "model_minus_favourite": -15.7,
+      "low": -88.1,
+      "high": 60.5,
+      "small": false
+     },
+     {
+      "segment": "HANDICAP_DIVISE",
+      "races": 2127,
+      "differ": 268,
+      "model_minus_favourite": -3.1,
+      "low": -127.56,
+      "high": 108.1,
+      "small": false
+     },
+     {
+      "segment": "HANDICAP_CATEGORIE_DIVISE",
+      "races": 1120,
+      "differ": 152,
+      "model_minus_favourite": 100.2,
+      "low": 5.67,
+      "high": 189.33,
+      "small": false
+     },
+     {
+      "segment": "A_RECLAMER",
+      "races": 775,
+      "differ": 66,
+      "model_minus_favourite": -4.3,
+      "low": -52.0,
+      "high": 42.21,
+      "small": false
+     },
+     {
+      "segment": "HANDICAP",
+      "races": 766,
+      "differ": 93,
+      "model_minus_favourite": -18.8,
+      "low": -72.8,
+      "high": 40.81,
+      "small": false
+     },
+     {
+      "segment": "COURSE_A_CONDITION_QUALIF_HP",
+      "races": 477,
+      "differ": 45,
+      "model_minus_favourite": 20.8,
+      "low": -21.11,
+      "high": 59.81,
+      "small": true
+     },
+     {
+      "segment": "HANDICAP_DE_CATEGORIE",
+      "races": 386,
+      "differ": 35,
+      "model_minus_favourite": -1.2,
+      "low": -49.91,
+      "high": 39.81,
+      "small": true
+     },
+     {
+      "segment": "INCONNU",
+      "races": 287,
+      "differ": 26,
+      "model_minus_favourite": 30.0,
+      "low": 1.0,
+      "high": 59.61,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 396,
+      "differ": 15,
+      "model_minus_favourite": -12.4,
+      "low": -36.0,
+      "high": 13.1,
+      "small": true
+     }
+    ],
+    "quinté": [
+     {
+      "segment": "quinté",
+      "races": 382,
+      "differ": 40,
+      "model_minus_favourite": 12.4,
+      "low": -31.5,
+      "high": 57.7,
+      "small": true
+     },
+     {
+      "segment": "autres",
+      "races": 9139,
+      "differ": 798,
+      "model_minus_favourite": 83.1,
+      "low": -118.44,
+      "high": 282.91,
+      "small": false
+     }
+    ],
+    "hippodrome": [
+     {
+      "segment": "CHANTILLY",
+      "races": 1025,
+      "differ": 91,
+      "model_minus_favourite": 24.1,
+      "low": -49.5,
+      "high": 93.91,
+      "small": false
+     },
+     {
+      "segment": "DEAUVILLE",
+      "races": 1017,
+      "differ": 96,
+      "model_minus_favourite": 70.9,
+      "low": 1.67,
+      "high": 141.04,
+      "small": false
+     },
+     {
+      "segment": "SAINT-CLOUD",
+      "races": 727,
+      "differ": 55,
+      "model_minus_favourite": -22.2,
+      "low": -58.41,
+      "high": 18.91,
+      "small": false
+     },
+     {
+      "segment": "ParisLongchamp",
+      "races": 687,
+      "differ": 41,
+      "model_minus_favourite": 29.7,
+      "low": -13.8,
+      "high": 75.47,
+      "small": true
+     },
+     {
+      "segment": "COMPIEGNE",
+      "races": 365,
+      "differ": 42,
+      "model_minus_favourite": -1.7,
+      "low": -44.6,
+      "high": 39.3,
+      "small": true
+     },
+     {
+      "segment": "VICHY",
+      "races": 364,
+      "differ": 43,
+      "model_minus_favourite": 44.0,
+      "low": -9.02,
+      "high": 104.4,
+      "small": true
+     },
+     {
+      "segment": "LA TESTE",
+      "races": 347,
+      "differ": 22,
+      "model_minus_favourite": -23.4,
+      "low": -62.1,
+      "high": 17.2,
+      "small": true
+     },
+     {
+      "segment": "LYON-PARILLY",
+      "races": 343,
+      "differ": 31,
+      "model_minus_favourite": -38.2,
+      "low": -71.0,
+      "high": -8.38,
+      "small": true
+     },
+     {
+      "segment": "LA CEPIERE",
+      "races": 308,
+      "differ": 25,
+      "model_minus_favourite": 17.4,
+      "low": -13.8,
+      "high": 50.91,
+      "small": true
+     },
+     {
+      "segment": "PONT DE VIVAUX",
+      "races": 298,
+      "differ": 30,
+      "model_minus_favourite": -5.2,
+      "low": -40.02,
+      "high": 27.3,
+      "small": true
+     },
+     {
+      "segment": "CLAIREFONTAINE",
+      "races": 279,
+      "differ": 25,
+      "model_minus_favourite": -48.8,
+      "low": -79.0,
+      "high": -18.8,
+      "small": true
+     },
+     {
+      "segment": "CAGNES/MER",
+      "races": 273,
+      "differ": 28,
+      "model_minus_favourite": 27.4,
+      "low": -7.7,
+      "high": 67.11,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 3488,
+      "differ": 309,
+      "model_minus_favourite": 21.5,
+      "low": -94.91,
+      "high": 145.15,
+      "small": false
+     }
+    ],
+    "trimestre": [
+     {
+      "segment": "T1",
+      "races": 1782,
+      "differ": 166,
+      "model_minus_favourite": 11.8,
+      "low": -77.75,
+      "high": 93.71,
+      "small": false
+     },
+     {
+      "segment": "T2",
+      "races": 2882,
+      "differ": 264,
+      "model_minus_favourite": 96.5,
+      "low": -5.82,
+      "high": 204.21,
+      "small": false
+     },
+     {
+      "segment": "T3",
+      "races": 3080,
+      "differ": 248,
+      "model_minus_favourite": 52.9,
+      "low": -62.1,
+      "high": 160.01,
+      "small": false
+     },
+     {
+      "segment": "T4",
+      "races": 1777,
+      "differ": 160,
+      "model_minus_favourite": -65.7,
+      "low": -148.59,
+      "high": 18.24,
+      "small": false
+     }
+    ],
+    "cote du choix du modèle (quand il quitte le favori)": [
+     {
+      "segment": "même cheval",
+      "races": 8683,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "< 3",
+      "races": 12,
+      "differ": 12,
+      "model_minus_favourite": 9.1,
+      "low": -5.3,
+      "high": 22.1,
+      "small": true
+     },
+     {
+      "segment": "3 – 5",
+      "races": 248,
+      "differ": 248,
+      "model_minus_favourite": -5.9,
+      "low": -93.34,
+      "high": 83.51,
+      "small": false
+     },
+     {
+      "segment": "5 – 10",
+      "races": 572,
+      "differ": 572,
+      "model_minus_favourite": 80.0,
+      "low": -80.69,
+      "high": 261.01,
+      "small": false
+     },
+     {
+      "segment": "≥ 10",
+      "races": 6,
+      "differ": 6,
+      "model_minus_favourite": 12.3,
+      "low": -9.9,
+      "high": 44.9,
+      "small": true
+     }
+    ],
+    "terrain": [
+     {
+      "segment": "PSF STANDARD",
+      "races": 2288,
+      "differ": 228,
+      "model_minus_favourite": 18.1,
+      "low": -83.84,
+      "high": 124.9,
+      "small": false
+     },
+     {
+      "segment": "Bon souple",
+      "races": 2088,
+      "differ": 154,
+      "model_minus_favourite": 9.6,
+      "low": -77.94,
+      "high": 102.72,
+      "small": false
+     },
+     {
+      "segment": "Souple",
+      "races": 1579,
+      "differ": 133,
+      "model_minus_favourite": -11.9,
+      "low": -83.3,
+      "high": 63.8,
+      "small": false
+     },
+     {
+      "segment": "Très souple",
+      "races": 1242,
+      "differ": 105,
+      "model_minus_favourite": -21.7,
+      "low": -92.87,
+      "high": 44.01,
+      "small": false
+     },
+     {
+      "segment": "Bon",
+      "races": 1132,
+      "differ": 99,
+      "model_minus_favourite": 45.7,
+      "low": -26.84,
+      "high": 120.11,
+      "small": false
+     },
+     {
+      "segment": "Collant",
+      "races": 497,
+      "differ": 43,
+      "model_minus_favourite": 15.6,
+      "low": -23.61,
+      "high": 53.13,
+      "small": true
+     },
+     {
+      "segment": "Lourd",
+      "races": 359,
+      "differ": 41,
+      "model_minus_favourite": -28.4,
+      "low": -69.82,
+      "high": 11.7,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 336,
+      "differ": 35,
+      "model_minus_favourite": 68.5,
+      "low": 18.49,
+      "high": 118.02,
+      "small": true
+     }
+    ]
+   },
+   "calibration": [
+    {
+     "band": "0% – 10%",
+     "races": 15,
+     "predicted": 0.0974,
+     "observed": 0.0
+    },
+    {
+     "band": "10% – 20%",
+     "races": 3177,
+     "predicted": 0.1618,
+     "observed": 0.1671
+    },
+    {
+     "band": "20% – 30%",
+     "races": 3164,
+     "predicted": 0.2436,
+     "observed": 0.2472
+    },
+    {
+     "band": "30% – 40%",
+     "races": 1468,
+     "predicted": 0.3441,
+     "observed": 0.3031
+    },
+    {
+     "band": "40% – 50%",
+     "races": 787,
+     "predicted": 0.4446,
+     "observed": 0.3901
+    },
+    {
+     "band": "50% – 100%",
+     "races": 910,
+     "predicted": 0.6126,
+     "observed": 0.5143
+    }
+   ]
+  },
+  "ATTELE": {
+   "first_day": "2024-02-01",
+   "last_day": "2026-10-05",
+   "races": 10922,
+   "differ": 435,
+   "model_minus_favourite": -39.4,
+   "low": -169.61,
+   "high": 88.01,
+   "small": false,
+   "segments": {
+    "cote du favori": [
+     {
+      "segment": "< 1,5",
+      "races": 589,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "1,5 – 2",
+      "races": 1374,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "2 – 3",
+      "races": 3406,
+      "differ": 16,
+      "model_minus_favourite": -5.0,
+      "low": -25.01,
+      "high": 14.2,
+      "small": true
+     },
+     {
+      "segment": "3 – 5",
+      "races": 4879,
+      "differ": 297,
+      "model_minus_favourite": -12.4,
+      "low": -120.11,
+      "high": 95.05,
+      "small": false
+     },
+     {
+      "segment": "≥ 5",
+      "races": 674,
+      "differ": 122,
+      "model_minus_favourite": -22.0,
+      "low": -97.62,
+      "high": 52.72,
+      "small": false
+     }
+    ],
+    "partants": [
+     {
+      "segment": "≤ 8",
+      "races": 470,
+      "differ": 9,
+      "model_minus_favourite": -13.4,
+      "low": -29.21,
+      "high": 0.3,
+      "small": true
+     },
+     {
+      "segment": "9 – 11",
+      "races": 2588,
+      "differ": 91,
+      "model_minus_favourite": 10.1,
+      "low": -44.2,
+      "high": 68.23,
+      "small": false
+     },
+     {
+      "segment": "12 – 14",
+      "races": 4328,
+      "differ": 165,
+      "model_minus_favourite": -21.1,
+      "low": -107.5,
+      "high": 60.6,
+      "small": false
+     },
+     {
+      "segment": "≥ 15",
+      "races": 3536,
+      "differ": 170,
+      "model_minus_favourite": -15.0,
+      "low": -98.05,
+      "high": 68.81,
+      "small": false
+     }
+    ],
+    "distance": [
+     {
+      "segment": "< 2 200 m",
+      "races": 1942,
+      "differ": 72,
+      "model_minus_favourite": 9.4,
+      "low": -47.83,
+      "high": 68.61,
+      "small": false
+     },
+     {
+      "segment": "2 200 – 2 699 m",
+      "races": 2545,
+      "differ": 114,
+      "model_minus_favourite": 24.8,
+      "low": -44.21,
+      "high": 90.34,
+      "small": false
+     },
+     {
+      "segment": "≥ 2 700 m",
+      "races": 6435,
+      "differ": 249,
+      "model_minus_favourite": -73.6,
+      "low": -172.15,
+      "high": 24.61,
+      "small": false
+     }
+    ],
+    "catégorie": [
+     {
+      "segment": "INCONNU",
+      "races": 4615,
+      "differ": 185,
+      "model_minus_favourite": -78.5,
+      "low": -161.43,
+      "high": 6.12,
+      "small": false
+     },
+     {
+      "segment": "AUTOSTART",
+      "races": 2351,
+      "differ": 89,
+      "model_minus_favourite": -7.5,
+      "low": -72.77,
+      "high": 55.51,
+      "small": false
+     },
+     {
+      "segment": "NATIONALE",
+      "races": 1288,
+      "differ": 59,
+      "model_minus_favourite": 23.6,
+      "low": -25.81,
+      "high": 72.7,
+      "small": false
+     },
+     {
+      "segment": "EUROPEENNE",
+      "races": 630,
+      "differ": 18,
+      "model_minus_favourite": 16.3,
+      "low": -11.7,
+      "high": 43.2,
+      "small": true
+     },
+     {
+      "segment": "NATIONALE_AUTOSTART",
+      "races": 476,
+      "differ": 13,
+      "model_minus_favourite": -2.5,
+      "low": -23.0,
+      "high": 18.82,
+      "small": true
+     },
+     {
+      "segment": "EUROPEENNE_AUTOSTART",
+      "races": 376,
+      "differ": 12,
+      "model_minus_favourite": 23.2,
+      "low": -2.7,
+      "high": 53.91,
+      "small": true
+     },
+     {
+      "segment": "AMATEURS",
+      "races": 259,
+      "differ": 14,
+      "model_minus_favourite": -17.4,
+      "low": -33.01,
+      "high": -4.2,
+      "small": true
+     },
+     {
+      "segment": "APPRENTIS_LADS_JOCKEYS_AUTOSTART",
+      "races": 200,
+      "differ": 12,
+      "model_minus_favourite": -4.3,
+      "low": -24.2,
+      "high": 14.6,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 727,
+      "differ": 33,
+      "model_minus_favourite": 7.7,
+      "low": -25.6,
+      "high": 37.71,
+      "small": true
+     }
+    ],
+    "quinté": [
+     {
+      "segment": "quinté",
+      "races": 470,
+      "differ": 19,
+      "model_minus_favourite": -5.1,
+      "low": -35.3,
+      "high": 26.7,
+      "small": true
+     },
+     {
+      "segment": "autres",
+      "races": 10452,
+      "differ": 416,
+      "model_minus_favourite": -34.3,
+      "low": -153.7,
+      "high": 90.22,
+      "small": false
+     }
+    ],
+    "hippodrome": [
+     {
+      "segment": "VINCENNES",
+      "races": 2301,
+      "differ": 66,
+      "model_minus_favourite": 11.0,
+      "low": -55.8,
+      "high": 71.0,
+      "small": false
+     },
+     {
+      "segment": "CAGNES/MER",
+      "races": 732,
+      "differ": 21,
+      "model_minus_favourite": -6.2,
+      "low": -38.73,
+      "high": 26.81,
+      "small": true
+     },
+     {
+      "segment": "ENGHIEN",
+      "races": 682,
+      "differ": 30,
+      "model_minus_favourite": -2.9,
+      "low": -35.02,
+      "high": 29.8,
+      "small": true
+     },
+     {
+      "segment": "CABOURG",
+      "races": 435,
+      "differ": 18,
+      "model_minus_favourite": -6.6,
+      "low": -34.11,
+      "high": 20.91,
+      "small": true
+     },
+     {
+      "segment": "VICHY",
+      "races": 423,
+      "differ": 20,
+      "model_minus_favourite": 5.4,
+      "low": -16.5,
+      "high": 29.51,
+      "small": true
+     },
+     {
+      "segment": "LAVAL",
+      "races": 351,
+      "differ": 16,
+      "model_minus_favourite": 1.8,
+      "low": -25.12,
+      "high": 26.91,
+      "small": true
+     },
+     {
+      "segment": "CAEN",
+      "races": 295,
+      "differ": 12,
+      "model_minus_favourite": 5.3,
+      "low": -17.5,
+      "high": 28.8,
+      "small": true
+     },
+     {
+      "segment": "LA CEPIERE",
+      "races": 274,
+      "differ": 12,
+      "model_minus_favourite": -17.9,
+      "low": -44.51,
+      "high": 5.21,
+      "small": true
+     },
+     {
+      "segment": "BORELY",
+      "races": 263,
+      "differ": 11,
+      "model_minus_favourite": 9.7,
+      "low": -5.1,
+      "high": 26.1,
+      "small": true
+     },
+     {
+      "segment": "LA CAPELLE",
+      "races": 260,
+      "differ": 10,
+      "model_minus_favourite": 2.2,
+      "low": -10.6,
+      "high": 15.8,
+      "small": true
+     },
+     {
+      "segment": "MAUQUENCHY",
+      "races": 255,
+      "differ": 11,
+      "model_minus_favourite": -16.6,
+      "low": -35.01,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "LE CROISE LAROCHE",
+      "races": 235,
+      "differ": 4,
+      "model_minus_favourite": -3.5,
+      "low": -14.4,
+      "high": 7.4,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 4416,
+      "differ": 204,
+      "model_minus_favourite": -21.1,
+      "low": -103.46,
+      "high": 61.54,
+      "small": false
+     }
+    ],
+    "trimestre": [
+     {
+      "segment": "T1",
+      "races": 2730,
+      "differ": 81,
+      "model_minus_favourite": -26.5,
+      "low": -87.41,
+      "high": 31.62,
+      "small": false
+     },
+     {
+      "segment": "T2",
+      "races": 2922,
+      "differ": 113,
+      "model_minus_favourite": -17.4,
+      "low": -81.0,
+      "high": 50.3,
+      "small": false
+     },
+     {
+      "segment": "T3",
+      "races": 3344,
+      "differ": 154,
+      "model_minus_favourite": 9.1,
+      "low": -70.6,
+      "high": 87.14,
+      "small": false
+     },
+     {
+      "segment": "T4",
+      "races": 1926,
+      "differ": 87,
+      "model_minus_favourite": -4.6,
+      "low": -68.83,
+      "high": 52.41,
+      "small": false
+     }
+    ],
+    "cote du choix du modèle (quand il quitte le favori)": [
+     {
+      "segment": "même cheval",
+      "races": 10487,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "< 3",
+      "races": 8,
+      "differ": 8,
+      "model_minus_favourite": 6.7,
+      "low": -3.6,
+      "high": 16.8,
+      "small": true
+     },
+     {
+      "segment": "3 – 5",
+      "races": 255,
+      "differ": 255,
+      "model_minus_favourite": -37.7,
+      "low": -127.9,
+      "high": 66.1,
+      "small": false
+     },
+     {
+      "segment": "5 – 10",
+      "races": 171,
+      "differ": 171,
+      "model_minus_favourite": -11.9,
+      "low": -96.41,
+      "high": 77.11,
+      "small": false
+     },
+     {
+      "segment": "≥ 10",
+      "races": 1,
+      "differ": 1,
+      "model_minus_favourite": 3.5,
+      "low": NaN,
+      "high": NaN,
+      "small": true
+     }
+    ]
+   },
+   "calibration": [
+    {
+     "band": "10% – 20%",
+     "races": 1176,
+     "predicted": 0.1773,
+     "observed": 0.1922
+    },
+    {
+     "band": "20% – 30%",
+     "races": 3778,
+     "predicted": 0.2503,
+     "observed": 0.2403
+    },
+    {
+     "band": "30% – 40%",
+     "races": 2667,
+     "predicted": 0.344,
+     "observed": 0.3435
+    },
+    {
+     "band": "40% – 50%",
+     "races": 1534,
+     "predicted": 0.4448,
+     "observed": 0.3761
+    },
+    {
+     "band": "50% – 100%",
+     "races": 1767,
+     "predicted": 0.6114,
+     "observed": 0.4963
+    }
+   ]
+  },
+  "MONTE": {
+   "first_day": "2024-06-01",
+   "last_day": "2026-10-05",
+   "races": 1829,
+   "differ": 123,
+   "model_minus_favourite": 59.8,
+   "low": -11.63,
+   "high": 133.22,
+   "small": false,
+   "segments": {
+    "cote du favori": [
+     {
+      "segment": "< 1,5",
+      "races": 119,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "1,5 – 2",
+      "races": 260,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "2 – 3",
+      "races": 569,
+      "differ": 14,
+      "model_minus_favourite": -1.4,
+      "low": -20.01,
+      "high": 17.11,
+      "small": true
+     },
+     {
+      "segment": "3 – 5",
+      "races": 793,
+      "differ": 81,
+      "model_minus_favourite": 27.6,
+      "low": -24.42,
+      "high": 83.31,
+      "small": false
+     },
+     {
+      "segment": "≥ 5",
+      "races": 88,
+      "differ": 28,
+      "model_minus_favourite": 33.6,
+      "low": -13.52,
+      "high": 80.0,
+      "small": true
+     }
+    ],
+    "partants": [
+     {
+      "segment": "≤ 8",
+      "races": 183,
+      "differ": 9,
+      "model_minus_favourite": -17.3,
+      "low": -33.51,
+      "high": -0.8,
+      "small": true
+     },
+     {
+      "segment": "9 – 11",
+      "races": 734,
+      "differ": 48,
+      "model_minus_favourite": 67.2,
+      "low": 27.19,
+      "high": 108.2,
+      "small": true
+     },
+     {
+      "segment": "12 – 14",
+      "races": 624,
+      "differ": 44,
+      "model_minus_favourite": -3.1,
+      "low": -37.8,
+      "high": 31.72,
+      "small": true
+     },
+     {
+      "segment": "≥ 15",
+      "races": 288,
+      "differ": 22,
+      "model_minus_favourite": 13.0,
+      "low": -30.41,
+      "high": 62.51,
+      "small": true
+     }
+    ],
+    "distance": [
+     {
+      "segment": "< 2 200 m",
+      "races": 152,
+      "differ": 7,
+      "model_minus_favourite": -9.6,
+      "low": -19.8,
+      "high": -2.1,
+      "small": true
+     },
+     {
+      "segment": "2 200 – 2 699 m",
+      "races": 418,
+      "differ": 27,
+      "model_minus_favourite": -5.2,
+      "low": -39.01,
+      "high": 31.53,
+      "small": true
+     },
+     {
+      "segment": "≥ 2 700 m",
+      "races": 1259,
+      "differ": 89,
+      "model_minus_favourite": 74.6,
+      "low": 15.49,
+      "high": 134.92,
+      "small": false
+     }
+    ],
+    "catégorie": [
+     {
+      "segment": "INCONNU",
+      "races": 1281,
+      "differ": 92,
+      "model_minus_favourite": 51.6,
+      "low": -14.02,
+      "high": 121.47,
+      "small": false
+     },
+     {
+      "segment": "EUROPEENNE",
+      "races": 294,
+      "differ": 16,
+      "model_minus_favourite": -8.0,
+      "low": -27.71,
+      "high": 13.8,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 254,
+      "differ": 15,
+      "model_minus_favourite": 16.2,
+      "low": -4.11,
+      "high": 41.31,
+      "small": true
+     }
+    ],
+    "quinté": [
+     {
+      "segment": "quinté",
+      "races": 3,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "autres",
+      "races": 1826,
+      "differ": 123,
+      "model_minus_favourite": 59.8,
+      "low": -8.0,
+      "high": 133.31,
+      "small": false
+     }
+    ],
+    "hippodrome": [
+     {
+      "segment": "VINCENNES",
+      "races": 670,
+      "differ": 32,
+      "model_minus_favourite": -2.7,
+      "low": -35.1,
+      "high": 29.61,
+      "small": true
+     },
+     {
+      "segment": "ENGHIEN",
+      "races": 156,
+      "differ": 8,
+      "model_minus_favourite": 23.1,
+      "low": 0.38,
+      "high": 52.7,
+      "small": true
+     },
+     {
+      "segment": "CABOURG",
+      "races": 151,
+      "differ": 14,
+      "model_minus_favourite": 14.8,
+      "low": -11.9,
+      "high": 45.3,
+      "small": true
+     },
+     {
+      "segment": "autre",
+      "races": 852,
+      "differ": 69,
+      "model_minus_favourite": 24.6,
+      "low": -25.51,
+      "high": 76.04,
+      "small": false
+     }
+    ],
+    "trimestre": [
+     {
+      "segment": "T1",
+      "races": 379,
+      "differ": 25,
+      "model_minus_favourite": -16.9,
+      "low": -41.41,
+      "high": 6.4,
+      "small": true
+     },
+     {
+      "segment": "T2",
+      "races": 427,
+      "differ": 23,
+      "model_minus_favourite": 18.2,
+      "low": -8.0,
+      "high": 44.7,
+      "small": true
+     },
+     {
+      "segment": "T3",
+      "races": 579,
+      "differ": 38,
+      "model_minus_favourite": 38.6,
+      "low": -8.11,
+      "high": 82.21,
+      "small": true
+     },
+     {
+      "segment": "T4",
+      "races": 444,
+      "differ": 37,
+      "model_minus_favourite": 19.9,
+      "low": -21.11,
+      "high": 67.41,
+      "small": true
+     }
+    ],
+    "cote du choix du modèle (quand il quitte le favori)": [
+     {
+      "segment": "même cheval",
+      "races": 1706,
+      "differ": 0,
+      "model_minus_favourite": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "small": true
+     },
+     {
+      "segment": "< 3",
+      "races": 8,
+      "differ": 8,
+      "model_minus_favourite": -1.3,
+      "low": -14.51,
+      "high": 12.5,
+      "small": true
+     },
+     {
+      "segment": "3 – 5",
+      "races": 65,
+      "differ": 65,
+      "model_minus_favourite": 21.6,
+      "low": -30.61,
+      "high": 72.5,
+      "small": false
+     },
+     {
+      "segment": "5 – 10",
+      "races": 50,
+      "differ": 50,
+      "model_minus_favourite": 39.5,
+      "low": -11.31,
+      "high": 95.22,
+      "small": false
+     }
+    ]
+   },
+   "calibration": [
+    {
+     "band": "10% – 20%",
+     "races": 156,
+     "predicted": 0.1762,
+     "observed": 0.2051
+    },
+    {
+     "band": "20% – 30%",
+     "races": 660,
+     "predicted": 0.2513,
+     "observed": 0.3
+    },
+    {
+     "band": "30% – 40%",
+     "races": 448,
+     "predicted": 0.3469,
+     "observed": 0.3304
+    },
+    {
+     "band": "40% – 50%",
+     "races": 258,
+     "predicted": 0.448,
+     "observed": 0.3798
+    },
+    {
+     "band": "50% – 100%",
+     "races": 307,
+     "predicted": 0.6201,
+     "observed": 0.5277
+    }
+   ]
+  }
+ },
+ "lab": {
+  "PLAT": {
+   "champion": {
+    "version": 1,
+    "features": 11,
+    "tau": 1.0,
+    "rules": [],
+    "origin": "Marché+ v1 (11 facteurs pré-enregistrés le 2026-09-30)"
+   },
+   "coverage": {
+    "reference_2024": 4120,
+    "years": {
+     "2020": 639,
+     "2021": 848,
+     "2022": 1777,
+     "2023": 4132
+    },
+    "share": 0.6,
+    "ready": false
+   },
+   "vault": {
+    "start": "2026-04-01",
+    "races": 2252,
+    "min_races": 600,
+    "attempts": 0
+   },
+   "tests": {
+    "TESTING": 12
+   },
+   "waiting": [
+    "En attente de courses fraîches : 17/600 depuis le 05/10/2026.",
+    "En attente de l'historique 2020 de cette discipline."
+   ],
+   "latest": [
+    {
+     "experiment": "blinkers_first:PLAT",
+     "label": "Met des oeillères",
+     "kind": null,
+     "status": "SUPPORTED",
+     "conclusion": "Retenu : écart -0.0005 (IC 99 % -0.0009 à -0.0000). Proposé pour la prochaine version du modèle.",
+     "tested_at": "2026-10-03T11:49:59+00:00"
+    },
+    {
+     "experiment": "class_drop:PLAT",
+     "label": "Descend de catégorie",
+     "kind": null,
+     "status": "REJECTED",
+     "conclusion": "Rejeté : le critère dégrade la prévision, écart +0.0001 (IC 99 % +0.0001 à +0.0002).",
+     "tested_at": "2026-10-03T11:49:59+00:00"
+    },
+    {
+     "experiment": "dist_change:PLAT",
+     "label": "Change de distance",
+     "kind": null,
+     "status": "INCONCLUSIVE",
+     "conclusion": "Aucun gain mesurable : écart +0.0000 (IC 99 % -0.0000 à +0.0000). Probablement déjà dans la cote.",
+     "tested_at": "2026-10-03T11:49:59+00:00"
+    },
+    {
+     "experiment": "duo:PLAT",
+     "label": "Réussite du duo jockey-entraîneur",
+     "kind": null,
+     "status": "INCONCLUSIVE",
+     "conclusion": "Aucun gain mesurable : écart -0.0002 (IC 99 % -0.0005 à +0.0002). Probablement déjà dans la cote.",
+     "tested_at": "2026-10-03T11:49:59+00:00"
+    },
+    {
+     "experiment": "jockey_change:PLAT",
+     "label": "Changement de jockey",
+     "kind": null,
+     "status": "INCONCLUSIVE",
+     "conclusion": "Aucun gain mesurable : écart -0.0000 (IC 99 % -0.0001 à +0.0000). Probablement déjà dans la cote.",
+     "tested_at": "2026-10-03T11:49:59+00:00"
+    },
+    {
+     "experiment": "musique_top3:PLAT",
+     "label": "Régularité dans la musique",
+     "kind": null,
+     "status": "INCONCLUSIVE",
+     "conclusion": "Aucun gain mesurable : écart -0.0003 (IC 99 % -0.0010 à +0.0005). Probablement déjà dans la cote.",
+     "tested_at": "2026-10-03T11:49:59+00:00"
+    }
+   ]
+  },
+  "ATTELE": {
+   "champion": {
+    "version": 1,
+    "features": 11,
+    "tau": 1.0,
+    "rules": [],
+    "origin": "Marché+ v1 (11 facteurs pré-enregistrés le 2026-09-30)"
+   },
+   "coverage": {
+    "reference_2024": 6435,
+    "years": {
+     "2020": 1058,
+     "2021": 1075,
+     "2022": 2822,
+     "2023": 6355
+    },
+    "share": 0.6,
+    "ready": false
+   },
+   "vault": {
+    "start": "2026-04-01",
+    "races": 3279,
+    "min_races": 600,
+    "attempts": 0
+   },
+   "tests": {
+    "TESTING": 14
+   },
+   "waiting": [
+    "En attente de courses fraîches : 6/600 depuis le 05/10/2026.",
+    "En attente de l'historique 2020 de cette discipline."
+   ],
+   "latest": []
+  },
+  "MONTE": {
+   "champion": {
+    "version": 1,
+    "features": 11,
+    "tau": 1.0,
+    "rules": [],
+    "origin": "Marché+ v1 (11 facteurs pré-enregistrés le 2026-09-30)"
+   },
+   "coverage": {
+    "reference_2024": 1057,
+    "years": {
+     "2020": 185,
+     "2021": 200,
+     "2022": 499,
+     "2023": 1085
+    },
+    "share": 0.6,
+    "ready": false
+   },
+   "vault": {
+    "start": "2026-04-01",
+    "races": 521,
+    "min_races": 600,
+    "attempts": 0
+   },
+   "tests": {
+    "TESTING": 14
+   },
+   "waiting": [
+    "En attente de courses fraîches : 2/600 depuis le 05/10/2026.",
+    "En attente de l'historique 2020 de cette discipline."
+   ],
+   "latest": []
+  }
+ },
+ "health": {
+  "backfill": {
+   "PLAT": {
+    "days_done": 1478,
+    "oldest": "2022-09-15"
+   },
+   "ATTELE": {
+    "days_done": 1004,
+    "oldest": "2024-01-01"
+   },
+   "MONTE": {
+    "days_done": 1003,
+    "oldest": "2024-01-01"
+   }
+  },
+  "carnet_races_per_day": {
+   "2026-09-29": {
+    "PLAT": 15,
+    "ATTELE": 6,
+    "MONTE": 1
+   },
+   "2026-09-30": {
+    "PLAT": 2,
+    "MONTE": 1,
+    "ATTELE": 3
+   },
+   "2026-10-01": {
+    "PLAT": 1,
+    "ATTELE": 4,
+    "MONTE": 2
+   },
+   "2026-10-02": {
+    "PLAT": 15,
+    "ATTELE": 11,
+    "MONTE": 1
+   },
+   "2026-10-03": {
+    "MONTE": 4,
+    "ATTELE": 13,
+    "PLAT": 9
+   },
+   "2026-10-04": {
+    "PLAT": 5,
+    "ATTELE": 1
+   },
+   "2026-10-05": {
+    "PLAT": 16,
+    "ATTELE": 5,
+    "MONTE": 2
+   }
+  },
+  "errors_logged_this_week": 0
+ }
+}

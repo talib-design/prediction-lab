@@ -1,0 +1,392 @@
+{
+  "generated_at": "2026-10-05T10:26:43+00:00",
+  "code_version": "0.2.0",
+  "horizon_minutes": 25.0,
+  "split": {
+    "train_end": "2024-06-30",
+    "validation_end": "2024-12-31",
+    "test_end": "2099-12-31"
+  },
+  "dataset_fingerprint": "bebc36d087d73e7cc9af414760a963e6fe801eb5a72aba98106809d6970fb24d",
+  "n_events": 17594,
+  "n_eligible": 11410,
+  "decision_phase": "test",
+  "reference": "market_calibrated",
+  "models": [
+    {
+      "name": "random",
+      "version": "1",
+      "config": {
+        "seed": 0
+      }
+    },
+    {
+      "name": "uniform",
+      "version": "1",
+      "config": {}
+    },
+    {
+      "name": "horse_win_rate",
+      "version": "1",
+      "config": {
+        "prior_strength": 5.0
+      }
+    },
+    {
+      "name": "form",
+      "version": "1",
+      "config": {
+        "window": 3,
+        "beta": 3.0,
+        "neutral": 0.5
+      }
+    },
+    {
+      "name": "market",
+      "version": "1",
+      "config": {}
+    },
+    {
+      "name": "market_calibrated",
+      "version": "1",
+      "config": {
+        "refit_every": 500,
+        "min_races": 300,
+        "bounds": [
+          0.5,
+          2.5
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "test": [
+      {
+        "model": "random",
+        "n_races": 7311,
+        "log_loss": 3.0459130564348493,
+        "brier": 0.9852882348082893,
+        "top1": 0.08548762139242237,
+        "mrr": 0.25716548744711387,
+        "calibration_error": 0.05257950913201005
+      },
+      {
+        "model": "uniform",
+        "n_races": 7311,
+        "log_loss": 2.5162118881495443,
+        "brier": 0.9165708306965036,
+        "top1": 0.058268362741075094,
+        "mrr": 0.23047065520001148,
+        "calibration_error": 2.158300433651023e-18
+      },
+      {
+        "model": "horse_win_rate",
+        "n_races": 7311,
+        "log_loss": 2.416470757077864,
+        "brier": 0.893619761756136,
+        "top1": 0.1888934482286965,
+        "mrr": 0.3763312441324823,
+        "calibration_error": 0.011438904371255984
+      },
+      {
+        "model": "form",
+        "n_races": 7311,
+        "log_loss": 2.449277463069284,
+        "brier": 0.9020246237084739,
+        "top1": 0.16741895773492,
+        "mrr": 0.3563138000850714,
+        "calibration_error": 0.01046789637986698
+      },
+      {
+        "model": "market",
+        "n_races": 7311,
+        "log_loss": 1.9783324367954742,
+        "brier": 0.8065008309523869,
+        "top1": 0.32991382847763645,
+        "mrr": 0.530930124754499,
+        "calibration_error": 0.009146078946559265
+      },
+      {
+        "model": "market_calibrated",
+        "n_races": 7311,
+        "log_loss": 1.9724636175413601,
+        "brier": 0.8077879743759946,
+        "top1": 0.32991382847763645,
+        "mrr": 0.530930124754499,
+        "calibration_error": 0.0072289715992757166
+      }
+    ],
+    "train": [
+      {
+        "model": "random",
+        "n_races": 2021,
+        "log_loss": 3.064915549360539,
+        "brier": 0.9819753591975583,
+        "top1": 0.08857001484413657,
+        "mrr": 0.257383795949081,
+        "calibration_error": 0.048402441667405094
+      },
+      {
+        "model": "uniform",
+        "n_races": 2021,
+        "log_loss": 2.5611576430122263,
+        "brier": 0.9205788101224257,
+        "top1": 0.06877783275606135,
+        "mrr": 0.23563384988785926,
+        "calibration_error": 1.2426628024681185e-17
+      },
+      {
+        "model": "horse_win_rate",
+        "n_races": 2021,
+        "log_loss": 2.4987537040267633,
+        "brier": 0.9052327301111516,
+        "top1": 0.16773874319643742,
+        "mrr": 0.33463666479245546,
+        "calibration_error": 0.010288513201460663
+      },
+      {
+        "model": "form",
+        "n_races": 2021,
+        "log_loss": 2.556053439094747,
+        "brier": 0.9148253088101993,
+        "top1": 0.14794656110836218,
+        "mrr": 0.326305589980387,
+        "calibration_error": 0.014099831609392946
+      },
+      {
+        "model": "market",
+        "n_races": 2021,
+        "log_loss": 2.049517777616176,
+        "brier": 0.8183041565836737,
+        "top1": 0.29985155863433943,
+        "mrr": 0.5064376722939753,
+        "calibration_error": 0.008817537604411355
+      },
+      {
+        "model": "market_calibrated",
+        "n_races": 2021,
+        "log_loss": 2.0445144918340685,
+        "brier": 0.8191959159439528,
+        "top1": 0.29985155863433943,
+        "mrr": 0.5064376722939753,
+        "calibration_error": 0.00840114355493796
+      }
+    ],
+    "validation": [
+      {
+        "model": "random",
+        "n_races": 2078,
+        "log_loss": 3.1166298633060237,
+        "brier": 0.988912591929964,
+        "top1": 0.08325312800769971,
+        "mrr": 0.25172809362251986,
+        "calibration_error": 0.049963390951169105
+      },
+      {
+        "model": "uniform",
+        "n_races": 2078,
+        "log_loss": 2.5535474631715043,
+        "brier": 0.9204241522378306,
+        "top1": 0.06785370548604427,
+        "mrr": 0.23756557752764512,
+        "calibration_error": 1.629415077339736e-18
+      },
+      {
+        "model": "horse_win_rate",
+        "n_races": 2078,
+        "log_loss": 2.484913598794214,
+        "brier": 0.9040472525925907,
+        "top1": 0.1717998075072185,
+        "mrr": 0.35700619913593357,
+        "calibration_error": 0.01439566075372176
+      },
+      {
+        "model": "form",
+        "n_races": 2078,
+        "log_loss": 2.49443685380312,
+        "brier": 0.9083558698691764,
+        "top1": 0.16506256015399423,
+        "mrr": 0.346356369864197,
+        "calibration_error": 0.011965565462668557
+      },
+      {
+        "model": "market",
+        "n_races": 2078,
+        "log_loss": 2.023611497648197,
+        "brier": 0.8143348949954619,
+        "top1": 0.30991337824831566,
+        "mrr": 0.5136283419647656,
+        "calibration_error": 0.009541388770202936
+      },
+      {
+        "model": "market_calibrated",
+        "n_races": 2078,
+        "log_loss": 2.0206952409124725,
+        "brier": 0.8168258963943464,
+        "top1": 0.30991337824831566,
+        "mrr": 0.5136283419647656,
+        "calibration_error": 0.008713381608920297
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "model": "random",
+      "n_races": 7311,
+      "mean_difference": 1.0734494388934892,
+      "ci_low": 1.0417108885446997,
+      "ci_high": 1.107770576525458,
+      "p_value": 0.0001999600079984003,
+      "sd_difference": 1.542687927798586,
+      "minimum_detectable_effect": 0.050518182836742115,
+      "races_for_0_01": 186584,
+      "survives_fdr": true,
+      "verdict": "moins bon que la référence"
+    },
+    {
+      "model": "uniform",
+      "n_races": 7311,
+      "mean_difference": 0.5437482706081848,
+      "ci_low": 0.5249344863076685,
+      "ci_high": 0.5630331259215684,
+      "p_value": 0.0001999600079984003,
+      "sd_difference": 0.897826283092156,
+      "minimum_detectable_effect": 0.0294009899912848,
+      "races_for_0_01": 63198,
+      "survives_fdr": true,
+      "verdict": "moins bon que la référence"
+    },
+    {
+      "model": "horse_win_rate",
+      "n_races": 7311,
+      "mean_difference": 0.444007139536504,
+      "ci_low": 0.42398397256731196,
+      "ci_high": 0.46476823914669235,
+      "p_value": 0.0001999600079984003,
+      "sd_difference": 0.9061503396532965,
+      "minimum_detectable_effect": 0.029673576691239833,
+      "races_for_0_01": 64375,
+      "survives_fdr": true,
+      "verdict": "moins bon que la référence"
+    },
+    {
+      "model": "form",
+      "n_races": 7311,
+      "mean_difference": 0.47681384552792455,
+      "ci_low": 0.45622057291238205,
+      "ci_high": 0.49721313450706267,
+      "p_value": 0.0001999600079984003,
+      "sd_difference": 0.9075535374201743,
+      "minimum_detectable_effect": 0.029719527009554953,
+      "races_for_0_01": 64575,
+      "survives_fdr": true,
+      "verdict": "moins bon que la référence"
+    },
+    {
+      "model": "market",
+      "n_races": 7311,
+      "mean_difference": 0.005868819254114067,
+      "ci_low": 0.003949807184035377,
+      "ci_high": 0.00792263568488627,
+      "p_value": 0.0001999600079984003,
+      "sd_difference": 0.09480332257723127,
+      "minimum_detectable_effect": 0.0031045109624482023,
+      "races_for_0_01": 705,
+      "survives_fdr": true,
+      "verdict": "moins bon que la référence"
+    }
+  ],
+  "calibration": {
+    "market": [
+      {
+        "bucket": "0.00-0.02",
+        "n": 18108,
+        "mean_forecast": 0.012671078492374206,
+        "observed": 0.00552242102937928
+      },
+      {
+        "bucket": "0.02-0.05",
+        "n": 29671,
+        "mean_forecast": 0.034054105808416966,
+        "observed": 0.02665902733308618
+      },
+      {
+        "bucket": "0.05-0.10",
+        "n": 23186,
+        "mean_forecast": 0.07203241512911357,
+        "observed": 0.0709695505908738
+      },
+      {
+        "bucket": "0.10-0.20",
+        "n": 13993,
+        "mean_forecast": 0.1390005720998137,
+        "observed": 0.16086614735939397
+      },
+      {
+        "bucket": "0.20-0.30",
+        "n": 4195,
+        "mean_forecast": 0.241189730039841,
+        "observed": 0.2630512514898689
+      },
+      {
+        "bucket": "0.30-0.50",
+        "n": 2650,
+        "mean_forecast": 0.3792396242388214,
+        "observed": 0.3888679245283019
+      },
+      {
+        "bucket": "0.50-1.00",
+        "n": 737,
+        "mean_forecast": 0.595899908944665,
+        "observed": 0.5284938941655359
+      }
+    ],
+    "market_calibrated": [
+      {
+        "bucket": "0.00-0.02",
+        "n": 23211,
+        "mean_forecast": 0.011477371255059952,
+        "observed": 0.00725948903537116
+      },
+      {
+        "bucket": "0.02-0.05",
+        "n": 27558,
+        "mean_forecast": 0.033399724277834344,
+        "observed": 0.03137020103055374
+      },
+      {
+        "bucket": "0.05-0.10",
+        "n": 20688,
+        "mean_forecast": 0.07155934423492323,
+        "observed": 0.0757685614849188
+      },
+      {
+        "bucket": "0.10-0.20",
+        "n": 12718,
+        "mean_forecast": 0.13984870031211047,
+        "observed": 0.15930177700896367
+      },
+      {
+        "bucket": "0.20-0.30",
+        "n": 4261,
+        "mean_forecast": 0.24215690276213447,
+        "observed": 0.24114057732926544
+      },
+      {
+        "bucket": "0.30-0.50",
+        "n": 2910,
+        "mean_forecast": 0.37968409848958146,
+        "observed": 0.36683848797250856
+      },
+      {
+        "bucket": "0.50-1.00",
+        "n": 1194,
+        "mean_forecast": 0.6100857292919557,
+        "observed": 0.4937185929648241
+      }
+    ]
+  },
+  "alpha": 1.1215750646927354,
+  "alpha_refits": 22,
+  "discipline": "ATTELE"
+}
