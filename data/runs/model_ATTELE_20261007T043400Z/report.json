@@ -1,0 +1,290 @@
+{
+  "kind": "model",
+  "model": "marche_plus",
+  "version": "1",
+  "champion_version": 1,
+  "generated_at": "2026-10-07T04:34:00+00:00",
+  "discipline": "ATTELE",
+  "discipline_label": "trot attelé",
+  "split": {
+    "train_end": "2024-06-30",
+    "validation_end": "2024-12-31"
+  },
+  "races": {
+    "train": 2012,
+    "validation": 2064,
+    "test": 7218
+  },
+  "lambda": 1000.0,
+  "validation_by_lambda": [
+    {
+      "lambda": 1.0,
+      "log_loss": 2.0199156973796266
+    },
+    {
+      "lambda": 10.0,
+      "log_loss": 2.0198703293712366
+    },
+    {
+      "lambda": 100.0,
+      "log_loss": 2.0195120913509417
+    },
+    {
+      "lambda": 1000.0,
+      "log_loss": 2.0184936849877624
+    }
+  ],
+  "market_alpha": 1.1346137620150039,
+  "coefficients": [
+    {
+      "feature": "log_q",
+      "label": "Cote (marché)",
+      "active": true,
+      "beta": 1.1304357873597186,
+      "low": 1.0757187272435862,
+      "high": 1.185152847475851,
+      "p": 0.0
+    },
+    {
+      "feature": "f_form",
+      "label": "Forme : places gagnées sur la cote, courses passées",
+      "active": true,
+      "beta": -0.04158328486604141,
+      "low": -0.08258069679640034,
+      "high": -0.000585872935682484,
+      "p": 0.04681469410457011,
+      "per_sd": 0.9592694393876996,
+      "sd": 0.11138503603143153
+    },
+    {
+      "feature": "f_going",
+      "label": "Préférence du cheval pour ce terrain",
+      "active": true,
+      "beta": 0.01845498731631429,
+      "low": -0.019072361455531737,
+      "high": 0.05598233608816032,
+      "p": 0.33511611542681463,
+      "per_sd": 1.0186263330326961,
+      "sd": 0.004876927103046958
+    },
+    {
+      "feature": "f_temp",
+      "label": "Préférence du cheval pour cette température",
+      "active": true,
+      "beta": -0.009613043462017301,
+      "low": -0.05039753253189081,
+      "high": 0.03117144560785621,
+      "p": 0.6441026811884534,
+      "per_sd": 0.9904330141375629,
+      "sd": 0.06653043204638355
+    },
+    {
+      "feature": "f_new",
+      "label": "Aucune course connue depuis 2024",
+      "active": true,
+      "beta": 0.018621506931316596,
+      "low": -0.031078973668794113,
+      "high": 0.0683219875314273,
+      "p": 0.46273624521216483,
+      "per_sd": 1.0187959684209218,
+      "sd": 0.46493140769571384
+    },
+    {
+      "feature": "f_rest",
+      "label": "Repos (log des jours depuis la dernière course)",
+      "active": true,
+      "beta": -0.013548216566466272,
+      "low": -0.06310233531790696,
+      "high": 0.03600590218497441,
+      "p": 0.5920560550904541,
+      "per_sd": 0.9865431474476973,
+      "sd": 1.5720121104414169
+    },
+    {
+      "feature": "f_jockey",
+      "label": "Jockey / driver : victoires vs cote",
+      "active": true,
+      "beta": 0.0055480442153776,
+      "low": -0.03388055810350597,
+      "high": 0.04497664653426117,
+      "p": 0.7827102862811712,
+      "per_sd": 1.0055634631144084,
+      "sd": 0.2008525492329047
+    },
+    {
+      "feature": "f_trainer",
+      "label": "Entraîneur : victoires vs cote",
+      "active": true,
+      "beta": 0.015799530304582688,
+      "low": -0.023762937087581214,
+      "high": 0.05536199769674659,
+      "p": 0.43378893994915124,
+      "per_sd": 1.0159250028148024,
+      "sd": 0.2198501982254419
+    },
+    {
+      "feature": "f_draw",
+      "label": "Position au départ (0 = intérieur, 1 = extérieur)",
+      "active": true,
+      "beta": -0.012763006782636923,
+      "low": -0.051714402034054426,
+      "high": 0.026188388468780584,
+      "p": 0.5207358695794608,
+      "per_sd": 0.9873180949876218,
+      "sd": 0.17777486915976728
+    },
+    {
+      "feature": "f_draw_sprint",
+      "label": "Position au départ, sprints du plat",
+      "active": false,
+      "beta": 0.0,
+      "low": null,
+      "high": null,
+      "p": null
+    },
+    {
+      "feature": "f_weight",
+      "label": "Poids porté vs moyenne de la course (kg)",
+      "active": false,
+      "beta": 0.0,
+      "low": null,
+      "high": null,
+      "p": null
+    },
+    {
+      "feature": "f_recul",
+      "label": "Recul au trot (par 25 m)",
+      "active": true,
+      "beta": -0.04272174520202961,
+      "low": -0.0874336239699075,
+      "high": 0.00199013356584829,
+      "p": 0.06110627829394715,
+      "per_sd": 0.9581779705942827,
+      "sd": 0.36312030686930247
+    }
+  ],
+  "validation": {
+    "races": 2064,
+    "log_loss_model": 2.0184936849877624,
+    "log_loss_market": 2.0195221027429104,
+    "difference": -0.0010284177551476328,
+    "ci_low": -0.004068994347215759,
+    "ci_high": 0.00209580707034757,
+    "verdict": "pas de différence démontrée"
+  },
+  "test": {
+    "races": 7218,
+    "log_loss_model": 1.9762725286867189,
+    "log_loss_market": 1.9754794738742811,
+    "difference": 0.0007930548124378457,
+    "ci_low": -0.0010169677397701008,
+    "ci_high": 0.002740209679665876,
+    "verdict": "pas de différence démontrée"
+  },
+  "test_bets": {
+    "SG modèle": {
+      "bets": 7218,
+      "stake": 7218.0,
+      "returned": 6411.6,
+      "roi": -0.11172069825436409,
+      "roi_low": -0.14093135217511776,
+      "roi_high": -0.07779059296203933,
+      "hit_rate": 0.32917705735660846
+    },
+    "SG favori": {
+      "bets": 7218,
+      "stake": 7218.0,
+      "returned": 6390.8,
+      "roi": -0.11460238293156,
+      "roi_low": -0.14411505957328896,
+      "roi_high": -0.08072215295095594,
+      "hit_rate": 0.328761429758936
+    },
+    "SP modèle": {
+      "bets": 7218,
+      "stake": 7218.0,
+      "returned": 6679.9,
+      "roi": -0.07454973676918815,
+      "roi_low": -0.09125346356331393,
+      "roi_high": -0.055478318093654756,
+      "hit_rate": 0.586173455250762
+    },
+    "SP favori": {
+      "bets": 7218,
+      "stake": 7218.0,
+      "returned": 6721.7,
+      "roi": -0.06875865890828485,
+      "roi_low": -0.08446522582432806,
+      "roi_high": -0.049729495705181495,
+      "hit_rate": 0.5903297312274869
+    },
+    "SG valeur modèle": {
+      "bets": 199,
+      "stake": 199.0,
+      "returned": 98.8,
+      "roi": -0.5035175879396986,
+      "roi_low": -0.7060552763819096,
+      "roi_high": -0.2587185929648242,
+      "hit_rate": 0.10050251256281408
+    }
+  },
+  "params": {
+    "features": [
+      "f_form",
+      "f_going",
+      "f_temp",
+      "f_new",
+      "f_rest",
+      "f_jockey",
+      "f_trainer",
+      "f_draw",
+      "f_draw_sprint",
+      "f_weight",
+      "f_recul"
+    ],
+    "tau": 1.0,
+    "champion_version": 1,
+    "means": [
+      0.0004357775503691993,
+      -1.831916396524723e-05,
+      0.0004990815571070688,
+      0.3160467827460419,
+      2.152843926267785,
+      -0.012833566246308492,
+      -0.02771315314553998,
+      -4.0081760883011177e-19,
+      0.0,
+      0.0,
+      0.14956188183972022
+    ],
+    "stds": [
+      0.11138503603143153,
+      0.004876927103046958,
+      0.06653043204638355,
+      0.46493140769571384,
+      1.5720121104414169,
+      0.2008525492329047,
+      0.2198501982254419,
+      0.17777486915976728,
+      0.0,
+      0.0,
+      0.36312030686930247
+    ],
+    "theta": [
+      1.1015275983423418,
+      -0.025175483500200737,
+      -0.006145325270516685,
+      0.006906111176106573,
+      -0.011100298270643717,
+      0.01575725211815053,
+      0.03273817503740348,
+      0.05985325937225203,
+      -0.02994384196415203,
+      0.0,
+      0.0,
+      -0.054223791957096826
+    ],
+    "lambda": 1000.0,
+    "fitted_through": "2026-10-06"
+  }
+}
