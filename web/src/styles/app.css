@@ -184,25 +184,60 @@ h3 {
   display: grid;
   place-items: center;
 }
-.nav {
+/* Two levels: the domain (pill tabs, with icon) then its sections (underlined tabs). */
+.domains {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+}
+.domains a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-weight: 550;
+  white-space: nowrap;
+}
+.domains a svg {
+  flex: none;
+  color: var(--ink-3);
+}
+.domains a:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+}
+.domains a[aria-current="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.domains a[aria-current="true"] svg {
+  color: var(--accent);
+}
+.subnav {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 var(--s5);
   display: flex;
   gap: 2px;
   overflow-x: auto;
 }
-.nav a {
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
+.subnav a {
+  padding: 7px 10px 8px;
   color: var(--ink-2);
+  font-size: 13px;
   white-space: nowrap;
+  border-bottom: 2px solid transparent;
 }
-.nav a:hover {
-  background: var(--surface-2);
+.subnav a:hover {
+  color: var(--ink);
   text-decoration: none;
 }
-.nav a[aria-current="page"] {
-  background: var(--surface);
+.subnav a[aria-current="page"] {
   color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--line);
+  border-bottom-color: var(--accent);
 }
 .topbar-status {
   margin-left: auto;
@@ -655,6 +690,7 @@ dl.facts dd {
 
 @media (max-width: 720px) {
   .shell,
+  .subnav,
   .topbar-inner {
     padding-left: var(--s4);
     padding-right: var(--s4);
@@ -1566,4 +1602,110 @@ label.check {
 .ratio .track {
   fill: var(--surface-2);
   stroke: var(--line);
+}
+
+/* ---------------------------------------------------------------- euromillions */
+
+.em-grid {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.em-ball,
+.em-star {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.em-ball {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+.em-star {
+  background: var(--k-assoc-bg);
+  color: var(--k-assoc);
+}
+.em-ball.hit {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+.em-star.hit {
+  background: var(--k-assoc);
+  color: var(--surface);
+}
+.em-sep {
+  width: 6px;
+}
+.kpi-sub .em-ball,
+.kpi-sub .em-star {
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+}
+.kpi-sub .em-grid {
+  margin-top: 4px;
+}
+.em-chart {
+  width: 100%;
+}
+.em-chart svg {
+  display: block;
+}
+.em-band {
+  fill: var(--k-forecast);
+  opacity: 0.14;
+}
+.em-lolli.stem {
+  stroke: var(--ink-3);
+  stroke-width: 2;
+}
+.em-lolli.dot {
+  fill: var(--surface);
+  stroke: var(--ink-2);
+  stroke-width: 2;
+}
+.em-lolli.out.stem {
+  stroke: var(--accent);
+}
+.em-lolli.out.dot {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.em-lolli.on.dot {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+.em-expected {
+  stroke: var(--k-forecast);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.em-axis {
+  fill: var(--ink-3);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.em-chart-foot {
+  min-height: 20px;
+  margin-top: var(--s2);
+}
+.em-log {
+  margin: 0;
+  padding: var(--s3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow: auto;
 }

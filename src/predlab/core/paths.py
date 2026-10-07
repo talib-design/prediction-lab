@@ -67,6 +67,25 @@ class Paths:
         """The lab: pre-registered criterion tests and studies (our outputs only)."""
         return self.root / "lab"
 
+    @property
+    def raw_euromillions(self) -> Path:
+        """FDJ EuroMillions archives. Never committed (reuse terms unknown)."""
+        return self.raw / "euromillions_fdj"
+
+    @property
+    def euromillions_store(self) -> Path:
+        return self.normalized / "euromillions_draws.parquet"
+
+    @property
+    def manifests(self) -> Path:
+        """Provenance of raw archives (URL, SHA-256, rows): metadata only, safe to commit."""
+        return self.root / "manifests"
+
+    @property
+    def lottery(self) -> Path:
+        """EuroMillions forward ledger and reports: our own outputs, safe to commit."""
+        return self.root / "lottery"
+
     def ensure(self) -> Paths:
         for directory in (self.raw_pmu, self.audit, self.logs):
             directory.mkdir(parents=True, exist_ok=True)

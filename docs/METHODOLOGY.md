@@ -369,6 +369,33 @@ lui, ne voit jamais les résultats.
   critique, ni les critères a posteriori : ses idées restent jugeables sur l'historique.
 - Le critique n'a jamais la main sur le modèle, le carnet, le registre ou les seuils.
 
+## 15. EuroMillions (ajouté le 2026-10-06)
+
+Reprise de la loterie à la demande de Chris, sur l'EuroMillions seul, avec la méthode du
+Loto M1 et trois ajouts.
+
+- **Pré-enregistrement** : 17 hypothèses `em-*` (familles A mécanisme, B théories, C forme,
+  D logiques et gains, F carnet, R hasard) inscrites au registre chaîné avant le calcul,
+  avec leur statistique et leur règle de décision (`src/predlab/lottery/hypotheses_em.py`).
+- **Test causal exact des théories** : une règle (chauds, froids, répétition, voisins,
+  retard) ne voit que les tirages précédents ; le tirage suivant étant indépendant d'elle
+  sous H0, ses sorties ont une moyenne et une variance exactes (tirage de k parmi N). La
+  somme des écarts est une martingale : z sans simulation ni réglage. Ex æquo à la limite
+  partagés (poids fractionnaires), pour ne pas favoriser les petits numéros.
+- **Contrôle 100 % hasard** : la batterie complète tourne aussi sur 200 historiques
+  fabriqués au hasard ; si le labo y « trouve » des signaux au-delà des seuils inscrits,
+  ses conclusions sur les vrais tirages sont suspendues. Un joueur témoin au hasard,
+  graine tirée de la date du tirage, joue partout.
+- **Décision** : BH à q = 0,05 dans chaque sous-famille ; un effet de la famille B doit en
+  plus garder le même signe avec p < 0,05 sur les tirages depuis 2020, puis tenir dans le
+  carnet. Ne pas détecter s'écrit INCONCLUSIVE, jamais REJECTED, avec le plancher de
+  détection.
+- **Logiques en probabilités** : chaque logique donne +50 % de poids à ses numéros
+  (fixé d'avance, jamais réglé) ; sa grille est sa sélection. Critère principal : log loss
+  contre l'uniforme ; secondaire : numéros trouvés contre la loi hypergéométrique et
+  contre 1 000 joueurs au hasard ; gains fictifs au rapport officiel, une grille par
+  tirage, sans aucune gestion de mise.
+
 ## Révisions
 
 - 2026-09-28 — version initiale (passage de la loterie aux courses).
@@ -431,3 +458,4 @@ lui, ne voit jamais les résultats.
   évaluée **séparément** (backtest, simulation, calibration du marché, découpage identique) ;
   aucun résultat d'une discipline ne vaut pour une autre. Au trot, la question du §1 se
   lit « course de trot » ; la réduction kilométrique d'une course est un résultat, jamais une entrée.
+- 2026-10-06 — §15 : EuroMillions (pré-enregistrement, test causal exact, contrôle 100 % hasard, carnet à terme).

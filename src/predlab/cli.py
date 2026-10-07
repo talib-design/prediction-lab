@@ -1,4 +1,4 @@
-"""Command line: ``predlab racing …`` and ``predlab hypothesis …``.
+"""Command line: ``predlab racing …``, ``predlab lottery …`` and ``predlab hypothesis …``.
 
 Errors are answered with a sentence, not a stack trace: the collector runs unattended
 and its log must be readable by a person.
@@ -21,6 +21,7 @@ from predlab.core.clock import PARIS, paris_day, utcnow
 from predlab.core.dotenv import load_dotenv
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import default_paths
+from predlab.lottery.cli import lottery_app
 from predlab.racing import strategies as banc_lib
 from predlab.racing.audit import run_audit, write_report
 from predlab.racing.backfill import DEFAULT_PLAN, parse_plan, run_backfill_plan
@@ -63,6 +64,7 @@ racing_app = typer.Typer(help="Collecte et audit des données de courses.", no_a
 hypothesis_app = typer.Typer(help="Registre d'hypothèses.", no_args_is_help=True)
 app.add_typer(racing_app, name="racing")
 app.add_typer(hypothesis_app, name="hypothesis")
+app.add_typer(lottery_app, name="lottery")
 
 
 @app.callback()

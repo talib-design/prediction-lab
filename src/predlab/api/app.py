@@ -29,6 +29,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from predlab import __version__
+from predlab.api.lottery import lottery_router
 from predlab.core.clock import PARIS, minutes_between, paris_day, utcnow
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import Paths, default_paths
@@ -550,6 +551,8 @@ def create_app(paths: Paths | None = None) -> FastAPI:
         """The lab: each criterion test with its pre-registration date and result, and the
         favourites study per discipline."""
         return _lab(lab)
+
+    app.include_router(lottery_router(lab.paths))
 
     if WEB_DIST.exists():
         app.mount("/assets", StaticFiles(directory=WEB_DIST / "assets"), name="assets")

@@ -1,17 +1,20 @@
 #!/bin/bash
-# Installe la collecte automatique des courses (toutes les 5 minutes) avec launchd.
+# Installe le suivi automatique EuroMillions (carnet à terme) avec launchd.
 #
-# Usage, depuis le Terminal :   bash ops/install_collector.sh
-# Désinstaller :                bash ops/uninstall_collector.sh
+# Usage, depuis le Terminal :   bash ops/install_lottery.sh
+# Désinstaller :                bash ops/uninstall_lottery.sh
 #
-# Ce que ça fait : enregistre un agent launchd qui lance `predlab racing collect`
-# toutes les 5 minutes tant que le Mac est allumé et éveillé. Un Mac en veille ne
-# collecte rien : les instantanés manqués sont perdus pour de bon.
-# Pour garder le Mac éveillé pendant les courses : bash ops/install_keepawake.sh
+# Ce que ça fait : toutes les heures, `predlab lottery forward`
+#   1. télécharge l'archive FDJ du moment si un tirage publié manque (mardi, vendredi) ;
+#   2. note les grilles déjà figées avec le résultat et les rapports officiels ;
+#   3. fige une grille par logique (+ le témoin hasard) pour le prochain tirage,
+#      avant 20 h le jour du tirage (clôture des ventes en bureau de tabac et en ligne).
+# Aucune mise, aucun compte FDJ : ce sont des grilles fictives, jamais jouées.
+# N'utilise ni ne modifie la collecte des courses. Ne pousse rien sur GitHub.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-LABEL="fr.predictionlab.collect"
+LABEL="fr.predictionlab.lottery"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 LOGS="$REPO/data/logs"
 UV="$(command -v uv || true)"
@@ -23,8 +26,8 @@ fi
 
 mkdir -p "$LOGS" "$HOME/Library/LaunchAgents"
 
-echo "Test d'une passe de collecte avant installation…"
-if ! (cd "$REPO" && "$UV" run predlab racing collect); then
+echo "Passe de test avant installation (téléchargement FDJ compris)…"
+if ! (cd "$REPO" && PREDLAB_DATA_DIR="$REPO/data" "$UV" run predlab lottery forward); then
   echo "La passe de test a échoué : voir le message ci-dessus. Rien n'a été installé."
   exit 1
 fi
@@ -42,8 +45,8 @@ cat > "$PLIST" <<PLIST
     <string>--project</string>
     <string>$REPO</string>
     <string>predlab</string>
-    <string>racing</string>
-    <string>collect</string>
+    <string>lottery</string>
+    <string>forward</string>
   </array>
   <key>WorkingDirectory</key><string>$REPO</string>
   <key>EnvironmentVariables</key>
@@ -51,10 +54,10 @@ cat > "$PLIST" <<PLIST
     <key>PATH</key><string>$(dirname "$UV"):/usr/bin:/bin:/usr/sbin:/sbin</string>
     <key>PREDLAB_DATA_DIR</key><string>$REPO/data</string>
   </dict>
-  <key>StartInterval</key><integer>300</integer>
+  <key>StartInterval</key><integer>3600</integer>
   <key>RunAtLoad</key><true/>
-  <key>StandardOutPath</key><string>$LOGS/launchd.out.log</string>
-  <key>StandardErrorPath</key><string>$LOGS/launchd.err.log</string>
+  <key>StandardOutPath</key><string>$LOGS/lottery.log</string>
+  <key>StandardErrorPath</key><string>$LOGS/lottery.err.log</string>
 </dict>
 </plist>
 PLIST
@@ -62,10 +65,8 @@ PLIST
 launchctl bootout "gui/$(id -u)" "$PLIST" 2>/dev/null || true
 launchctl bootstrap "gui/$(id -u)" "$PLIST"
 echo "Agent installé : $PLIST"
-echo "Première exécution en cours, vérification dans 30 secondes…"
-sleep 30
-
-if grep -qs "Operation not permitted" "$LOGS/launchd.err.log"; then
+sleep 20
+if grep -qs "Operation not permitted" "$LOGS/lottery.err.log"; then
   cat <<'MSG'
 
 macOS bloque l'accès au dossier Documents pour les tâches en arrière-plan.
@@ -74,6 +75,5 @@ ajoutez le programme uv (chemin affiché par `which uv`), puis relancez ce scrip
 MSG
   exit 1
 fi
-
-tail -n 5 "$LOGS/collect.log" 2>/dev/null || echo "Pas encore de ligne dans collect.log : regardez $LOGS/launchd.err.log"
-echo "OK. Suivi : uv run predlab racing today"
+tail -n 5 "$LOGS/lottery.log" 2>/dev/null || true
+echo "OK. Suivi : uv run predlab lottery carnet"

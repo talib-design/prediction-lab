@@ -688,6 +688,185 @@ export interface LabResponse {
   catalogue: number;
 }
 
+// ------------------------------------------------------------------ EuroMillions
+
+export interface EmDraw {
+  draw_date: string;
+  balls: number[];
+  stars: number[];
+  balls_order?: number[];
+}
+
+export interface EmGrid {
+  draw_date: string;
+  logic: string;
+  balls: number[];
+  stars: number[];
+  frozen_at: string;
+  history_last_draw: string;
+  history_draws: number;
+  history_stale: boolean;
+}
+
+export interface EmSettledGrid {
+  logic: string;
+  balls: number[];
+  stars: number[];
+  ball_hits: number;
+  star_hits: number;
+  rank: number;
+  payout_eur: number | null;
+}
+
+export interface EmLogicSummary {
+  draws: number;
+  mean_balls: number;
+  z_balls: number;
+  p_balls: number;
+  mean_stars: number;
+  z_stars: number;
+  wins: number;
+  paid_eur: number;
+  staked_eur: number;
+  roi: number;
+}
+
+export interface EmCarnetResponse {
+  last_draw: EmDraw | null;
+  next_draw: string | null;
+  pending: EmGrid[];
+  draws: { draw_date: string; balls: number[] | null; stars: number[] | null; grids: EmSettledGrid[] }[];
+  summary: Record<string, EmLogicSummary>;
+  chain_ok: boolean;
+  agent_log: string[];
+}
+
+export interface EmTest {
+  test_id: string;
+  hypothesis: string;
+  family: string;
+  label: string;
+  n_draws: number;
+  statistic: number;
+  p_value: number;
+  q_value: number | null;
+  observed: number | null;
+  expected: number | null;
+  decision: string | null;
+  note: string;
+  detail: Record<string, any>;
+}
+
+export interface EmFamilySummary {
+  tests: number;
+  nominal_p_lt_0_05: number;
+  expected_by_chance: number;
+  bh_survivors: number;
+}
+
+export interface EmControl {
+  histories: number;
+  tests_per_history: number;
+  nominal_rate: number;
+  histories_with_survivor: Record<string, number>;
+  ks_p_family_b: number;
+  passed: boolean;
+  reasons: string[];
+}
+
+export interface EmAnalysisResponse {
+  analysis: {
+    created_at: string;
+    n_draws: number;
+    first_draw: string;
+    last_draw: string;
+    summary: Record<string, EmFamilySummary>;
+    results: EmTest[];
+    d3_popularity: EmTest[];
+  } | null;
+  control: EmControl | null;
+  hypotheses: Hypothesis[];
+}
+
+export interface EmLogicComparison {
+  logic: string;
+  pool: string;
+  n: number;
+  logloss_diff: number;
+  logloss_ci: [number, number];
+  logloss_p: number;
+  logloss_q: number;
+  mean_matches: number;
+  matches_z: number;
+  matches_p: number;
+  percentile_vs_players: number;
+}
+
+export interface EmPoolBlock {
+  expected_matches: number;
+  variance_matches: number;
+  logics: EmLogicComparison[];
+  witness_r1: { mean_matches: number; z: number };
+  random_players: {
+    players: number;
+    mean_matches_quantiles: Record<string, number>;
+    best: number;
+    worst: number;
+  };
+}
+
+export interface EmRunBlock {
+  spec: string;
+  n_draws_total: number;
+  n_targets: number;
+  first_target: string;
+  last_target: string;
+  pools: Record<string, EmPoolBlock>;
+}
+
+export interface EmPayoutLine {
+  mean_payout_eur: number;
+  ci95: [number, number];
+  roi: number;
+  wins: number;
+  rank_counts: Record<string, number>;
+  percentile_vs_players?: number;
+}
+
+export interface EmBacktestResponse {
+  backtest: {
+    created_at: string;
+    rank_mapping_check: Record<string, number>;
+    balls_2004: EmRunBlock;
+    grid_2016_09: EmRunBlock;
+    payouts_2016_09: {
+      price_eur: number;
+      n_draws: number;
+      random_players: { players: number; mean_payout_quantiles: Record<string, number>; roi_median: number };
+      witness_r1: EmPayoutLine;
+      logics: Record<string, EmPayoutLine>;
+    };
+  } | null;
+}
+
+export interface EmDataResponse {
+  store: { draws: number; first: string; last: string; eras: Record<string, number>; retrieved_at: string } | null;
+  recent: (EmDraw & { weekday: number; jackpot_winners: number | null; jackpot_eur: number | null })[];
+  archives: {
+    archive: string;
+    archive_sha256: string;
+    csv: string;
+    rows: number;
+    first_draw: string;
+    last_draw: string;
+    encoding: string;
+    url: string | null;
+    recorded_at: string;
+  }[];
+  agent_log: string[];
+  agent_errors?: string[];
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -738,4 +917,10 @@ export const api = {
     ),
   raceProfile: (day: string, rc: string) => get<RaceProfile>(`/races/${day}/${rc}/profile`),
   banc: () => get<BancResponse>("/banc"),
+  em: {
+    carnet: () => get<EmCarnetResponse>("/euromillions/carnet"),
+    analysis: () => get<EmAnalysisResponse>("/euromillions/analysis"),
+    backtest: () => get<EmBacktestResponse>("/euromillions/backtest"),
+    data: () => get<EmDataResponse>("/euromillions/data"),
+  },
 };

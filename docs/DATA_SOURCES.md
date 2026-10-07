@@ -125,6 +125,29 @@ Constats :
 - Les captures de la sonde entrent dans la base à la reconstruction ; le modèle, le
   carnet, le banc et le labo ne lisent que `country_code = 'FRA'`.
 
+## FDJ — archives EuroMillions (ajoutées le 2026-10-06)
+
+- **Source** : page « historique des résultats » EuroMillions de la FDJ, 6 archives ZIP
+  (une CSV chacune) servies par `https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/<id>`.
+  Identifiants, périodes, empreintes et nombre de lignes : `data/manifests/euromillions_fdj.json`.
+  Seule la première archive (depuis février 2020) grandit à chaque tirage.
+- **Formats** : trois mises en page (76, 55 et 52 colonnes), encodages UTF-8 et latin-1,
+  dates `jj/mm/aaaa`, `jj/mm/aa` ou `aaaammjj`, 12 rangs de gains avant le 2011-05-10 puis 13.
+  Lecture par nom de colonne, refus motivé de toute ligne non conforme
+  (`src/predlab/lottery/euromillions.py`).
+- **Conditions de réutilisation** : non trouvées sur la page de téléchargement. Je ne sais pas.
+  Par prudence, comme pour le PMU : archives brutes jamais commitées ni redistribuées ;
+  seuls des agrégats (comptes, tests, rapports) sont publiés.
+- **Accès réseau** : l'hôte FDJ répond depuis le Mac de Chris ; il est refusé (403 du proxy)
+  depuis le bac à sable et la VM, par la politique réseau de l'organisation.
+- **Faits vérifiés dans les données** : mardi et vendredi depuis le 2011-05-10 (vendredi seul
+  avant) ; table des 13 rangs de l'ère 2016-09 contrôlée par les gagnants européens (écart
+  ≤ 4 %) ; en 2011-05, les rangs 6 (4+0) et 7 (3+2) sont inversés par rapport à 2016-09.
+- **Clôture des ventes** : 20 h le jour du tirage, en bureau de tabac et en ligne (Chris,
+  2026-10-06). Le carnet fige ses grilles avant 20 h.
+- **Non vérifié** : heure exacte du tirage (les résultats ne sont cherchés qu'après 23 h 30),
+  constance du prix de 2,50 EUR depuis 2016.
+
 ## Autres sources
 
 | Source | Statut | Usage prévu |

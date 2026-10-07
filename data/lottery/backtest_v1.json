@@ -1,0 +1,706 @@
+{
+  "created_at": "2026-10-06T21:36:08+00:00",
+  "rank_mapping_check": {
+    "1": 1.0111032514419702,
+    "2": 0.9597622573273001,
+    "3": 0.9970164934195779,
+    "4": 0.9999036967167293,
+    "5": 0.999327420252177,
+    "6": 1.0048478206913054,
+    "7": 1.000712941511845,
+    "8": 1.0108730952833427,
+    "9": 1.000307354831661,
+    "10": 1.0007838633230421,
+    "11": 1.0124322830938652,
+    "12": 1.0000178191963363,
+    "13": 1.0
+  },
+  "balls_2004": {
+    "spec": "euromillions/main-2004",
+    "n_draws_total": 1987,
+    "n_targets": 1787,
+    "first_target": "2007-12-14",
+    "last_target": "2026-10-06",
+    "dataset_fingerprint": "2e9a00613c06ac153476ccae10438d336954e83212b82b32bca3919fe0cb0292",
+    "pools": {
+      "main": {
+        "expected_matches": 0.5,
+        "variance_matches": 0.413265306122449,
+        "logics": [
+          {
+            "logic": "frequency",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.0005506799669345711,
+            "logloss_ci": [
+              0.0002638953828118809,
+              0.000804327408680122
+            ],
+            "logloss_p": 0.0003999200159968006,
+            "logloss_diff_early": 0.0007425282988548948,
+            "logloss_diff_late": 0.00025692919242200734,
+            "mean_matches": 0.5030777839955233,
+            "matches_z": 0.20238855025359886,
+            "matches_p": 0.8396129787678366,
+            "percentile_vs_players": 0.583,
+            "logloss_q": 0.00045705144685348644
+          },
+          {
+            "logic": "rolling_frequency_100",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.00425683026466249,
+            "logloss_ci": [
+              0.0036361087065825584,
+              0.004866546647042449
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0043431403101292865,
+            "logloss_diff_late": 0.004124675648303276,
+            "mean_matches": 0.5086737548964745,
+            "matches_z": 0.5703677325328695,
+            "matches_p": 0.568428310150675,
+            "percentile_vs_players": 0.711,
+            "logloss_q": 0.0002666133439978671
+          },
+          {
+            "logic": "rolling_frequency_300",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.0015501585749206587,
+            "logloss_ci": [
+              0.0011467525100378195,
+              0.0019423313409807658
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.001621392459612355,
+            "logloss_diff_late": 0.0014410879951023533,
+            "mean_matches": 0.4930050363738109,
+            "matches_z": -0.45997397784908833,
+            "matches_p": 0.6455348988071126,
+            "percentile_vs_players": 0.33,
+            "logloss_q": 0.0002666133439978671
+          },
+          {
+            "logic": "shrunk_frequency",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 1.2968710894192834e-05,
+            "logloss_ci": [
+              -2.278905509799278e-05,
+              4.865878978710433e-05
+            ],
+            "logloss_p": 0.45990801839632073,
+            "logloss_diff_early": 1.8454690912547755e-05,
+            "logloss_diff_late": 4.568789647958174e-06,
+            "mean_matches": 0.49580302182428654,
+            "matches_z": -0.275984386709453,
+            "matches_p": 0.7825600582997034,
+            "percentile_vs_players": 0.385,
+            "logloss_q": 0.45990801839632073
+          },
+          {
+            "logic": "gap",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.049046381758270675,
+            "logloss_ci": [
+              0.04647331128084995,
+              0.051816098748897324
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.049519775681484385,
+            "logloss_diff_late": 0.048321539221451916,
+            "mean_matches": 0.48181309457190824,
+            "matches_z": -1.1959323424076296,
+            "matches_p": 0.2317229626789825,
+            "percentile_vs_players": 0.128,
+            "logloss_q": 0.0002666133439978671
+          },
+          {
+            "logic": "hot50",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.0014045753948216779,
+            "logloss_ci": [
+              0.0010534975250979042,
+              0.001767353192118737
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0016356407332269948,
+            "logloss_diff_late": 0.001050777050889458,
+            "mean_matches": 0.49524342473419136,
+            "matches_z": -0.3127823049373801,
+            "matches_p": 0.7544460599524543,
+            "percentile_vs_players": 0.381,
+            "logloss_q": 0.0002666133439978671
+          },
+          {
+            "logic": "cold50",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.0015118792538045217,
+            "logloss_ci": [
+              0.0012256340661698766,
+              0.0018437689917496516
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0012737542365116772,
+            "logloss_diff_late": 0.001876487106061696,
+            "mean_matches": 0.49076664801343034,
+            "matches_z": -0.6071656507607965,
+            "matches_p": 0.5437409852415092,
+            "percentile_vs_players": 0.28,
+            "logloss_q": 0.0002666133439978671
+          },
+          {
+            "logic": "repeat",
+            "pool": "main",
+            "n": 1787,
+            "logloss_diff": 0.0010670688070462428,
+            "logloss_ci": [
+              0.0008047727936349329,
+              0.0013396509386305448
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0011068525814045042,
+            "logloss_diff_late": 0.0010061534244948536,
+            "mean_matches": 0.48628987129266926,
+            "matches_z": -0.9015489965842132,
+            "matches_p": 0.36729649506765427,
+            "percentile_vs_players": 0.182,
+            "logloss_q": 0.0002666133439978671
+          }
+        ],
+        "witness_r1": {
+          "mean_matches": 0.5120313374370453,
+          "z": 0.791155241900432
+        },
+        "random_players": {
+          "players": 1000,
+          "mean_matches_quantiles": {
+            "0.025": 0.4667039731393397,
+            "0.5": 0.5002797985450476,
+            "0.975": 0.530512031337437
+          },
+          "best": 0.553441522104085,
+          "worst": 0.43592613318410744
+        }
+      }
+    }
+  },
+  "grid_2016_09": {
+    "spec": "euromillions/2016-09",
+    "n_draws_total": 1047,
+    "n_targets": 847,
+    "first_target": "2018-08-28",
+    "last_target": "2026-10-06",
+    "dataset_fingerprint": "6b59b8db0198612b66748155f9a9cbee5359b6cc3311dc50c3c5f4f463b80b40",
+    "pools": {
+      "main": {
+        "expected_matches": 0.5,
+        "variance_matches": 0.413265306122449,
+        "logics": [
+          {
+            "logic": "frequency",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.0009322148054361905,
+            "logloss_ci": [
+              0.0004845781308616735,
+              0.0012830345422637558
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0025895409826907512,
+            "logloss_diff_late": 0.000601219067485917,
+            "mean_matches": 0.4887839433293979,
+            "matches_z": -0.5077704536386588,
+            "matches_p": 0.6116143328446777,
+            "percentile_vs_players": 0.281,
+            "logloss_q": 0.00022852572342674322
+          },
+          {
+            "logic": "rolling_frequency_100",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.004226052982930083,
+            "logloss_ci": [
+              0.003343398346321906,
+              0.0051222762920863085
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.004733658644252966,
+            "logloss_diff_late": 0.004124675648303276,
+            "mean_matches": 0.5182998819362455,
+            "matches_z": 0.8284675822525486,
+            "matches_p": 0.40740574663088736,
+            "percentile_vs_players": 0.781,
+            "logloss_q": 0.00022852572342674322
+          },
+          {
+            "logic": "rolling_frequency_300",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.0016336262730148553,
+            "logloss_ci": [
+              0.0011119727427375237,
+              0.0021504898038191057
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.002597683182278873,
+            "logloss_diff_late": 0.0014410879951023533,
+            "mean_matches": 0.4923258559622196,
+            "matches_z": -0.3474218893317139,
+            "matches_p": 0.7282743909822438,
+            "percentile_vs_players": 0.331,
+            "logloss_q": 0.00022852572342674322
+          },
+          {
+            "logic": "shrunk_frequency",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 1.985536597110625e-05,
+            "logloss_ci": [
+              -5.457425647936063e-07,
+              3.2282308952603294e-05
+            ],
+            "logloss_p": 0.03199360127974405,
+            "logloss_diff_early": 7.251460480219796e-05,
+            "logloss_diff_late": 9.338435836284815e-06,
+            "mean_matches": 0.4887839433293979,
+            "matches_z": -0.5077704536386588,
+            "matches_p": 0.6116143328446777,
+            "percentile_vs_players": 0.281,
+            "logloss_q": 0.03199360127974405
+          },
+          {
+            "logic": "gap",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.04660393250763104,
+            "logloss_ci": [
+              0.04292734333928788,
+              0.04985736303821458
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.03800371733062724,
+            "logloss_diff_late": 0.048321539221451916,
+            "mean_matches": 0.5017709563164109,
+            "matches_z": 0.08017428215347244,
+            "matches_p": 0.9360986441708657,
+            "percentile_vs_players": 0.514,
+            "logloss_q": 0.00022852572342674322
+          },
+          {
+            "logic": "hot50",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.0012038367364467775,
+            "logloss_ci": [
+              0.0006763311188305147,
+              0.001667364400338464
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0019702206939181785,
+            "logloss_diff_late": 0.001050777050889458,
+            "mean_matches": 0.5159386068476978,
+            "matches_z": 0.721568539381252,
+            "matches_p": 0.4705597874338615,
+            "percentile_vs_players": 0.746,
+            "logloss_q": 0.00022852572342674322
+          },
+          {
+            "logic": "cold50",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.0017514619906564939,
+            "logloss_ci": [
+              0.0012627157815523892,
+              0.002203477999798026
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0011254497106843464,
+            "logloss_diff_late": 0.001876487106061696,
+            "mean_matches": 0.45454545454545453,
+            "matches_z": -2.0578065752724592,
+            "matches_p": 0.03960870463975981,
+            "percentile_vs_players": 0.019,
+            "logloss_q": 0.00022852572342674322
+          },
+          {
+            "logic": "repeat",
+            "pool": "main",
+            "n": 847,
+            "logloss_diff": 0.0011960581862368465,
+            "logloss_ci": [
+              0.0008051573086486896,
+              0.0016192402605168764
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0021469288372286677,
+            "logloss_diff_late": 0.0010061534244948536,
+            "mean_matches": 0.4722550177095632,
+            "matches_z": -1.256063753737735,
+            "matches_p": 0.2090928563180361,
+            "percentile_vs_players": 0.09,
+            "logloss_q": 0.00022852572342674322
+          }
+        ],
+        "witness_r1": {
+          "mean_matches": 0.5029515938606848,
+          "z": 0.13362380358912074
+        },
+        "random_players": {
+          "players": 1000,
+          "mean_matches_quantiles": {
+            "0.025": 0.4568772136953955,
+            "0.5": 0.500590318772137,
+            "0.975": 0.5454545454545454
+          },
+          "best": 0.577331759149941,
+          "worst": 0.42739079102715466
+        }
+      },
+      "stars": {
+        "expected_matches": 0.3333333333333333,
+        "variance_matches": 0.25252525252525254,
+        "logics": [
+          {
+            "logic": "frequency",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.0006642658488843372,
+            "logloss_ci": [
+              -0.0002187874980115511,
+              0.0017086983567264125
+            ],
+            "logloss_p": 0.1893621275744851,
+            "logloss_diff_early": 0.001286319674291726,
+            "logloss_diff_late": 0.0005400313030168558,
+            "mean_matches": 0.37662337662337664,
+            "matches_z": 2.507132682112036,
+            "matches_p": 0.012171501347889623,
+            "percentile_vs_players": 0.987,
+            "logloss_q": 0.2164138600851258
+          },
+          {
+            "logic": "rolling_frequency_100",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.004308235755767423,
+            "logloss_ci": [
+              0.00248726682599819,
+              0.006618566832316683
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.003625086626963669,
+            "logloss_diff_late": 0.00444467205486279,
+            "mean_matches": 0.3364817001180638,
+            "matches_z": 0.182336922335422,
+            "matches_p": 0.8553183244980866,
+            "percentile_vs_players": 0.518,
+            "logloss_q": 0.0005332266879957342
+          },
+          {
+            "logic": "rolling_frequency_300",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.0012420539137889977,
+            "logloss_ci": [
+              4.003585475860122e-05,
+              0.0026029495171434706
+            ],
+            "logloss_p": 0.07578484303139373,
+            "logloss_diff_early": 0.0011813367695164732,
+            "logloss_diff_late": 0.0012541801423193461,
+            "mean_matches": 0.3577331759149941,
+            "matches_z": 1.4131111480995118,
+            "matches_p": 0.15762304586887366,
+            "percentile_vs_players": 0.903,
+            "logloss_q": 0.10104645737519163
+          },
+          {
+            "logic": "shrunk_frequency",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.00011028147438507709,
+            "logloss_ci": [
+              -0.000328831870516064,
+              0.0006041885193131919
+            ],
+            "logloss_p": 0.6660667866426715,
+            "logloss_diff_early": 0.0002550023197706759,
+            "logloss_diff_late": 8.137830271458214e-05,
+            "mean_matches": 0.37662337662337664,
+            "matches_z": 2.507132682112036,
+            "matches_p": 0.012171501347889623,
+            "percentile_vs_players": 0.987,
+            "logloss_q": 0.6660667866426715
+          },
+          {
+            "logic": "gap",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.07450470206171059,
+            "logloss_ci": [
+              0.0650216962018173,
+              0.08405643353335285
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.0790420442441201,
+            "logloss_diff_late": 0.07359851899128603,
+            "mean_matches": 0.33766233766233766,
+            "matches_z": 0.25071326821120477,
+            "matches_p": 0.8020358017054905,
+            "percentile_vs_players": 0.552,
+            "logloss_q": 0.0005332266879957342
+          },
+          {
+            "logic": "hot50",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.002405354557024652,
+            "logloss_ci": [
+              0.0008909054216724118,
+              0.004031130761073096
+            ],
+            "logloss_p": 0.003199360127974405,
+            "logloss_diff_early": -0.0007842588100924595,
+            "logloss_diff_late": 0.003042373657256256,
+            "mean_matches": 0.3565525383707202,
+            "matches_z": 1.3447348022237289,
+            "matches_p": 0.17871089151815533,
+            "percentile_vs_players": 0.883,
+            "logloss_q": 0.00639872025594881
+          },
+          {
+            "logic": "cold50",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.004017682052744417,
+            "logloss_ci": [
+              0.002578509708830234,
+              0.005352773128339231
+            ],
+            "logloss_p": 0.0001999600079984003,
+            "logloss_diff_early": 0.006431314229925932,
+            "logloss_diff_late": 0.003535639365800234,
+            "mean_matches": 0.31995277449822906,
+            "matches_z": -0.7749319199255367,
+            "matches_p": 0.4383798893501947,
+            "percentile_vs_players": 0.203,
+            "logloss_q": 0.0005332266879957342
+          },
+          {
+            "logic": "repeat",
+            "pool": "stars",
+            "n": 847,
+            "logloss_diff": 0.0020666217120582477,
+            "logloss_ci": [
+              0.0005392669378269262,
+              0.003593976486289571
+            ],
+            "logloss_p": 0.009798040391921616,
+            "logloss_diff_early": 0.0011123307286618255,
+            "logloss_diff_late": 0.002257209571348468,
+            "mean_matches": 0.345926800472255,
+            "matches_z": 0.7293476893416841,
+            "matches_p": 0.46578900755716013,
+            "percentile_vs_players": 0.715,
+            "logloss_q": 0.015676864627074585
+          }
+        ],
+        "witness_r1": {
+          "mean_matches": 0.32231404958677684,
+          "z": -0.6381792281739711
+        },
+        "random_players": {
+          "players": 1000,
+          "mean_matches_quantiles": {
+            "0.025": 0.3010330578512397,
+            "0.5": 0.33530106257378983,
+            "0.975": 0.371900826446281
+          },
+          "best": 0.3919716646989374,
+          "worst": 0.27390791027154665
+        }
+      }
+    }
+  },
+  "payouts_2016_09": {
+    "price_eur": 2.5,
+    "n_draws": 847,
+    "random_players": {
+      "players": 1000,
+      "mean_payout_quantiles": {
+        "0.025": 0.31635773317591503,
+        "0.5": 0.4181818181818182,
+        "0.975": 0.578538961038961
+      },
+      "roi_median": -0.8327272727272728
+    },
+    "witness_r1": {
+      "mean_payout_eur": 0.38819362455726086,
+      "ci95": [
+        0.3073170011806376,
+        0.48266233766233757
+      ],
+      "roi": -0.8447225501770956,
+      "wins": 62,
+      "rank_counts": {
+        "8": 1,
+        "9": 1,
+        "10": 3,
+        "11": 5,
+        "12": 13,
+        "13": 39
+      },
+      "unknown_rank1": 0
+    },
+    "logics": {
+      "frequency": {
+        "mean_payout_eur": 0.37166469893742615,
+        "ci95": [
+          0.27708382526564346,
+          0.47734651711924425
+        ],
+        "roi": -0.8513341204250295,
+        "wins": 65,
+        "rank_counts": {
+          "9": 1,
+          "10": 1,
+          "11": 5,
+          "12": 24,
+          "13": 34
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.197
+      },
+      "rolling_frequency_100": {
+        "mean_payout_eur": 0.4159386068476978,
+        "ci95": [
+          0.3206523022432114,
+          0.5171192443919717
+        ],
+        "roi": -0.8336245572609209,
+        "wins": 69,
+        "rank_counts": {
+          "9": 1,
+          "10": 4,
+          "11": 4,
+          "12": 18,
+          "13": 42
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.484
+      },
+      "rolling_frequency_300": {
+        "mean_payout_eur": 0.35383707201889025,
+        "ci95": [
+          0.2579634002361275,
+          0.46368063754427363
+        ],
+        "roi": -0.8584651711924439,
+        "wins": 60,
+        "rank_counts": {
+          "8": 1,
+          "10": 3,
+          "11": 4,
+          "12": 17,
+          "13": 35
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.106
+      },
+      "shrunk_frequency": {
+        "mean_payout_eur": 0.3533648170011806,
+        "ci95": [
+          0.2653896103896104,
+          0.44737308146399035
+        ],
+        "roi": -0.8586540731995278,
+        "wins": 64,
+        "rank_counts": {
+          "10": 2,
+          "11": 4,
+          "12": 17,
+          "13": 41
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.103
+      },
+      "gap": {
+        "mean_payout_eur": 0.3730814639905549,
+        "ci95": [
+          0.2763872491145219,
+          0.47556080283353
+        ],
+        "roi": -0.850767414403778,
+        "wins": 60,
+        "rank_counts": {
+          "8": 1,
+          "9": 2,
+          "10": 1,
+          "11": 2,
+          "12": 17,
+          "13": 37
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.21
+      },
+      "hot50": {
+        "mean_payout_eur": 0.4269185360094451,
+        "ci95": [
+          0.3364787485242031,
+          0.5378335301062571
+        ],
+        "roi": -0.8292325855962219,
+        "wins": 73,
+        "rank_counts": {
+          "9": 1,
+          "10": 4,
+          "11": 4,
+          "12": 27,
+          "13": 37
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.552
+      },
+      "cold50": {
+        "mean_payout_eur": 0.35726092089728456,
+        "ci95": [
+          0.27378984651711924,
+          0.45431818181818173
+        ],
+        "roi": -0.8570956316410862,
+        "wins": 61,
+        "rank_counts": {
+          "9": 2,
+          "10": 1,
+          "11": 3,
+          "12": 19,
+          "13": 36
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.119
+      },
+      "repeat": {
+        "mean_payout_eur": 0.3759149940968122,
+        "ci95": [
+          0.2847638724911452,
+          0.46837957497048394
+        ],
+        "roi": -0.8496340023612752,
+        "wins": 63,
+        "rank_counts": {
+          "10": 1,
+          "11": 5,
+          "12": 21,
+          "13": 36
+        },
+        "unknown_rank1": 0,
+        "percentile_vs_players": 0.227
+      }
+    }
+  }
+}

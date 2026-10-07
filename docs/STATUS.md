@@ -1,6 +1,59 @@
 # Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
-Dernière mise à jour : 2026-10-05.
+Dernière mise à jour : 2026-10-07.
+
+## EuroMillions — reprise de la loterie, 2026-10-06
+
+Demande de Chris : reprendre la loterie, EuroMillions seulement ; analyser l'historique
+(chaud, froid, séries, retard, hasard), comparer « logique » et « hasard », puis tester
+sur tous les tirages à venir. Module séparé `src/predlab/lottery/` (moteur Loto M1 porté
+depuis le tag `archive/loterie-emploi-2026-09-28`) ; la collecte des courses n'est pas touchée.
+
+- **Données** : 6 archives FDJ téléchargées par Chris depuis son Mac (le bac à sable et la
+  VM sont bloqués par la politique réseau), SHA-256 dans `data/manifests/euromillions_fdj.json`.
+  1 987 tirages du 2004-02-13 au 2026-10-06, lecture stricte : 0 anomalie, 0 date manquante,
+  3 époques confirmées par les données (étoiles 1-9, 1-11, 1-12). Archives brutes jamais
+  commitées. Recalcul indépendant (script sans le code du labo) : mêmes chiffres.
+- **Registre** : 17 hypothèses `em-*` inscrites avant tout calcul, dont deux « 100 % hasard »
+  ajoutées à la demande de Chris : témoin (R1) et contrôle négatif (R2).
+- **Contrôle 100 % hasard (R2) réussi** : 200 historiques fabriqués, 4,97 % de p < 0,05,
+  au plus 7,5 % d'historiques avec un faux signal après correction (plafond 8 %).
+- **Résultats** : 8 tests sur 136 à p < 0,05 (6,8 attendus), aucun après correction. Chaud,
+  froid, séries, retard : ratios 0,96 à 1,03, |z| ≤ 1,4 (un effet de 5 % sur les boules,
+  10 % sur les étoiles aurait été vu). Aucune logique ne bat le hasard en marche avant ;
+  gains fictifs −83 % à −86 % pour toutes, comme 1 000 joueurs au hasard (médiane −83 %).
+  Seul effet net : la **popularité** — chaque boule ≤ 31 dans le tirage baisse le rapport
+  de 6 à 20 % selon le rang (les joueurs surjouent les dates). Rapport complet :
+  `docs/reports/euromillions.md`.
+- **Carnet à terme** : 8 logiques + témoin hasard, une grille chacun figée avant chaque
+  tirage (avant 20 h, clôture des ventes), notée avec les rapports officiels. Premières grilles figées pour le 9/10.
+  Automatisation : agent horaire `fr.predictionlab.lottery`, installé par Chris le 6/10
+  à 23 h 52 (`bash ops/install_lottery.sh`) ; il télécharge l'archive FDJ depuis le Mac. Suivi : `uv run predlab lottery carnet`.
+- **Commandes** : `predlab lottery ingest | register | control | analyze | backtest |
+  forward | carnet | report`.
+- **Tableau de bord** (2026-10-07) : menu à deux niveaux. En haut, deux entrées avec icône :
+  Courses hippiques (Programme, Carnet, Banc d'essai, Performance, Données, Recherche) et
+  EuroMillions (Carnet, Historique, Logiques vs hasard, Données). Icônes originales : tête de
+  cheval, boule à étoile (le logo EuroMillions est une marque, non reproduit). API en lecture
+  seule `/api/euromillions/{carnet,analysis,backtest,data}`. Après mise à jour : relancer
+  `bash ops/install_dashboard.sh` pour que le serveur charge les nouvelles routes.
+
+## Mac en veille : courses non jouées — 2026-10-06
+
+- **Constat** : le 6/10, 4 courses sur 16 ont un ticket figé (R3C1, R4C4, R4C7, R4C8). Entre
+  08:00 et 19:00 UTC le collecteur n'a tourné que 10 fois (environ 90 à 100 les jours
+  normaux), avec des trous de 71 à 150 min. Même profil les 30/09, 01/10 et 04/10.
+- **Cause établie** (`pmset -g log`, soirée du 6/10) : le Mac, sur batterie, capot ouvert, alterne
+  « Maintenance Sleep » et DarkWake de 10 à 45 s ; il ne s'éveille vraiment que quand
+  il est utilisé, et le collecteur ne passe qu'à ces moments-là. La journée entière n'a
+  pas été relue dans le journal d'énergie (le `tail` ne couvrait que le soir).
+- **Correctif installé le 6/10 à 22:39** : `bash ops/install_keepawake.sh 0 24 10` (agent launchd,
+  `caffeinate -i` jour et nuit, relâché sous 10 % sur batterie ; la veille d'inactivité est
+  bloquée, l'écran s'éteint normalement). Testé avec des simulateurs de `pmset` et
+  `caffeinate`, puis lancé sur le Mac sans erreur. Chris surveille la batterie et branche le
+  Mac au besoin. À vérifier après une journée : lignes « éveillé / relâché » de
+  `data/logs/keepawake.log`, nombre de passages du collecteur (50 le 6/10), courses figées
+  sur les courses suivies, démarrage de la passe de nuit à 1 h 30.
 
 ## Où on en est — 2026-10-05
 
