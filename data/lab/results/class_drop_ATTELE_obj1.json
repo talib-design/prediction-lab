@@ -1,0 +1,54 @@
+{
+ "experiment": "class_drop:ATTELE:obj1",
+ "candidate": "class_drop",
+ "label": "Descend de catégorie",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-08T04:35:57+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0005 (IC 99 % -0.0015 à +0.0004). Probablement déjà dans la cote.",
+ "difference": -0.00047869976573115797,
+ "ci_low": -0.0015217390722646882,
+ "ci_high": 0.0004483865990111476,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.00017501257680456852
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -0.001679043223995693
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 83,
+  "roi_challenger": -0.09183932759968738,
+  "roi_champion": -0.09547498045347924,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 37.19999999999999,
+  "net_difference_low": -26.7,
+  "net_difference_high": 101.01
+ },
+ "lambda": {
+  "champion": 100.0,
+  "challenger": 10.0
+ },
+ "beta": 0.03964557763153179,
+ "beta_low": -0.012884027455974202,
+ "beta_high": 0.0921751827190378,
+ "per_sd": 1.0404419529357842,
+ "races": {
+  "train": 4685,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 2108
+ }
+}

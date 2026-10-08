@@ -1,0 +1,1805 @@
+{
+  "kind": "profile",
+  "generated_at": "2026-10-08T04:34:31+00:00",
+  "discipline": "ATTELE",
+  "discipline_label": "trot attelé",
+  "first_day": "2024-01-01",
+  "last_day": "2026-10-07",
+  "n_races": 11300,
+  "n_runners": 145225,
+  "split_day": "2025-01-01",
+  "race_factors": [
+    {
+      "key": "temp_band",
+      "label": "Température",
+      "levels": [
+        {
+          "level": "Froid (< 10 °C)",
+          "races": 1641,
+          "share": 0.1452212389380531,
+          "favourite_win_rate": 0.32541133455210236,
+          "favourite_expected": 0.3100602315269288,
+          "favourite_vs_odds": {
+            "value": 1.0495100676071074,
+            "low": 0.980124248322723,
+            "high": 1.1188958868914918,
+            "p": 0.16195483395759747,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.2,
+          "outsider_win_rate": 0.34631771150334756,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9968777291605837,
+              "expected": 176.55124079078382
+            },
+            "depuis_2025": {
+              "ratio": 1.0774772373042603,
+              "expected": 332.2575991449063
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Frais (10-17 °C)",
+          "races": 3741,
+          "share": 0.3310619469026549,
+          "favourite_win_rate": 0.32558139534883723,
+          "favourite_expected": 0.31227364663708607,
+          "favourite_vs_odds": {
+            "value": 1.0426156637137458,
+            "low": 0.9968867162354471,
+            "high": 1.0883446111920445,
+            "p": 0.06777088691838767,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.1,
+          "outsider_win_rate": 0.3543391188251001,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0114615511532463,
+              "expected": 471.594792165985
+            },
+            "depuis_2025": {
+              "ratio": 1.0637062121286898,
+              "expected": 696.6209199033539
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Doux (17-24 °C)",
+          "races": 3475,
+          "share": 0.3075221238938053,
+          "favourite_win_rate": 0.3122302158273381,
+          "favourite_expected": 0.31187196569415027,
+          "favourite_vs_odds": {
+            "value": 1.0011487089979072,
+            "low": 0.9536076392539828,
+            "high": 1.0486897787418317,
+            "p": 0.9622282663421337,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.1,
+          "outsider_win_rate": 0.3599769982748706,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9469042329472316,
+              "expected": 421.3731295276987
+            },
+            "depuis_2025": {
+              "ratio": 1.035656238361596,
+              "expected": 662.3819512594732
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Chaud (≥ 24 °C)",
+          "races": 2421,
+          "share": 0.21424778761061947,
+          "favourite_win_rate": 0.32135481206113176,
+          "favourite_expected": 0.3261875120166496,
+          "favourite_vs_odds": {
+            "value": 0.9851842888599881,
+            "low": 0.9303193361032346,
+            "high": 1.0400492416167417,
+            "p": 0.5966195930610505,
+            "verdict": "="
+          },
+          "winner_median_odds": 5.8,
+          "outsider_win_rate": 0.33058192323565827,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0082770025745584,
+              "expected": 190.4238612105033
+            },
+            "depuis_2025": {
+              "ratio": 0.9778464296130297,
+              "expected": 599.2761053818052
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Inconnue",
+          "races": 22,
+          "share": 0.0019469026548672567,
+          "favourite_win_rate": 0.18181818181818182,
+          "favourite_expected": 0.30869804394498046,
+          "favourite_vs_odds": {
+            "value": 0.5889839128704925,
+            "low": 0.0,
+            "high": 1.191024669570017,
+            "p": 0.18087142161296,
+            "verdict": "="
+          },
+          "winner_median_odds": 9.15,
+          "outsider_win_rate": 0.5454545454545454,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.4903618621048907,
+              "expected": 2.0393103079172485
+            },
+            "depuis_2025": {
+              "ratio": 0.6313069326452934,
+              "expected": 4.752046658872321
+            },
+            "verdict": "trop peu de données"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sky_cat",
+      "label": "Ciel",
+      "levels": [
+        {
+          "level": "Ensoleillé",
+          "races": 1898,
+          "share": 0.16796460176991151,
+          "favourite_win_rate": 0.3203371970495258,
+          "favourite_expected": 0.32551157760262245,
+          "favourite_vs_odds": {
+            "value": 0.9841038509560683,
+            "low": 0.9219043838083736,
+            "high": 1.046303318103763,
+            "p": 0.6164396154365548,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.0,
+          "outsider_win_rate": 0.32789473684210524,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.8838818856700752,
+              "expected": 159.52357694615182
+            },
+            "depuis_2025": {
+              "ratio": 1.018988985551339,
+              "expected": 458.2973973436256
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Nuageux ou couvert",
+          "races": 7901,
+          "share": 0.6992035398230089,
+          "favourite_win_rate": 0.3174281736489052,
+          "favourite_expected": 0.3124026233808827,
+          "favourite_vs_odds": {
+            "value": 1.0160867735796677,
+            "low": 0.9846303208409231,
+            "high": 1.0475432263184126,
+            "p": 0.3161880625307676,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.1,
+          "outsider_win_rate": 0.3545328107219623,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0020428040691898,
+              "expected": 942.0755242855055
+            },
+            "depuis_2025": {
+              "ratio": 1.024755576713127,
+              "expected": 1526.217603046849
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Pluie ou averses",
+          "races": 1451,
+          "share": 0.1284070796460177,
+          "favourite_win_rate": 0.33769813921433495,
+          "favourite_expected": 0.3137924724212547,
+          "favourite_vs_odds": {
+            "value": 1.0761830473772098,
+            "low": 1.0031747628574377,
+            "high": 1.149191331896982,
+            "p": 0.04083583727210128,
+            "verdict": "="
+          },
+          "winner_median_odds": 5.8,
+          "outsider_win_rate": 0.35330578512396693,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0041433704968274,
+              "expected": 158.34392246331356
+            },
+            "depuis_2025": {
+              "ratio": 1.114594621440445,
+              "expected": 296.96895501992697
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Autre",
+          "races": 28,
+          "share": 0.00247787610619469,
+          "favourite_win_rate": 0.32142857142857145,
+          "favourite_expected": 0.323307867112049,
+          "favourite_vs_odds": {
+            "value": 0.9941872874908229,
+            "low": 0.4789110676101159,
+            "high": 1.5094635073715301,
+            "p": 0.9823602869245023,
+            "verdict": "="
+          },
+          "winner_median_odds": 5.75,
+          "outsider_win_rate": 0.32142857142857145,
+          "stability": {
+            "avant_2025": {
+              "ratio": null,
+              "expected": 0.0
+            },
+            "depuis_2025": {
+              "ratio": 0.9941872874908229,
+              "expected": 9.052620279137372
+            },
+            "verdict": "trop peu de données"
+          }
+        },
+        {
+          "level": "Inconnu",
+          "races": 22,
+          "share": 0.0019469026548672567,
+          "favourite_win_rate": 0.18181818181818182,
+          "favourite_expected": 0.30869804394498046,
+          "favourite_vs_odds": {
+            "value": 0.5889839128704925,
+            "low": 0.0,
+            "high": 1.191024669570017,
+            "p": 0.18087142161296,
+            "verdict": "="
+          },
+          "winner_median_odds": 9.15,
+          "outsider_win_rate": 0.5454545454545454,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.4903618621048907,
+              "expected": 2.0393103079172485
+            },
+            "depuis_2025": {
+              "ratio": 0.6313069326452934,
+              "expected": 4.752046658872321
+            },
+            "verdict": "trop peu de données"
+          }
+        }
+      ]
+    },
+    {
+      "key": "wind_band",
+      "label": "Vent",
+      "levels": [
+        {
+          "level": "Faible (< 10)",
+          "races": 3745,
+          "share": 0.33141592920353985,
+          "favourite_win_rate": 0.32363150867823764,
+          "favourite_expected": 0.3205240492955859,
+          "favourite_vs_odds": {
+            "value": 1.0096949336234862,
+            "low": 0.9649173898434639,
+            "high": 1.0544724774035086,
+            "p": 0.6713045513426694,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.0,
+          "outsider_win_rate": 0.34729261136303013,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0095273185594946,
+              "expected": 553.7244903858997
+            },
+            "depuis_2025": {
+              "ratio": 1.00983846455615,
+              "expected": 646.6380742260696
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Modéré (10-25)",
+          "races": 6361,
+          "share": 0.5629203539823009,
+          "favourite_win_rate": 0.3167740921238799,
+          "favourite_expected": 0.31152623199060525,
+          "favourite_vs_odds": {
+            "value": 1.0168456444253238,
+            "low": 0.9817191773760078,
+            "high": 1.0519721114746394,
+            "p": 0.3472470939938146,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.1,
+          "outsider_win_rate": 0.3530150753768844,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.971758684535633,
+              "expected": 581.4200675448476
+            },
+            "depuis_2025": {
+              "ratio": 1.0355676092884634,
+              "expected": 1400.1982941473925
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Fort (≥ 25)",
+          "races": 1172,
+          "share": 0.10371681415929204,
+          "favourite_win_rate": 0.3310580204778157,
+          "favourite_expected": 0.3144186630377988,
+          "favourite_vs_odds": {
+            "value": 1.0529210234508775,
+            "low": 0.9716055116906449,
+            "high": 1.1342365352111101,
+            "p": 0.20210898492982443,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.0,
+          "outsider_win_rate": 0.34044368600682595,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9615502824106098,
+              "expected": 124.79846576422358
+            },
+            "depuis_2025": {
+              "ratio": 1.0997118260650751,
+              "expected": 243.70020731607661
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Inconnu",
+          "races": 22,
+          "share": 0.0019469026548672567,
+          "favourite_win_rate": 0.18181818181818182,
+          "favourite_expected": 0.30869804394498046,
+          "favourite_vs_odds": {
+            "value": 0.5889839128704925,
+            "low": 0.0,
+            "high": 1.191024669570017,
+            "p": 0.18087142161296,
+            "verdict": "="
+          },
+          "winner_median_odds": 9.15,
+          "outsider_win_rate": 0.5454545454545454,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.4903618621048907,
+              "expected": 2.0393103079172485
+            },
+            "depuis_2025": {
+              "ratio": 0.6313069326452934,
+              "expected": 4.752046658872321
+            },
+            "verdict": "trop peu de données"
+          }
+        }
+      ]
+    },
+    {
+      "key": "dist_band",
+      "label": "Distance",
+      "levels": [
+        {
+          "level": "Courte (< 2 200 m)",
+          "races": 2039,
+          "share": 0.1804424778761062,
+          "favourite_win_rate": 0.3050514958312898,
+          "favourite_expected": 0.3084287644786512,
+          "favourite_vs_odds": {
+            "value": 0.9890500853476812,
+            "low": 0.9264952062030976,
+            "high": 1.051604964492265,
+            "p": 0.7315369468386764,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.1,
+          "outsider_win_rate": 0.3393731635651322,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9408406242700237,
+              "expected": 230.64480253322952
+            },
+            "depuis_2025": {
+              "ratio": 1.016970990315423,
+              "expected": 398.2414482387403
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Moyenne (2 200-2 700 m)",
+          "races": 2597,
+          "share": 0.22982300884955753,
+          "favourite_win_rate": 0.3292260300346554,
+          "favourite_expected": 0.31765165649317095,
+          "favourite_vs_odds": {
+            "value": 1.0364373152316089,
+            "low": 0.9822912376690993,
+            "high": 1.0905833927941184,
+            "p": 0.18718671107629958,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.0,
+          "outsider_win_rate": 0.35604311008468054,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0297539585929898,
+              "expected": 299.1005739087787
+            },
+            "depuis_2025": {
+              "ratio": 1.0402388382208223,
+              "expected": 525.8407780039863
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Longue (≥ 2 700 m)",
+          "races": 6664,
+          "share": 0.5897345132743362,
+          "favourite_win_rate": 0.32142857142857145,
+          "favourite_expected": 0.3156427601540463,
+          "favourite_vs_odds": {
+            "value": 1.0183302518065087,
+            "low": 0.9843593058245973,
+            "high": 1.05230119778842,
+            "p": 0.29025179002469537,
+            "verdict": "="
+          },
+          "winner_median_odds": 6.0,
+          "outsider_win_rate": 0.35122170589117074,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9832882546632966,
+              "expected": 732.2369575608799
+            },
+            "depuis_2025": {
+              "ratio": 1.037043003911426,
+              "expected": 1371.2063961056847
+            },
+            "verdict": "sens opposés"
+          }
+        }
+      ]
+    },
+    {
+      "key": "field_band",
+      "label": "Taille du peloton",
+      "levels": [
+        {
+          "level": "Petit (≤ 8)",
+          "races": 581,
+          "share": 0.05141592920353982,
+          "favourite_win_rate": 0.4113597246127367,
+          "favourite_expected": 0.44211344372725975,
+          "favourite_vs_odds": {
+            "value": 0.9304393034166699,
+            "low": 0.8429920050826998,
+            "high": 1.01788660175064,
+            "p": 0.11897980861339992,
+            "verdict": "="
+          },
+          "winner_median_odds": 3.7,
+          "outsider_win_rate": 0.22719449225473323,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9156338378539809,
+              "expected": 69.89693625783879
+            },
+            "depuis_2025": {
+              "ratio": 0.9359741554716818,
+              "expected": 186.97097454769911
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Moyen (9-13)",
+          "races": 5769,
+          "share": 0.5105309734513275,
+          "favourite_win_rate": 0.33818686080776567,
+          "favourite_expected": 0.3360362764760779,
+          "favourite_vs_odds": {
+            "value": 1.0063998576410866,
+            "low": 0.971502869268375,
+            "high": 1.0412968460137981,
+            "p": 0.719263446158209,
+            "verdict": "="
+          },
+          "winner_median_odds": 5.4,
+          "outsider_win_rate": 0.31953585036369936,
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9537472173173536,
+              "expected": 634.3399896900459
+            },
+            "depuis_2025": {
+              "ratio": 1.0320081314281702,
+              "expected": 1304.253289300448
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Grand (≥ 14)",
+          "races": 4950,
+          "share": 0.43805309734513276,
+          "favourite_win_rate": 0.2886868686868687,
+          "favourite_expected": 0.27511308415257935,
+          "favourite_vs_odds": {
+            "value": 1.0493389275762735,
+            "low": 1.0054790733243737,
+            "high": 1.0931987818281732,
+            "p": 0.02746762755446704,
+            "verdict": "="
+          },
+          "winner_median_odds": 7.1,
+          "outsider_win_rate": 0.4003228410008071,
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.032729255465598,
+              "expected": 557.7454080550036
+            },
+            "depuis_2025": {
+              "ratio": 1.060860354003267,
+              "expected": 804.0643585002641
+            },
+            "verdict": "même sens"
+          }
+        }
+      ]
+    }
+  ],
+  "runner_factors": [
+    {
+      "key": "draw_band",
+      "label": "Position au départ",
+      "levels": [
+        {
+          "level": "Intérieur (1er tiers)",
+          "runners": 16197,
+          "share": 0.11153038388707179,
+          "races": 3846,
+          "wins": 1669,
+          "win_rate": 0.10304377353830957,
+          "placed_rate": 0.29678335494227326,
+          "result_vs_chance": {
+            "value": 1.3067886234858141,
+            "low": 1.2542441474797643,
+            "high": 1.3593330994918642,
+            "p": 2.5334211118973716e-30,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.2420446108578012,
+          "missed_by_odds": {
+            "value": 1.0521269623184455,
+            "low": 1.0079681700856737,
+            "high": 1.0962857545512175,
+            "p": 0.020688196825746193,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0382088216839294,
+            "low": 1.0164291893118926,
+            "high": 1.059988454055966,
+            "p": 0.0005850805593534382,
+            "verdict": "+"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0356208034547305,
+              "expected": 590.9498901127009
+            },
+            "depuis_2025": {
+              "ratio": 1.061926740523157,
+              "expected": 995.3605645896724
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Milieu",
+          "runners": 16464,
+          "share": 0.11336891031158547,
+          "races": 3846,
+          "wins": 1438,
+          "win_rate": 0.08734207968901847,
+          "placed_rate": 0.25321914480077745,
+          "result_vs_chance": {
+            "value": 1.1133076424394581,
+            "low": 1.0610473674192145,
+            "high": 1.1655679174597018,
+            "p": 2.142690472846142e-05,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.0830549779143532,
+          "missed_by_odds": {
+            "value": 1.027932713612898,
+            "low": 0.9806548558897117,
+            "high": 1.075210571336084,
+            "p": 0.24686961373477423,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.004165769255475,
+            "low": 0.9807357498149697,
+            "high": 1.0275957886959806,
+            "p": 0.7274840706715304,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0266652547154025,
+              "expected": 501.62406649552094
+            },
+            "depuis_2025": {
+              "ratio": 1.0286412701230487,
+              "expected": 897.3001830750854
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Extérieur (dernier tiers)",
+          "runners": 16197,
+          "share": 0.11153038388707179,
+          "races": 3846,
+          "wins": 742,
+          "win_rate": 0.04581095264555164,
+          "placed_rate": 0.15885657837871212,
+          "result_vs_chance": {
+            "value": 0.5809689386617579,
+            "low": 0.528424462655708,
+            "high": 0.633513414667808,
+            "p": 4.526841766123523e-55,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.6739594343603792,
+          "missed_by_odds": {
+            "value": 0.8620236011876979,
+            "low": 0.7998096312932754,
+            "high": 0.9242375710821203,
+            "p": 1.3816751674951484e-05,
+            "verdict": "−"
+          },
+          "top3_vs_odds": {
+            "value": 0.9335298729537473,
+            "low": 0.9026096165721083,
+            "high": 0.9644501293353863,
+            "p": 2.515676790493265e-05,
+            "verdict": "−"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.8926677967335962,
+              "expected": 311.42604339177825
+            },
+            "depuis_2025": {
+              "ratio": 0.8446510931587996,
+              "expected": 549.3392523352422
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Inconnue",
+          "runners": 96367,
+          "share": 0.663570321914271,
+          "races": 7454,
+          "wins": 7462,
+          "win_rate": 0.07743314620150052,
+          "placed_rate": 0.2321852916454803,
+          "result_vs_chance": {
+            "value": 1.001073249262141,
+            "low": 0.9793117199452066,
+            "high": 1.0228347785790757,
+            "p": 0.9229941987706998,
+            "verdict": "="
+          },
+          "odds_vs_chance": 1.0,
+          "missed_by_odds": {
+            "value": 1.001073249262141,
+            "low": 0.9805609825154008,
+            "high": 1.0215855160088814,
+            "p": 0.9183202452981217,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0005813433503266,
+            "low": 0.9903970853477198,
+            "high": 1.0107656013529331,
+            "p": 0.9109187685921655,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.000374251497006,
+              "expected": 2672.0
+            },
+            "depuis_2025": {
+              "ratio": 1.0014638226683397,
+              "expected": 4782.0
+            },
+            "verdict": "même sens"
+          }
+        }
+      ]
+    },
+    {
+      "key": "rest_band",
+      "label": "Repos depuis la dernière course",
+      "levels": [
+        {
+          "level": "≤ 14 jours",
+          "runners": 29079,
+          "share": 0.20023411946978825,
+          "races": 9529,
+          "wins": 2327,
+          "win_rate": 0.0800233845730596,
+          "placed_rate": 0.2440936758485505,
+          "result_vs_chance": {
+            "value": 1.011285518573077,
+            "low": 0.9721577624600798,
+            "high": 1.0504132746860741,
+            "p": 0.5718646954280127,
+            "verdict": "="
+          },
+          "odds_vs_chance": 1.0265081018630107,
+          "missed_by_odds": {
+            "value": 0.985170518126154,
+            "low": 0.9485968183957841,
+            "high": 1.0217442178565237,
+            "p": 0.42678594140746573,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9948672375621265,
+            "low": 0.9768341274432042,
+            "high": 1.0129003476810485,
+            "p": 0.5769370038796777,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9965506589285543,
+              "expected": 879.0320814617043
+            },
+            "depuis_2025": {
+              "ratio": 0.9784250435644227,
+              "expected": 1482.9955647026131
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "15-30 jours",
+          "runners": 42068,
+          "share": 0.2896746427956619,
+          "races": 10289,
+          "wins": 3752,
+          "win_rate": 0.08918893220500143,
+          "placed_rate": 0.2638822858229533,
+          "result_vs_chance": {
+            "value": 1.1462941110070544,
+            "low": 1.1134577407954311,
+            "high": 1.1791304812186776,
+            "p": 2.4993839304221932e-18,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.1429064803871554,
+          "missed_by_odds": {
+            "value": 1.0029640488334195,
+            "low": 0.9741998929770015,
+            "high": 1.0317282046898373,
+            "p": 0.8399420133287951,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0070817062031183,
+            "low": 0.9928236854116029,
+            "high": 1.0213397269946336,
+            "p": 0.3303151043823471,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0134680021675713,
+              "expected": 1306.4053301813904
+            },
+            "depuis_2025": {
+              "ratio": 0.9973274152700358,
+              "expected": 2434.5064246956413
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "31-90 jours",
+          "runners": 36784,
+          "share": 0.253289722843863,
+          "races": 10097,
+          "wins": 2923,
+          "win_rate": 0.07946389734667246,
+          "placed_rate": 0.2377936059156155,
+          "result_vs_chance": {
+            "value": 1.0295469810402236,
+            "low": 0.9942763955803396,
+            "high": 1.0648175665001074,
+            "p": 0.10060929078995591,
+            "verdict": "="
+          },
+          "odds_vs_chance": 0.9989129906753054,
+          "missed_by_odds": {
+            "value": 1.030667326034281,
+            "low": 0.9973025637083603,
+            "high": 1.0640320883602012,
+            "p": 0.07162299498074189,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0247942552821656,
+            "low": 1.0082302050625995,
+            "high": 1.0413583055017315,
+            "p": 0.0033482444281218568,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9704689607749719,
+              "expected": 932.538841095246
+            },
+            "depuis_2025": {
+              "ratio": 1.0601591429107655,
+              "expected": 1903.4878051038577
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Rentrée (> 90 jours)",
+          "runners": 19591,
+          "share": 0.13490101566534687,
+          "races": 7527,
+          "wins": 1045,
+          "win_rate": 0.05334081976417743,
+          "placed_rate": 0.1670154662855393,
+          "result_vs_chance": {
+            "value": 0.7053310247327768,
+            "low": 0.6564596075914307,
+            "high": 0.7542024418741229,
+            "p": 3.167758970020827e-32,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.7172696990331993,
+          "missed_by_odds": {
+            "value": 0.9833553901461132,
+            "low": 0.927702253101642,
+            "high": 1.0390085271905845,
+            "p": 0.5577535915798786,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9788855696724914,
+            "low": 0.9511320130294687,
+            "high": 1.0066391263155143,
+            "p": 0.13593339783594047,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0530144742175553,
+              "expected": 216.52124028913838
+            },
+            "depuis_2025": {
+              "ratio": 0.9655306876093939,
+              "expected": 846.1667873269274
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Première course connue",
+          "runners": 17703,
+          "share": 0.12190049922533999,
+          "races": 5100,
+          "wins": 1264,
+          "win_rate": 0.07140032762808564,
+          "placed_rate": 0.20934304920070046,
+          "result_vs_chance": {
+            "value": 0.8995639563653635,
+            "low": 0.8495035785863605,
+            "high": 0.9496243341443664,
+            "p": 8.414672049371917e-05,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.9240072762285746,
+          "missed_by_odds": {
+            "value": 0.973546398938568,
+            "low": 0.9246274234510135,
+            "high": 1.0224653744261225,
+            "p": 0.2892004789540674,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9589875022010937,
+            "low": 0.9345599185461768,
+            "high": 0.9834150858560107,
+            "p": 0.000999505065127034,
+            "verdict": "−"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0047167649395534,
+              "expected": 741.502506972521
+            },
+            "depuis_2025": {
+              "ratio": 0.932039390363519,
+              "expected": 556.8434181709604
+            },
+            "verdict": "sens opposés"
+          }
+        }
+      ]
+    },
+    {
+      "key": "age_band",
+      "label": "Âge",
+      "levels": [
+        {
+          "level": "2-3 ans",
+          "runners": 20466,
+          "share": 0.14092614907901532,
+          "races": 1819,
+          "wins": 1819,
+          "win_rate": 0.08887911658360208,
+          "placed_rate": 0.2666862112772403,
+          "result_vs_chance": {
+            "value": 1.0,
+            "low": 0.95624529258527,
+            "high": 1.04375470741473,
+            "p": 1.0,
+            "verdict": "="
+          },
+          "odds_vs_chance": 1.0,
+          "missed_by_odds": {
+            "value": 1.0,
+            "low": 0.9592730994405919,
+            "high": 1.040726900559408,
+            "p": 1.0,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0001832508704416,
+            "low": 0.9803520049498404,
+            "high": 1.020014496791043,
+            "p": 0.9855502457726227,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0,
+              "expected": 673.0
+            },
+            "depuis_2025": {
+              "ratio": 1.0,
+              "expected": 1146.0
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "4 ans",
+          "runners": 30904,
+          "share": 0.212800826304011,
+          "races": 2491,
+          "wins": 2431,
+          "win_rate": 0.07866295625161791,
+          "placed_rate": 0.23514755371472948,
+          "result_vs_chance": {
+            "value": 1.0050602421462644,
+            "low": 0.9668670555229295,
+            "high": 1.0432534287695991,
+            "p": 0.7951129291448933,
+            "verdict": "="
+          },
+          "odds_vs_chance": 1.0024635352465954,
+          "missed_by_odds": {
+            "value": 1.0025903255413975,
+            "low": 0.9665142302068613,
+            "high": 1.0386664208759337,
+            "p": 0.8880842098218881,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9992970426056336,
+            "low": 0.9813875553663859,
+            "high": 1.0172065298448814,
+            "p": 0.9386794834269216,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.003666517349907,
+              "expected": 877.7815985395257
+            },
+            "depuis_2025": {
+              "ratio": 1.0019796600740438,
+              "expected": 1546.937589417193
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "5 ans",
+          "runners": 30001,
+          "share": 0.2065828886211052,
+          "races": 2555,
+          "wins": 2312,
+          "win_rate": 0.07706409786340455,
+          "placed_rate": 0.2305256491450285,
+          "result_vs_chance": {
+            "value": 1.0136247172223485,
+            "low": 0.9742447012191321,
+            "high": 1.053004733225565,
+            "p": 0.49770239162833996,
+            "verdict": "="
+          },
+          "odds_vs_chance": 1.0119045219674878,
+          "missed_by_odds": {
+            "value": 1.0016999580667119,
+            "low": 0.9645716182394185,
+            "high": 1.038828297894005,
+            "p": 0.9284946978233599,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0013227093661567,
+            "low": 0.982817058493276,
+            "high": 1.0198283602390377,
+            "p": 0.8885886206860282,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9955243472495879,
+              "expected": 824.6910306797017
+            },
+            "depuis_2025": {
+              "ratio": 1.0051333011942745,
+              "expected": 1483.3853362816958
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "6-7 ans",
+          "runners": 40808,
+          "share": 0.28099845067997936,
+          "races": 4586,
+          "wins": 3587,
+          "win_rate": 0.08789943148402274,
+          "placed_rate": 0.2525975298960988,
+          "result_vs_chance": {
+            "value": 1.1685380992977172,
+            "low": 1.1345736601886194,
+            "high": 1.202502538406815,
+            "p": 2.3424348792461875e-22,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.1237632397202564,
+          "missed_by_odds": {
+            "value": 1.0398436770263164,
+            "low": 1.0098106097212727,
+            "high": 1.06987674433136,
+            "p": 0.009316771604025902,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0164791687943673,
+            "low": 1.0015354960705296,
+            "high": 1.031422841518205,
+            "p": 0.030667948929502097,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0419677771154678,
+              "expected": 1248.599072422013
+            },
+            "depuis_2025": {
+              "ratio": 1.038638679234962,
+              "expected": 2200.957893926901
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "8 ans et +",
+          "runners": 23046,
+          "share": 0.15869168531588915,
+          "races": 3247,
+          "wins": 1162,
+          "win_rate": 0.05042089733576326,
+          "placed_rate": 0.17248112470710752,
+          "result_vs_chance": {
+            "value": 0.6788695740279891,
+            "low": 0.6333555966463208,
+            "high": 0.7243835514096575,
+            "p": 1.7082677552366898e-43,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.7587024618760526,
+          "missed_by_odds": {
+            "value": 0.8947770807930954,
+            "low": 0.8442228995893533,
+            "high": 0.9453312619968376,
+            "p": 4.5142841985698505e-05,
+            "verdict": "−"
+          },
+          "top3_vs_odds": {
+            "value": 0.9640717334278884,
+            "low": 0.9388853056826476,
+            "high": 0.9892581611731293,
+            "p": 0.005175938099357847,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.8895216375250654,
+              "expected": 451.92829835875943
+            },
+            "depuis_2025": {
+              "ratio": 0.8975821235844871,
+              "expected": 846.7191803742103
+            },
+            "verdict": "même sens"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sex_cat",
+      "label": "Sexe",
+      "levels": [
+        {
+          "level": "Mâle",
+          "runners": 19026,
+          "share": 0.1310105009468067,
+          "races": 6227,
+          "wins": 1871,
+          "win_rate": 0.09833911489540628,
+          "placed_rate": 0.26747608535688006,
+          "result_vs_chance": {
+            "value": 1.1928031706955229,
+            "low": 1.1455184807736292,
+            "high": 1.2400878606174166,
+            "p": 1.3303996523201474e-15,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.1453615552897871,
+          "missed_by_odds": {
+            "value": 1.0414206458970352,
+            "low": 1.0007928811493954,
+            "high": 1.082048410644675,
+            "p": 0.04569344701903995,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9768000854326347,
+            "low": 0.9568057864171402,
+            "high": 0.9967943844481293,
+            "p": 0.02295407686863598,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0219796450603722,
+              "expected": 660.4828220038817
+            },
+            "depuis_2025": {
+              "ratio": 1.0527228465804825,
+              "expected": 1136.1014951702805
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Femelle",
+          "runners": 56112,
+          "share": 0.3863797555517301,
+          "races": 8650,
+          "wins": 4029,
+          "win_rate": 0.07180282292557742,
+          "placed_rate": 0.22426575420587397,
+          "result_vs_chance": {
+            "value": 0.9228923209857144,
+            "low": 0.894459247429559,
+            "high": 0.9513253945418697,
+            "p": 1.0652373131366664e-07,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.9548459899006441,
+          "missed_by_odds": {
+            "value": 0.9665352640604852,
+            "low": 0.9387941879580233,
+            "high": 0.9942763401629472,
+            "p": 0.01806162665410041,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9919924824374089,
+            "low": 0.9782476661124946,
+            "high": 1.0057372987623232,
+            "p": 0.25351856384057847,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9710161102858471,
+              "expected": 1486.0721513417636
+            },
+            "depuis_2025": {
+              "ratio": 0.9640528612001258,
+              "expected": 2682.4255225805273
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Hongre",
+          "runners": 70087,
+          "share": 0.48260974350146324,
+          "races": 8632,
+          "wins": 5411,
+          "win_rate": 0.07720404639947494,
+          "placed_rate": 0.23186896286044487,
+          "result_vs_chance": {
+            "value": 1.0084231619905577,
+            "low": 0.9827568214645838,
+            "high": 1.0340895025165318,
+            "p": 0.5200815922901513,
+            "verdict": "="
+          },
+          "odds_vs_chance": 0.9942441115318583,
+          "missed_by_odds": {
+            "value": 1.014261135966753,
+            "low": 0.9899461356250092,
+            "high": 1.0385761363084969,
+            "p": 0.25032918643941715,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.015398651378683,
+            "low": 1.0032978444648861,
+            "high": 1.02749945829248,
+            "p": 0.012627167622412274,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0158361461060268,
+              "expected": 1929.4450266543547
+            },
+            "depuis_2025": {
+              "ratio": 1.013368779605099,
+              "expected": 3405.472982249192
+            },
+            "verdict": "même sens"
+          }
+        }
+      ]
+    },
+    {
+      "key": "recul_band",
+      "label": "Recul (handicap de distance)",
+      "levels": [
+        {
+          "level": "Sans recul",
+          "runners": 124591,
+          "share": 0.8579170253055604,
+          "races": 11300,
+          "wins": 9586,
+          "win_rate": 0.07693974685169876,
+          "placed_rate": 0.2322880464881091,
+          "result_vs_chance": {
+            "value": 0.9779738803099365,
+            "low": 0.9590086447162135,
+            "high": 0.9969391159036594,
+            "p": 0.02282857774980612,
+            "verdict": "="
+          },
+          "odds_vs_chance": 0.9687964607932421,
+          "missed_by_odds": {
+            "value": 1.009473010986415,
+            "low": 0.9912270428579637,
+            "high": 1.0277189791148662,
+            "p": 0.3088768596647732,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.0085763036684101,
+            "low": 0.9995307652517169,
+            "high": 1.0176218420851035,
+            "p": 0.06312764137798275,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0148199931032145,
+              "expected": 3420.3110143563895
+            },
+            "depuis_2025": {
+              "ratio": 1.0064629474671756,
+              "expected": 6075.73285771599
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "25 m",
+          "runners": 20187,
+          "share": 0.1390049922533999,
+          "races": 3306,
+          "wins": 1706,
+          "win_rate": 0.08450983306088077,
+          "placed_rate": 0.24391935403972853,
+          "result_vs_chance": {
+            "value": 1.1614355758042325,
+            "low": 1.1122767001762466,
+            "high": 1.2105944514322184,
+            "p": 1.2231202642381543e-10,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.2120949802409597,
+          "missed_by_odds": {
+            "value": 0.9582050868433954,
+            "low": 0.9168086338266282,
+            "high": 0.9996015398601628,
+            "p": 0.04783519844750053,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9589672716601461,
+            "low": 0.9383407581925197,
+            "high": 0.9795937851277724,
+            "p": 9.659281754618301e-05,
+            "verdict": "−"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9322398734367179,
+              "expected": 647.9019158163059
+            },
+            "depuis_2025": {
+              "ratio": 0.9730596203164287,
+              "expected": 1132.5102563002679
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "50 m et +",
+          "runners": 447,
+          "share": 0.003077982441039766,
+          "races": 152,
+          "wins": 19,
+          "win_rate": 0.042505592841163314,
+          "placed_rate": 0.1319910514541387,
+          "result_vs_chance": {
+            "value": 0.6500082961076977,
+            "low": 0.2998293128051561,
+            "high": 1.0001872794102393,
+            "p": 0.05012264945730968,
+            "verdict": "="
+          },
+          "odds_vs_chance": 0.8054614000196403,
+          "missed_by_odds": {
+            "value": 0.8070011748444407,
+            "low": 0.4410970026644265,
+            "high": 1.172905347024455,
+            "p": 0.3012309289170346,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.8379984966705978,
+            "low": 0.6522582881606588,
+            "high": 1.0237387051805367,
+            "p": 0.08736412321645746,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.38525402578014717,
+              "expected": 7.787069827304048
+            },
+            "depuis_2025": {
+              "ratio": 1.01542906488684,
+              "expected": 15.7568859837423
+            },
+            "verdict": "sens opposés"
+          }
+        }
+      ]
+    },
+    {
+      "key": "shoeing_cat",
+      "label": "Ferrure",
+      "levels": [
+        {
+          "level": "Déferré des 4",
+          "runners": 57637,
+          "share": 0.3968807023584094,
+          "races": 9437,
+          "wins": 5561,
+          "win_rate": 0.09648316185783437,
+          "placed_rate": 0.2816073008657633,
+          "result_vs_chance": {
+            "value": 1.2666551795416496,
+            "low": 1.2382707882556812,
+            "high": 1.2950395708276181,
+            "p": 1.0382476404184111e-75,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.1659308599520866,
+          "missed_by_odds": {
+            "value": 1.0863896162708158,
+            "low": 1.0616094285924087,
+            "high": 1.111169803949223,
+            "p": 8.321511943927611e-12,
+            "verdict": "+"
+          },
+          "top3_vs_odds": {
+            "value": 1.069492251153822,
+            "low": 1.0572154098977617,
+            "high": 1.0817690924098824,
+            "p": 1.3378171432059527e-28,
+            "verdict": "+"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.1116063695593699,
+              "expected": 1807.2944299485694
+            },
+            "depuis_2025": {
+              "ratio": 1.0726272238275358,
+              "expected": 3311.495290344332
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Déferré partiel",
+          "runners": 28968,
+          "share": 0.19946978825959719,
+          "races": 9037,
+          "wins": 2530,
+          "win_rate": 0.08733775200220933,
+          "placed_rate": 0.25507456503728254,
+          "result_vs_chance": {
+            "value": 1.1420904300948351,
+            "low": 1.1021394826925257,
+            "high": 1.1820413774971448,
+            "p": 3.15028025772082e-12,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.1311796161226038,
+          "missed_by_odds": {
+            "value": 1.0096455185513606,
+            "low": 0.9743446479971676,
+            "high": 1.0449463891055535,
+            "p": 0.5922796211453053,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9984574576268859,
+            "low": 0.9809174279749828,
+            "high": 1.015997487278789,
+            "p": 0.8631487797003484,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9718000259624173,
+              "expected": 928.1744967095558
+            },
+            "depuis_2025": {
+              "ratio": 1.0319109761365608,
+              "expected": 1577.655473823116
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "Protégé",
+          "runners": 13076,
+          "share": 0.09003959373386125,
+          "races": 6611,
+          "wins": 915,
+          "win_rate": 0.06997552768430713,
+          "placed_rate": 0.21397981033955338,
+          "result_vs_chance": {
+            "value": 0.8818590809911243,
+            "low": 0.8235956479661991,
+            "high": 0.9401225140160495,
+            "p": 7.060901467864623e-05,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.9588982112898928,
+          "missed_by_odds": {
+            "value": 0.9196586985023814,
+            "low": 0.8632143714780092,
+            "high": 0.9761030255267535,
+            "p": 0.0052747319416997064,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.9195355770658035,
+            "low": 0.8916712863011402,
+            "high": 0.9473998678304667,
+            "p": 1.5151593777699335e-08,
+            "verdict": "−"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9812316774928825,
+              "expected": 401.53616015200237
+            },
+            "depuis_2025": {
+              "ratio": 0.8779939625651312,
+              "expected": 593.3981578618785
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "Ferré (ou non publié)",
+          "runners": 45544,
+          "share": 0.31360991564813223,
+          "races": 10306,
+          "wins": 2305,
+          "win_rate": 0.05061039873528895,
+          "placed_rate": 0.16480765852801688,
+          "result_vs_chance": {
+            "value": 0.6303187172965024,
+            "low": 0.5993084826884534,
+            "high": 0.6613289519045514,
+            "p": 9.644484520843401e-121,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.7329871058268408,
+          "missed_by_odds": {
+            "value": 0.859931521695018,
+            "low": 0.825619465780195,
+            "high": 0.8942435776098409,
+            "p": 1.2345908305601294e-15,
+            "verdict": "−"
+          },
+          "top3_vs_odds": {
+            "value": 0.9064797424767455,
+            "low": 0.8893972818098039,
+            "high": 0.9235622031436869,
+            "p": 7.35246414468174e-27,
+            "verdict": "−"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.8232206470363411,
+              "expected": 938.9949131898727
+            },
+            "depuis_2025": {
+              "ratio": 0.879726120004043,
+              "expected": 1741.4510779706748
+            },
+            "verdict": "même sens"
+          }
+        }
+      ]
+    },
+    {
+      "key": "odds_band",
+      "label": "Rang dans la cote",
+      "levels": [
+        {
+          "level": "Favori",
+          "runners": 11143,
+          "share": 0.07672921328972285,
+          "races": 11143,
+          "wins": 3589,
+          "win_rate": 0.32208561428699634,
+          "placed_rate": 0.5889796284663017,
+          "result_vs_chance": {
+            "value": 3.9582503103415294,
+            "low": 3.89601164239907,
+            "high": 4.020488978283989,
+            "p": 0.0,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 3.8892073938097984,
+          "missed_by_odds": {
+            "value": 1.0177524388752377,
+            "low": 0.9915240731617428,
+            "high": 1.0439808045887327,
+            "p": 0.1846461950890752,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 0.848879721545002,
+            "low": 0.8372420061138692,
+            "high": 0.8605174369761348,
+            "p": 6.8997831116342905e-143,
+            "verdict": "−"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.9866328420917595,
+              "expected": 1250.7185523885437
+            },
+            "depuis_2025": {
+              "ratio": 1.0348558406099186,
+              "expected": 2275.679285543792
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "2e-3e cote",
+          "runners": 22220,
+          "share": 0.15300395937338612,
+          "races": 11295,
+          "wins": 3639,
+          "win_rate": 0.16377137713771378,
+          "placed_rate": 0.4335733573357336,
+          "result_vs_chance": {
+            "value": 2.010670410842395,
+            "low": 1.9666200407554306,
+            "high": 2.0547207809293595,
+            "p": 0.0,
+            "verdict": "+"
+          },
+          "odds_vs_chance": 1.6979543486305972,
+          "missed_by_odds": {
+            "value": 1.1841722437732225,
+            "low": 1.1516293946629415,
+            "high": 1.2167150928835038,
+            "p": 1.3691810411142937e-28,
+            "verdict": "+"
+          },
+          "top3_vs_odds": {
+            "value": 0.997168725703916,
+            "low": 0.9825321644533325,
+            "high": 1.0118052869544996,
+            "p": 0.7045894916635839,
+            "verdict": "="
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.2103821081510688,
+              "expected": 1088.0861433186553
+            },
+            "depuis_2025": {
+              "ratio": 1.1698048087981936,
+              "expected": 1984.9465334182728
+            },
+            "verdict": "même sens"
+          }
+        },
+        {
+          "level": "4e-6e cote",
+          "runners": 33153,
+          "share": 0.22828714064382855,
+          "races": 11291,
+          "wins": 2411,
+          "win_rate": 0.07272343377673213,
+          "placed_rate": 0.282327391186318,
+          "result_vs_chance": {
+            "value": 0.8924245753093071,
+            "low": 0.8563708928108109,
+            "high": 0.9284782578078034,
+            "p": 4.973506810783738e-09,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.8992985336980971,
+          "missed_by_odds": {
+            "value": 0.992356310912103,
+            "low": 0.9542306312970129,
+            "high": 1.030481990527193,
+            "p": 0.6943589366630702,
+            "verdict": "="
+          },
+          "top3_vs_odds": {
+            "value": 1.1095940143644005,
+            "low": 1.0913513248406048,
+            "high": 1.127836703888196,
+            "p": 5.276849402277078e-32,
+            "verdict": "+"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 1.0051851604848139,
+              "expected": 876.4554378967177
+            },
+            "depuis_2025": {
+              "ratio": 0.9851167235428202,
+              "expected": 1553.1154465610848
+            },
+            "verdict": "sens opposés"
+          }
+        },
+        {
+          "level": "7e cote et au-delà",
+          "runners": 78709,
+          "share": 0.5419796866930625,
+          "races": 11255,
+          "wins": 1672,
+          "win_rate": 0.021242805778246453,
+          "placed_rate": 0.1063029640828876,
+          "result_vs_chance": {
+            "value": 0.2842660801112656,
+            "low": 0.2597179473096187,
+            "high": 0.30881421291291244,
+            "p": 0.0,
+            "verdict": "−"
+          },
+          "odds_vs_chance": 0.38610518553129036,
+          "missed_by_odds": {
+            "value": 0.7362399956377389,
+            "low": 0.6959042360197093,
+            "high": 0.7765757552557685,
+            "p": 1.326835304834689e-37,
+            "verdict": "−"
+          },
+          "top3_vs_odds": {
+            "value": 1.036576636153182,
+            "low": 1.0162246282284588,
+            "high": 1.0569286440779053,
+            "p": 0.0004275808751763047,
+            "verdict": "+"
+          },
+          "stability": {
+            "avant_2025": {
+              "ratio": 0.7505171134977183,
+              "expected": 860.7398663960831
+            },
+            "depuis_2025": {
+              "ratio": 0.727526073703493,
+              "expected": 1410.2587344768506
+            },
+            "verdict": "même sens"
+          }
+        }
+      ]
+    }
+  ],
+  "tests": 104,
+  "correction": "Benjamini-Yekutieli, taux de fausses découvertes 5 %"
+}

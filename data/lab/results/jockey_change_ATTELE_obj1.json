@@ -1,0 +1,54 @@
+{
+ "experiment": "jockey_change:ATTELE:obj1",
+ "candidate": "jockey_change",
+ "label": "Changement de jockey",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-08T04:35:57+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0000 (IC 99 % -0.0002 à +0.0002). Probablement déjà dans la cote.",
+ "difference": 6.12944918912455e-06,
+ "ci_low": -0.0001644772045551061,
+ "ci_high": 0.0001572888198487098,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": 1.426548601405977e-05
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -2.6028767999849804e-05
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 4,
+  "roi_challenger": -0.0953088350273652,
+  "roi_champion": -0.09547498045347924,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 1.7,
+  "net_difference_low": 0.0,
+  "net_difference_high": 5.1
+ },
+ "lambda": {
+  "champion": 100.0,
+  "challenger": 100.0
+ },
+ "beta": 0.004762186137997632,
+ "beta_low": -0.040266753780867526,
+ "beta_high": 0.04979112605686278,
+ "per_sd": 1.0047735433676612,
+ "races": {
+  "train": 4685,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 2108
+ }
+}
