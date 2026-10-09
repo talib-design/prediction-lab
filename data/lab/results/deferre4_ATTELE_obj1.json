@@ -1,0 +1,54 @@
+{
+ "experiment": "deferre4:ATTELE:obj1",
+ "candidate": "deferre4",
+ "label": "Déferré des quatre pieds (trot)",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-09T04:49:43+00:00",
+ "status": "SUPPORTED",
+ "conclusion": "Retenu : écart de log loss -0.0030 (IC 99 % -0.0060 à -0.0005), gain chaque année ; son choix rapporte plus (+57 € face au choix du champion sur 5116 courses, dont 243 où les choix diffèrent). Essai au coffre.",
+ "difference": -0.0030483587182972226,
+ "ci_low": -0.005957763329910963,
+ "ci_high": -0.00045519600335701356,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.003483849780342446
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -0.0013270518389839143
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 243,
+  "roi_challenger": -0.09306098514464434,
+  "roi_champion": -0.0986024237685692,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 56.70000000000002,
+  "net_difference_low": -45.7,
+  "net_difference_high": 166.72250000000003
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 1.0
+ },
+ "beta": 0.09605891013109044,
+ "beta_low": 0.06491580118497794,
+ "beta_high": 0.12720201907720294,
+ "per_sd": 1.1008239117648144,
+ "races": {
+  "train": 10271,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 2121
+ }
+}

@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-08T04:36:41+00:00",
+ "updated_at": "2026-10-09T04:49:53+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-08T04:32:31+00:00",
+   "at": "2026-10-09T04:46:09+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18012498103951763,
-   "confirmation_roi": -0.15460784036879333
+   "confirmation_roi": -0.15444228274016344
   },
   "ATTELE": {
-   "at": "2026-10-08T04:34:50+00:00",
-   "tested": 167,
+   "at": "2026-10-09T04:48:36+00:00",
+   "tested": 165,
    "confirmed": 0,
-   "exploration_roi": 0.11225975939003402,
-   "confirmation_roi": -0.1456020933855476
+   "exploration_roi": 0.11445625381266301,
+   "confirmation_roi": -0.13629094532748964
   },
   "MONTE": {
-   "at": "2026-10-08T04:36:41+00:00",
+   "at": "2026-10-09T04:49:53+00:00",
    "tested": 108,
    "confirmed": 0,
    "exploration_roi": 0.1533624596126513,
-   "confirmation_roi": -0.07001515364979476
+   "confirmation_roi": -0.07115238190330621
   }
  },
  "strategies": [
@@ -28730,6 +28730,886 @@
       "to": "2026-12-31",
       "bets": 118,
       "roi": 0.0016949152542373724
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "1ad82cebbf",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "venue": "LE BOUSCAT",
+    "jockey_form": "Jockey dans la norme"
+   },
+   "label": "Jockey : Jockey dans la norme · Classement Marché+ : 2e-3e de Marché+ · Hippodrome : LE BOUSCAT",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:46:09+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-08",
+    "bets": 226,
+    "roi": 0.23451327433628322,
+    "low": -0.11314002076657409,
+    "high": 0.5821665694391405,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 45,
+      "roi": 0.008888888888888946
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 91,
+      "roi": 0.05054945054945059
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 90,
+      "roi": 0.5333333333333334
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "4d56586a25",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "venue": "VICHY",
+    "blinkers_change": "Équipement inchangé"
+   },
+   "label": "Oeillères vs dernière course : Équipement inchangé · Valeur selon Marché+ : Cote juste (0,9-1,05) · Hippodrome : VICHY",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 561,
+    "roi": 0.2534759358288772,
+    "low": -0.06733973382173458,
+    "high": 0.5742916054794889,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 176,
+      "roi": 0.3846590909090908
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 191,
+      "roi": 0.02565445026178015
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 194,
+      "roi": 0.3587628865979382
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "82c2d46fed",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "venue": "VICHY",
+    "class_change": "Même niveau"
+   },
+   "label": "Niveau vs dernière course : Même niveau · Valeur selon Marché+ : Cote juste (0,9-1,05) · Hippodrome : VICHY",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 382,
+    "roi": 0.2607329842931938,
+    "low": -0.08082818141281528,
+    "high": 0.6022941499992029,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 113,
+      "roi": 0.16637168141592928
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 130,
+      "roi": 0.24384615384615382
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 139,
+      "roi": 0.3532374100719424
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "9ba762a6c1",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "venue": "LE CROISE LAROCHE",
+    "class_change": "Même niveau"
+   },
+   "label": "Niveau vs dernière course : Même niveau · Classement Marché+ : 2e-3e de Marché+ · Hippodrome : LE CROISE LAROCHE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 276,
+    "roi": 0.21304347826086967,
+    "low": -0.1341778315608576,
+    "high": 0.5602647880825969,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 98,
+      "roi": 0.21224489795918355
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 103,
+      "roi": 0.10873786407766994
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 75,
+      "roi": 0.3573333333333333
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "4fe8e2b9ce",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "4e et au-delà pour Marché+",
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "rest_band": "31-90 jours"
+   },
+   "label": "Valeur selon Marché+ : Cote juste (0,9-1,05) · Classement Marché+ : 4e et au-delà pour Marché+ · Repos : 31-90 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 1291,
+    "roi": 0.11022463206816413,
+    "low": -0.1424934942574017,
+    "high": 0.36294275839372997,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 426,
+      "roi": 0.10586854460093886
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 441,
+      "roi": 0.11995464852607696
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 424,
+      "roi": 0.10448113207547172
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "befdc78375",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "venue": "VICHY",
+    "duo_form": "Duo jockey-entraîneur peu connu"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur peu connu · Valeur selon Marché+ : Cote juste (0,9-1,05) · Hippodrome : VICHY",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 327,
+    "roi": 0.3238532110091743,
+    "low": -0.1449569915850149,
+    "high": 0.7926634136033635,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 136,
+      "roi": 0.29485294117647065
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 103,
+      "roi": 0.2029126213592234
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 88,
+      "roi": 0.5102272727272728
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e551c6bbc5",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "venue": "LE CROISE LAROCHE",
+    "blinkers_change": "Équipement inchangé"
+   },
+   "label": "Oeillères vs dernière course : Équipement inchangé · Classement Marché+ : 2e-3e de Marché+ · Hippodrome : LE CROISE LAROCHE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 414,
+    "roi": 0.10410628019323687,
+    "low": -0.15568179619882289,
+    "high": 0.3638943565852966,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 149,
+      "roi": 0.08053691275167796
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 156,
+      "roi": 0.06217948717948718
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 109,
+      "roi": 0.19633027522935786
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6a400746c2",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "1er de Marché+",
+    "temp_band": "Frais (10-17 °C)",
+    "duo_form": "Duo jockey-entraîneur en difficulté (≤ ×0,8 vs cote)"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur en difficulté (≤ ×0,8 vs cote) · Classement Marché+ : 1er de Marché+ · Température : Frais (10-17 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 229,
+    "roi": 0.051528384279475814,
+    "low": -0.15738195437608024,
+    "high": 0.2604387229350319,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 97,
+      "roi": 0.0020618556701030855
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 69,
+      "roi": 0.005797101449275477
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 63,
+      "roi": 0.1777777777777778
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "5a99a63d72",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "venue": "VICHY",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Valeur selon Marché+ : Cote juste (0,9-1,05) · Entraîneur : Entraîneur dans la norme · Hippodrome : VICHY",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 260,
+    "roi": 0.28230769230769215,
+    "low": -0.15790188730677956,
+    "high": 0.7225172719221639,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 65,
+      "roi": 0.523076923076923
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 82,
+      "roi": 0.1378048780487804
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 113,
+      "roi": 0.24867256637168134
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "30d9eef33e",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "4e-6e cote",
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "temp_band": "Doux (17-24 °C)"
+   },
+   "label": "Valeur selon Marché+ : Cote juste (0,9-1,05) · Rang dans la cote : 4e-6e cote · Température : Doux (17-24 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 1096,
+    "roi": 0.024452554744525568,
+    "low": -0.1579644658735814,
+    "high": 0.20686957536263254,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 465,
+      "roi": 0.027741935483870828
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 359,
+      "roi": 0.016155988857938786
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 272,
+      "roi": 0.029779411764705888
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6bb8c169b3",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "sky_cat": "Ensoleillé",
+    "recul_band": "25 m"
+   },
+   "label": "Classement Marché+ : 2e-3e de Marché+ · Recul : 25 m · Ciel : Ensoleillé",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 533,
+    "roi": 0.024953095684802973,
+    "low": -0.16359951164749484,
+    "high": 0.21350570301710078,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 147,
+      "roi": 0.021768707482993088
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 183,
+      "roi": 0.051366120218579336
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 203,
+      "roi": 0.0034482758620688614
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "76e0a616f7",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "venue": "VICHY",
+    "dist_change": "Même distance"
+   },
+   "label": "Distance vs dernière course : Même distance · Valeur selon Marché+ : Cote juste (0,9-1,05) · Hippodrome : VICHY",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 237,
+    "roi": 0.23755274261603376,
+    "low": -0.1856972841271914,
+    "high": 0.6608027693592589,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 73,
+      "roi": 0.09452054794520559
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 83,
+      "roi": 0.3819277108433736
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 81,
+      "roi": 0.21851851851851856
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "b67ac745fd",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "age_band": "8 ans et +",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Âge : 8 ans et + · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Valeur selon Marché+ : Cote un peu basse (0,75-0,9)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 799,
+    "roi": 0.2891113892365458,
+    "low": -0.196406129045127,
+    "high": 0.7746289075182186,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 163,
+      "roi": 0.07546012269938651
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 336,
+      "roi": 0.23005952380952377
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 300,
+      "roi": 0.47133333333333316
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "a0656e2ce9",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "model_edge_band": "Cote généreuse (p × cote ≥ 1,05)",
+    "sex_cat": "Hongre"
+   },
+   "label": "Valeur selon Marché+ : Cote généreuse (p × cote ≥ 1,05) · Rang dans la cote : Favori · Sexe : Hongre",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 282,
+    "roi": 0.06950354609929077,
+    "low": -0.03638145197439595,
+    "high": 0.1753885441729775,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 149,
+      "roi": 0.10872483221476492
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 55,
+      "roi": 0.047272727272727355
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 78,
+      "roi": 0.01025641025641022
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6e034fa554",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_range": "Cote < 3",
+    "sky_cat": "Pluie ou averses",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Cote : Cote < 3 · Ciel : Pluie ou averses",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 248,
+    "roi": 0.037701612903225934,
+    "low": -0.04507914482921922,
+    "high": 0.12048237063567109,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 50,
+      "roi": 0.12400000000000011
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 98,
+      "roi": 0.0295918367346939
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 100,
+      "roi": 0.0024999999999999467
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "15c26a341a",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "model_edge_band": "Cote généreuse (p × cote ≥ 1,05)",
+    "age_band": "6-7 ans"
+   },
+   "label": "Âge : 6-7 ans · Valeur selon Marché+ : Cote généreuse (p × cote ≥ 1,05) · Rang dans la cote : Favori",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 206,
+    "roi": 0.04708737864077661,
+    "low": -0.07550921735353981,
+    "high": 0.16968397463509305,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 104,
+      "roi": 0.08461538461538454
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 40,
+      "roi": 0.020000000000000018
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 62,
+      "roi": 0.001612903225806539
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "0d782a3c1b",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "model_edge_band": "Cote généreuse (p × cote ≥ 1,05)",
+    "jockey_form": "Jockey dans la norme"
+   },
+   "label": "Jockey : Jockey dans la norme · Valeur selon Marché+ : Cote généreuse (p × cote ≥ 1,05) · Rang dans la cote : Favori",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 276,
+    "roi": 0.02898550724637672,
+    "low": -0.07740355833487961,
+    "high": 0.13537457282763304,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 145,
+      "roi": 0.022068965517241246
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 68,
+      "roi": 0.03529411764705892
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 63,
+      "roi": 0.03809523809523818
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "3aa04b8f0f",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "venue": "LE CROISE LAROCHE",
+    "dist_change": "Même distance"
+   },
+   "label": "Distance vs dernière course : Même distance · Classement Marché+ : 2e-3e de Marché+ · Hippodrome : LE CROISE LAROCHE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 280,
+    "roi": 0.04571428571428582,
+    "low": -0.08909365320397025,
+    "high": 0.1805222246325419,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 84,
+      "roi": 0.02499999999999991
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 119,
+      "roi": 0.054621848739495826
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 77,
+      "roi": 0.054545454545454675
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c6d5d27c6a",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "age_band": "6-7 ans",
+    "category_cat": "À réclamer"
+   },
+   "label": "Âge : 6-7 ans · Type de course : À réclamer · Valeur selon Marché+ : Cote un peu basse (0,75-0,9)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:48:36+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 254,
+    "roi": 0.053937007874015785,
+    "low": -0.1957752047107591,
+    "high": 0.30364922045879067,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 80,
+      "roi": 0.015000000000000124
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 114,
+      "roi": 0.01403508771929829
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 60,
+      "roi": 0.18166666666666687
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "90db5dc8f6",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "class_change": "Monte de niveau (allocation +33 %)",
+    "jockey_form": "Jockey dans la norme",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Niveau vs dernière course : Monte de niveau (allocation +33 %) · Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Jockey : Jockey dans la norme",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-09T04:49:53+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-08",
+    "bets": 205,
+    "roi": 0.2760975609756098,
+    "low": -0.28613868416583,
+    "high": 0.8383338061170496,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 44,
+      "roi": 0.006818181818181834
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 86,
+      "roi": 0.5523255813953489
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 75,
+      "roi": 0.11733333333333329
      }
     ]
    },

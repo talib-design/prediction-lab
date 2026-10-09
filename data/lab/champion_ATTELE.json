@@ -23,7 +23,46 @@
    "evidence": null
   }
  ],
- "attempts": [],
- "vault_used_until": null,
+ "attempts": [
+  {
+   "experiment": "deferre4:ATTELE:obj1",
+   "at": "2026-10-09T04:49:43+00:00",
+   "vault": [
+    "2026-04-01",
+    "2026-10-08"
+   ],
+   "passed": false,
+   "result": {
+    "prediction": {
+     "difference": -0.0004963452669120657,
+     "ci_low": -0.005482604729575808,
+     "ci_high": 0.004422568070868815,
+     "level": 0.99,
+     "by_year": {
+      "2026": {
+       "races": 2121,
+       "difference": -0.0004963452669120657
+      }
+     },
+     "test_days": [
+      "2026-04-01",
+      "2026-10-08"
+     ]
+    },
+    "money": {
+     "races": 2121,
+     "races_where_picks_differ": 95,
+     "roi_challenger": -0.10188590287600185,
+     "roi_champion": -0.09641678453559643,
+     "roi_favourite": -0.1000942951438002,
+     "net_difference": -23.2,
+     "net_difference_low": -93.51249999999999,
+     "net_difference_high": 50.3125
+    },
+    "races": 2121
+   }
+  }
+ ],
+ "vault_used_until": "2026-10-08",
  "rules": []
 }

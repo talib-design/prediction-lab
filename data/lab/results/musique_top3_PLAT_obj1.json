@@ -1,0 +1,54 @@
+{
+ "experiment": "musique_top3:PLAT:obj1",
+ "candidate": "musique_top3",
+ "label": "Régularité dans la musique",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-09T04:47:17+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0000 (IC 99 % -0.0013 à +0.0013). Probablement déjà dans la cote.",
+ "difference": -2.2394257282751333e-05,
+ "ci_low": -0.0012757023160552634,
+ "ci_high": 0.00134297645317096,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.000325390983849296
+  },
+  "2026": {
+   "races": 742,
+   "difference": 0.0014558377510338143
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 166,
+  "roi_challenger": -0.13637666208161392,
+  "roi_champion": -0.129355800091701,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -61.24999999999999,
+  "net_difference_low": -167.74999999999994,
+  "net_difference_high": 51.952500000000015
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 1.0
+ },
+ "beta": 0.044834075689858116,
+ "beta_low": 0.015214901134353972,
+ "beta_high": 0.07445325024536226,
+ "per_sd": 1.0458543128559081,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 2004
+ }
+}

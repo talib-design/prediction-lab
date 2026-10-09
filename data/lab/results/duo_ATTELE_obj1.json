@@ -1,0 +1,54 @@
+{
+ "experiment": "duo:ATTELE:obj1",
+ "candidate": "duo",
+ "label": "Réussite du duo jockey-entraîneur",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-09T04:49:43+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0000 (IC 99 % -0.0000 à +0.0001). Probablement déjà dans la cote.",
+ "difference": 1.8535922531466242e-05,
+ "ci_low": -1.3435113215223496e-05,
+ "ci_high": 5.2310834357684226e-05,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": 1.4764953992325306e-05
+  },
+  "2026": {
+   "races": 1033,
+   "difference": 3.3440922091304026e-05
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 9,
+  "roi_challenger": -0.09710711493354174,
+  "roi_champion": -0.0986024237685692,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 15.299999999999999,
+  "net_difference_low": -5.3025,
+  "net_difference_high": 38.0
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 1.0
+ },
+ "beta": -0.0012370392442711507,
+ "beta_low": -0.0402553503210452,
+ "beta_high": 0.03778127183250289,
+ "per_sd": 0.9987637255733725,
+ "races": {
+  "train": 10271,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 2121
+ }
+}
