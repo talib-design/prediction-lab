@@ -20,10 +20,214 @@
    "tau": 1.0,
    "promoted_at": null,
    "origin": "Marché+ v1 (11 facteurs pré-enregistrés le 2026-09-30)",
-   "evidence": null
+   "evidence": null,
+   "frozen_params": {
+    "features": [
+     "f_form",
+     "f_going",
+     "f_temp",
+     "f_new",
+     "f_rest",
+     "f_jockey",
+     "f_trainer",
+     "f_draw",
+     "f_draw_sprint",
+     "f_weight",
+     "f_recul"
+    ],
+    "tau": 1.0,
+    "champion_version": 1,
+    "means": [
+     0.016297954872798302,
+     0.010576904955014111,
+     0.008923695624595048,
+     0.13281276070344045,
+     2.9673042876557236,
+     -0.008293350931505893,
+     -0.020363038801085875,
+     -2.5415056391792883e-18,
+     -3.4565958620324727e-19,
+     -3.7178596778851304e-17,
+     0.0
+    ],
+    "stds": [
+     0.10007079638407937,
+     0.07565465744349269,
+     0.08061584839124959,
+     0.33937226064864395,
+     1.3822174076803988,
+     0.18457677944274786,
+     0.2130257581650569,
+     0.31653299606681384,
+     0.1089293186596443,
+     1.914115917306256,
+     0.0
+    ],
+    "theta": [
+     1.0671437641672548,
+     0.033787572630247446,
+     0.05002773298251702,
+     0.028485525171682572,
+     -0.02869583600574683,
+     -0.03751400116565909,
+     0.05020673632840777,
+     0.06280989602131876,
+     0.00027218420775740895,
+     0.008339415324772914,
+     0.04878663411814318,
+     0.0
+    ],
+    "lambda": 1.0,
+    "fitted_through": "2026-10-09",
+    "report": "model_PLAT_20261010T043247Z"
+   }
+  },
+  {
+   "version": 2,
+   "features": [
+    "f_form",
+    "f_going",
+    "f_temp",
+    "f_new",
+    "f_rest",
+    "f_jockey",
+    "f_trainer",
+    "f_draw",
+    "f_draw_sprint",
+    "f_weight",
+    "f_recul",
+    "c_logq2"
+   ],
+   "tau": 1.0,
+   "promoted_at": "2026-10-10T04:34:23+00:00",
+   "origin": "Biais favori-outsider non linéaire (labo, logq2:PLAT:obj1)",
+   "evidence": {
+    "test": {
+     "experiment": "logq2:PLAT:obj1",
+     "candidate": "logq2",
+     "label": "Biais favori-outsider non linéaire",
+     "discipline": "PLAT",
+     "kind": "criterion",
+     "protocol": "obj",
+     "champion_version": 1,
+     "tested_at": "2026-10-10T04:34:20+00:00",
+     "status": "SUPPORTED",
+     "conclusion": "Retenu : écart de log loss -0.0044 (IC 99 % -0.0078 à -0.0006), gain chaque année ; son choix rapporte plus (+12 € face au choix du champion sur 4362 courses, dont 59 où les choix diffèrent). Essai au coffre.",
+     "difference": -0.004400663053176175,
+     "ci_low": -0.007786430754582782,
+     "ci_high": -0.0005921272746773325,
+     "level": 0.99,
+     "by_year": {
+      "2025": {
+       "races": 3620,
+       "difference": -0.003547433858693833
+      },
+      "2026": {
+       "races": 742,
+       "difference": -0.00856331761385822
+      }
+     },
+     "test_days": [
+      "2025-01-02",
+      "2026-03-31"
+     ],
+     "money": {
+      "races": 4362,
+      "races_where_picks_differ": 59,
+      "roi_challenger": -0.1280032095369097,
+      "roi_champion": -0.129355800091701,
+      "roi_favourite": -0.13544818890417232,
+      "net_difference": 11.8,
+      "net_difference_low": -46.3025,
+      "net_difference_high": 75.0
+     },
+     "lambda": {
+      "champion": 1.0,
+      "challenger": 10.0
+     },
+     "beta": -0.6423746366906635,
+     "beta_low": -0.7882199714508586,
+     "beta_high": -0.49652930193046846,
+     "per_sd": 0.5260417816046048,
+     "races": {
+      "train": 13610,
+      "validation": 3644,
+      "test": 4362,
+      "vault": 2021
+     }
+    },
+    "vault": {
+     "prediction": {
+      "difference": -0.009121443952473947,
+      "ci_low": -0.014567155546014614,
+      "ci_high": -0.0037769085432209047,
+      "level": 0.99,
+      "by_year": {
+       "2026": {
+        "races": 2021,
+        "difference": -0.009121443952473947
+       }
+      },
+      "test_days": [
+       "2026-04-01",
+       "2026-10-09"
+      ]
+     },
+     "money": {
+      "races": 2021,
+      "races_where_picks_differ": 25,
+      "roi_challenger": -0.08653131963357263,
+      "roi_champion": -0.08819014607576126,
+      "roi_favourite": -0.09022035157217134,
+      "net_difference": 6.699999999999995,
+      "net_difference_low": -30.502500000000005,
+      "net_difference_high": 56.11249999999999
+     },
+     "races": 2021
+    }
+   }
   }
  ],
- "attempts": [],
- "vault_used_until": null,
+ "attempts": [
+  {
+   "experiment": "logq2:PLAT:obj1",
+   "at": "2026-10-10T04:34:20+00:00",
+   "vault": [
+    "2026-04-01",
+    "2026-10-09"
+   ],
+   "passed": true,
+   "result": {
+    "prediction": {
+     "difference": -0.009121443952473947,
+     "ci_low": -0.014567155546014614,
+     "ci_high": -0.0037769085432209047,
+     "level": 0.99,
+     "by_year": {
+      "2026": {
+       "races": 2021,
+       "difference": -0.009121443952473947
+      }
+     },
+     "test_days": [
+      "2026-04-01",
+      "2026-10-09"
+     ]
+    },
+    "money": {
+     "races": 2021,
+     "races_where_picks_differ": 25,
+     "roi_challenger": -0.08653131963357263,
+     "roi_champion": -0.08819014607576126,
+     "roi_favourite": -0.09022035157217134,
+     "net_difference": 6.699999999999995,
+     "net_difference_low": -30.502500000000005,
+     "net_difference_high": 56.11249999999999
+    },
+    "races": 2021
+   }
+  }
+ ],
+ "vault_used_until": "2026-10-09",
  "rules": []
 }

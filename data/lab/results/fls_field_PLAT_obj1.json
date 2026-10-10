@@ -1,0 +1,54 @@
+{
+ "experiment": "fls_field:PLAT:obj1",
+ "candidate": "fls_field",
+ "label": "Biais de la cote selon la taille du champ",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T04:34:20+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart -0.0013 (IC 99 % -0.0036 à +0.0011).",
+ "difference": -0.0013285335372094369,
+ "ci_low": -0.0035615992217990426,
+ "ci_high": 0.0010795782346709963,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.0014043953527657113
+  },
+  "2026": {
+   "races": 742,
+   "difference": -0.0009584260273526769
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 44,
+  "roi_challenger": -0.13014672168729935,
+  "roi_champion": -0.129355800091701,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -6.900000000000004,
+  "net_difference_low": -49.05499999999995,
+  "net_difference_high": 32.5
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 100.0
+ },
+ "beta": 0.25710020057334,
+ "beta_low": 0.1654170047325526,
+ "beta_high": 0.34878339641412737,
+ "per_sd": 1.293174697113813,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 2021
+ }
+}

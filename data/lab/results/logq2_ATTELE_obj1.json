@@ -1,0 +1,54 @@
+{
+ "experiment": "logq2:ATTELE:obj1",
+ "candidate": "logq2",
+ "label": "Biais favori-outsider non linéaire",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T04:36:59+00:00",
+ "status": "SUPPORTED",
+ "conclusion": "Retenu : écart de log loss -0.0114 (IC 99 % -0.0162 à -0.0065), gain chaque année ; son choix rapporte plus (+22 € face au choix du champion sur 5116 courses, dont 68 où les choix diffèrent). Essai au coffre.",
+ "difference": -0.011377550102971928,
+ "ci_low": -0.016159217589889894,
+ "ci_high": -0.0064535486573814435,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.01160057601983366
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -0.010496025593246418
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 68,
+  "roi_challenger": -0.08871188428459742,
+  "roi_champion": -0.09084245504300237,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 21.800000000000004,
+  "net_difference_low": -32.4,
+  "net_difference_high": 78.31249999999999
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 10.0
+ },
+ "beta": -1.1401248403384263,
+ "beta_low": -1.3035556864987676,
+ "beta_high": -0.976693994178085,
+ "per_sd": 0.3197790979934888,
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 13
+ }
+}

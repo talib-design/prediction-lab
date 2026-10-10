@@ -1,0 +1,54 @@
+{
+ "experiment": "jockey_change:MONTE:obj1",
+ "candidate": "jockey_change",
+ "label": "Changement de jockey",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T04:37:31+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0002 (IC 99 % -0.0010 à +0.0014). Probablement déjà dans la cote.",
+ "difference": 0.00015014082562681493,
+ "ci_low": -0.0009556241881337913,
+ "ci_high": 0.0013629644612201544,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": 0.00031150849989383287
+  },
+  "2026": {
+   "races": 181,
+   "difference": -0.0005506049863835504
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 1,
+  "roi_challenger": -0.08994312306101337,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": -6.3,
+  "net_difference_low": -18.9,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": -0.016710220584789433,
+ "beta_low": -0.08180640250506659,
+ "beta_high": 0.04838596133548771,
+ "per_sd": 0.9834286207192231,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 383
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "experiment": "logq2:PLAT:obj1",
+ "candidate": "logq2",
+ "label": "Biais favori-outsider non linéaire",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T04:34:20+00:00",
+ "status": "SUPPORTED",
+ "conclusion": "Retenu : écart de log loss -0.0044 (IC 99 % -0.0078 à -0.0006), gain chaque année ; son choix rapporte plus (+12 € face au choix du champion sur 4362 courses, dont 59 où les choix diffèrent). Essai au coffre.",
+ "difference": -0.004400663053176175,
+ "ci_low": -0.007786430754582782,
+ "ci_high": -0.0005921272746773325,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.003547433858693833
+  },
+  "2026": {
+   "races": 742,
+   "difference": -0.00856331761385822
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 59,
+  "roi_challenger": -0.1280032095369097,
+  "roi_champion": -0.129355800091701,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": 11.8,
+  "net_difference_low": -46.3025,
+  "net_difference_high": 75.0
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 10.0
+ },
+ "beta": -0.6423746366906635,
+ "beta_low": -0.7882199714508586,
+ "beta_high": -0.49652930193046846,
+ "per_sd": 0.5260417816046048,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 2021
+ }
+}

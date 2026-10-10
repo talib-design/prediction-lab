@@ -1,0 +1,54 @@
+{
+ "experiment": "dist_change:MONTE:obj1",
+ "candidate": "dist_change",
+ "label": "Change de distance",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T04:37:31+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0002 (IC 99 % -0.0004 à +0.0001). Probablement déjà dans la cote.",
+ "difference": -0.0001821099544123664,
+ "ci_low": -0.00044029496230694093,
+ "ci_high": 0.00010800602043452974,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": -0.00024862899463227523
+  },
+  "2026": {
+   "races": 181,
+   "difference": 0.00010675173405640905
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 2,
+  "roi_challenger": -0.0842037228541882,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": 4.8,
+  "net_difference_low": 0.0,
+  "net_difference_high": 14.399999999999999
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": -0.004397334478183671,
+ "beta_low": -0.068908533039796,
+ "beta_high": 0.06011386408342865,
+ "per_sd": 0.9956123196410916,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 383
+ }
+}

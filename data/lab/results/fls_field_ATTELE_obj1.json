@@ -1,0 +1,54 @@
+{
+ "experiment": "fls_field:ATTELE:obj1",
+ "candidate": "fls_field",
+ "label": "Biais de la cote selon la taille du champ",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T04:36:59+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart -0.0005 (IC 99 % -0.0021 à +0.0011).",
+ "difference": -0.0004832885525085965,
+ "ci_low": -0.0021446545000706934,
+ "ci_high": 0.0010684190438470847,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.0006668099171103004
+  },
+  "2026": {
+   "races": 1033,
+   "difference": 0.00024209163303715045
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 15,
+  "roi_challenger": -0.08786161063330722,
+  "roi_champion": -0.09084245504300237,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 30.5,
+  "net_difference_low": 11.797500000000001,
+  "net_difference_high": 57.404999999999994
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 10.0
+ },
+ "beta": 0.2019368731984276,
+ "beta_low": 0.1176274849269908,
+ "beta_high": 0.2862462614698644,
+ "per_sd": 1.2237707529394568,
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 13
+ }
+}
