@@ -1,0 +1,54 @@
+{
+ "experiment": "dist_change:PLAT:obj2",
+ "candidate": "dist_change",
+ "label": "Change de distance",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-10-10T23:34:56+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0001 (IC 99 % -0.0002 à +0.0005). Probablement déjà dans la cote.",
+ "difference": 0.00011031720276693082,
+ "ci_low": -0.0002441653775667921,
+ "ci_high": 0.0004969789196580035,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": 6.60400120743149e-05
+  },
+  "2026": {
+   "races": 742,
+   "difference": 0.0003263326074937094
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 34,
+  "roi_challenger": -0.12869096744612563,
+  "roi_champion": -0.1280032095369097,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -5.999999999999998,
+  "net_difference_low": -40.514999999999986,
+  "net_difference_high": 29.305
+ },
+ "lambda": {
+  "champion": 10.0,
+  "challenger": 10.0
+ },
+ "beta": -0.012791946567643386,
+ "beta_low": -0.042628162152378066,
+ "beta_high": 0.01704426901709129,
+ "per_sd": 0.9872895226276608,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 9
+ }
+}

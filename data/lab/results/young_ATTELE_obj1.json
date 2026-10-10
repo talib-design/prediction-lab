@@ -1,0 +1,54 @@
+{
+ "experiment": "young:ATTELE:obj1",
+ "candidate": "young",
+ "label": "Jeune cheval en progrès",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T23:37:32+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0000 (IC 99 % -0.0003 à +0.0002). Probablement déjà dans la cote.",
+ "difference": -3.9011115633333546e-05,
+ "ci_low": -0.00025904707356874955,
+ "ci_high": 0.00017803104873391864,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -3.6262548447869604e-05
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -4.9875007035317356e-05
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 5,
+  "roi_challenger": -0.09157544956997654,
+  "roi_champion": -0.09084245504300237,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": -7.500000000000001,
+  "net_difference_low": -22.500000000000007,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 100.0
+ },
+ "beta": -0.0738433859347919,
+ "beta_low": -0.24442199349716034,
+ "beta_high": 0.09673522162757656,
+ "per_sd": 0.9288171482803116,
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 26
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "experiment": "deferre4:MONTE:obj1",
+ "candidate": "deferre4",
+ "label": "Déferré des quatre pieds (trot)",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T23:38:04+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0005 (IC 99 % -0.0011 à +0.0001). Probablement déjà dans la cote.",
+ "difference": -0.0004785508292766006,
+ "ci_low": -0.001060416541847114,
+ "ci_high": 0.00010199486885924707,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": -0.0003108571540302493
+  },
+  "2026": {
+   "races": 181,
+   "difference": -0.0012067675626668336
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 2,
+  "roi_challenger": -0.09144260599793175,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": -9.2,
+  "net_difference_low": -23.2,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": 0.009147988813681144,
+ "beta_low": -0.0532476986446299,
+ "beta_high": 0.0715436762719922,
+ "per_sd": 1.0091899595483278,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 386
+ }
+}

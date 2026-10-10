@@ -1,0 +1,54 @@
+{
+ "experiment": "blinkers_first:PLAT:obj2",
+ "candidate": "blinkers_first",
+ "label": "Met des oeillères",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-10-10T23:34:56+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart -0.0006 (IC 99 % -0.0016 à +0.0004).",
+ "difference": -0.0006396768587156056,
+ "ci_low": -0.0016056212985859956,
+ "ci_high": 0.0004027941078542706,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.0010281234087116873
+  },
+  "2026": {
+   "races": 742,
+   "difference": 0.0012554397329094821
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 55,
+  "roi_challenger": -0.1282783127005961,
+  "roi_champion": -0.1280032095369097,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -2.3999999999999915,
+  "net_difference_low": -77.3025,
+  "net_difference_high": 63.30999999999998
+ },
+ "lambda": {
+  "champion": 10.0,
+  "challenger": 10.0
+ },
+ "beta": -0.03557624256634133,
+ "beta_low": -0.06303400933037598,
+ "beta_high": -0.008118475802306672,
+ "per_sd": 0.965049153600932,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 9
+ }
+}

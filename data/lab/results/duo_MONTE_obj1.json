@@ -1,0 +1,54 @@
+{
+ "experiment": "duo:MONTE:obj1",
+ "candidate": "duo",
+ "label": "Réussite du duo jockey-entraîneur",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T23:38:04+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart +0.0007 (IC 99 % -0.0002 à +0.0014).",
+ "difference": 0.0006892833831239601,
+ "ci_low": -0.00019798442512865383,
+ "ci_high": 0.001407389592178421,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": 0.0008815140411074685
+  },
+  "2026": {
+   "races": 181,
+   "difference": -0.00014548621452818106
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 4,
+  "roi_challenger": -0.08668562564632887,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": 0.0,
+  "net_difference_low": 0.0,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": -0.010154213178532072,
+ "beta_low": -0.07059435713812377,
+ "beta_high": 0.05028593078105963,
+ "per_sd": 0.9898971667893316,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 386
+ }
+}

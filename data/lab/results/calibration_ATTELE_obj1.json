@@ -1,0 +1,40 @@
+{
+ "experiment": "calibration:ATTELE:obj1",
+ "candidate": "calibration",
+ "label": "Calibrer les probabilités du modèle",
+ "discipline": "ATTELE",
+ "kind": "calibration",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-10T23:37:32+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0001 (IC 99 % -0.0008 à +0.0010). Probablement déjà dans la cote.",
+ "difference": 9.10965868033294e-05,
+ "ci_low": -0.0008129109642017957,
+ "ci_high": 0.0010478778754183793,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.0001493966418063549
+  },
+  "2026": {
+   "races": 1033,
+   "difference": 0.0010416617875906877
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "tau": 0.97,
+ "lambda": {
+  "champion": 1.0
+ },
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 26
+ }
+}
