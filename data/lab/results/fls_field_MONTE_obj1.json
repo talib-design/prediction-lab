@@ -1,0 +1,54 @@
+{
+ "experiment": "fls_field:MONTE:obj1",
+ "candidate": "fls_field",
+ "label": "Biais de la cote selon la taille du champ",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-11T23:38:57+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0002 (IC 99 % -0.0005 à +0.0002). Probablement déjà dans la cote.",
+ "difference": -0.00016354211909816164,
+ "ci_low": -0.0004912970761673645,
+ "ci_high": 0.00021933595521310775,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": -0.0001994454367238225
+  },
+  "2026": {
+   "races": 181,
+   "difference": -7.630474602197963e-06
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 0,
+  "roi_challenger": -0.08668562564632887,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": 0.0,
+  "net_difference_low": 0.0,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": 0.017024805630897543,
+ "beta_low": -0.061905023557262615,
+ "beta_high": 0.09595463481905771,
+ "per_sd": 1.0171705535696127,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 388
+ }
+}

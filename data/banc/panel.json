@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-10T23:37:45+00:00",
+ "updated_at": "2026-10-11T23:38:34+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-10T23:33:48+00:00",
+   "at": "2026-10-11T23:34:00+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16568682352709604
+   "confirmation_roi": -0.16624812675800407
   },
   "ATTELE": {
-   "at": "2026-10-10T23:36:25+00:00",
+   "at": "2026-10-11T23:37:00+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1365441975038009
+   "confirmation_roi": -0.13643135032557505
   },
   "MONTE": {
-   "at": "2026-10-10T23:37:45+00:00",
+   "at": "2026-10-11T23:38:34+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07506466234001777
+   "confirmation_roi": -0.07428515423942479
   }
  },
  "strategies": [
@@ -31810,6 +31810,94 @@
       "to": "2026-12-31",
       "bets": 175,
       "roi": 0.3719999999999999
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "3003f39cc8",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote < 3",
+    "draw_band": "Extérieur (dernier tiers)",
+    "blinkers_change": "Équipement inchangé"
+   },
+   "label": "Oeillères vs dernière course : Équipement inchangé · Position au départ : Extérieur (dernier tiers) · Cote : Cote < 3",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-11T23:37:00+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-11",
+    "bets": 214,
+    "roi": 0.06588785046728973,
+    "low": -0.09546174440258412,
+    "high": 0.22723744533716358,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 69,
+      "roi": 0.01449275362318847
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 72,
+      "roi": 0.16111111111111098
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 73,
+      "roi": 0.020547945205479534
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e962953282",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "rest_band": "15-30 jours",
+    "class_change": "Même niveau",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Niveau vs dernière course : Même niveau · Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Repos : 15-30 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-11T23:38:34+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-11",
+    "bets": 254,
+    "roi": 0.19173228346456694,
+    "low": -0.30129833568755865,
+    "high": 0.6847629026166926,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 52,
+      "roi": 0.148076923076923
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 113,
+      "roi": 0.2566371681415929
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 89,
+      "roi": 0.1348314606741574
      }
     ]
    },

@@ -1,0 +1,54 @@
+{
+ "experiment": "trainer_opinion:ATTELE:obj1",
+ "candidate": "trainer_opinion",
+ "label": "Avis de l'entraîneur",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-11T23:38:19+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Prévoit mieux (écart de log loss -0.0005 (IC 99 % -0.0010 à -0.0000), gain chaque année) mais son choix ne rapporte pas plus (-31 € face au choix du champion sur 5116 courses, dont 39 où les choix diffèrent) : non retenu.",
+ "difference": -0.0005069107440568371,
+ "ci_low": -0.0009719944040771189,
+ "ci_high": -4.5745149972589906e-05,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.0004598971363538296
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -0.0006927351005441362
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 39,
+  "roi_challenger": -0.09390148553557465,
+  "roi_champion": -0.09084245504300237,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": -31.300000000000004,
+  "net_difference_low": -70.4075,
+  "net_difference_high": 4.404999999999996
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 1.0
+ },
+ "beta": 0.009200296470732217,
+ "beta_low": -0.014328503006917709,
+ "beta_high": 0.03272909594838214,
+ "per_sd": 1.009242749291273,
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 42
+ }
+}
