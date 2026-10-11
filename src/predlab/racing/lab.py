@@ -303,6 +303,56 @@ CANDIDATES = (
     ),
 )
 
+
+# Critères a posteriori de l'agent critique (METHODOLOGY §14) : proposés après avoir vu
+# les résultats, jugés seulement sur des courses courues à partir de ``fresh_from``.
+CANDIDATES = (
+    *CANDIDATES,
+    # ajouté par l'agent critique le 2026-10-11
+    Candidate(
+        "autostart_q",
+        "Cote derrière l'autostart",
+        "Critère a posteriori (agent critique) : au trot attelé, la cote ne se trompe pas de "
+        "la même façon derrière l'autostart et en départ à la volte. Mesure : log q × 1 si "
+        "la catégorie de la course contient AUTOSTART, 0 sinon, pour que le modèle pondère "
+        "la cote selon le type de départ. Le dossier du 2026-10-11 y fait penser : sur "
+        "l'historique reconstitué, AUTOSTART est le seul segment fourni où le modèle perd "
+        "nettement face au favori (−106,50 €, IC 90 % −210,53 € à −5,59 €, 263 courses où "
+        "les choix diffèrent).",
+        ("ATTELE",),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (
+                pl.col("log_q")
+                * pl.col("category").fill_null("").str.contains("AUTOSTART").cast(pl.Float64)
+            )
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+        fresh_from=date(2026, 10, 13),
+    ),
+    # ajouté par l'agent critique le 2026-10-11
+    Candidate(
+        "open_race",
+        "Course ouverte (favori peu net)",
+        "Critère a posteriori (agent critique) : au plat, la cote d'un cheval est moins "
+        "fiable quand la course est ouverte. Mesure : log q × (log de la plus petite cote "
+        "de la course à T-25 − log 3), positif quand le favori est au-dessus de 3, négatif "
+        "quand il est net. Le dossier du 2026-10-11 y fait penser : l'avance du modèle sur "
+        "le favori vient surtout des courses où le favori est à 5 ou plus (+542,30 €, "
+        "IC 90 % +259,89 € à +815,75 €, 1 473 courses où les choix diffèrent) et des choix "
+        "cotés 5 à 10 (+610,00 €), pas des courses à favori net.",
+        ("PLAT",),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (pl.col("log_q") * (pl.col("odds").min().over("race_id").log() - math.log(3.0)))
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+        fresh_from=date(2026, 10, 13),
+    ),
+)
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 
