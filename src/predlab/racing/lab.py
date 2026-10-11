@@ -353,6 +353,78 @@ CANDIDATES = (
     ),
 )
 
+
+# Critères du générateur d'idées (tâche hebdomadaire, METHODOLOGY §13) : écrits sans
+# aucun regard sur leur lien avec les résultats (seulement la présence et la variation
+# de la colonne), testés une seule fois par la passe de nuit.
+def _musique_runs() -> pl.Expr:
+    """The last five runs of the musique, as tokens « place + discipline letter »."""
+    return pl.col("musique").fill_null("").str.extract_all(r"[0-9A-Z][a-z]").list.head(5)
+
+
+def _other_discipline_share() -> pl.Expr:
+    def same(letter: str) -> pl.Expr:
+        return _musique_runs().list.eval(pl.element().str.ends_with(letter)).list.sum()
+
+    today = (
+        pl.when(pl.col("discipline") == "PLAT")
+        .then(same("p"))
+        .when(pl.col("discipline") == "ATTELE")
+        .then(same("a"))
+        .otherwise(same("m"))
+    )
+    runs = _musique_runs().list.len()
+    return (
+        pl.when(runs > 0)
+        .then(1.0 - today.cast(pl.Float64) / runs.cast(pl.Float64))
+        .otherwise(0.0)
+        .fill_null(0.0)
+    )
+
+
+CANDIDATES = (
+    *CANDIDATES,
+    # ajouté par le générateur d'idées le 2026-10-11
+    Candidate(
+        "other_disc",
+        "Vient d'une autre discipline",
+        "Le public lit les chiffres de la musique sans tenir compte de la discipline où ils "
+        "ont été obtenus : un cheval dont les dernières courses ont eu lieu dans une autre "
+        "discipline (obstacle pour un cheval de plat, monté pour un trotteur d'attelé, "
+        "attelé pour un trotteur de monté) est mal coté, dans un sens que le test dira. "
+        "Mesure : part des 5 dernières courses de la musique courues dans une autre "
+        "discipline que celle du jour (lettre p, a ou m ; h, s, c, f comptent comme autre "
+        "discipline au plat), 0 sans musique. Plat, attelé et monté. Présence vérifiée "
+        "avant l'ajout, sans regard sur les résultats : non nulle pour environ 2 % des "
+        "partants du plat, 9 % de l'attelé, 50 % du monté depuis 2025.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=_other_discipline_share,
+    ),
+    # ajouté par le générateur d'idées le 2026-10-11
+    Candidate(
+        "usual_q",
+        "Cote inhabituelle pour ce cheval",
+        "Le marché réagit trop à ce qu'il voit en dernier : quand un cheval est coté bien "
+        "plus haut (ou bien plus bas) que d'habitude, l'écart avec sa réputation passée "
+        "dit quelque chose que la cote du jour n'intègre pas entièrement. Mesure : log de "
+        "la probabilité de la cote à 25 min moins log de la probabilité moyenne de ses "
+        "courses passées (h_exp / h_n, courses strictement antérieures au jour), bornée à "
+        "±3, 0 pour un cheval sans passé connu. Non corrigée de la taille des champs "
+        "passés. Plat, attelé et monté.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (pl.col("market_p") / (pl.col("h_exp") / pl.col("h_n").cast(pl.Float64)))
+            .log()
+            .clip(-3.0, 3.0)
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+    ),
+)
+
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 
