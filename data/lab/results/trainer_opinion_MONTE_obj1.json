@@ -1,0 +1,54 @@
+{
+ "experiment": "trainer_opinion:MONTE:obj1",
+ "candidate": "trainer_opinion",
+ "label": "Avis de l'entraîneur",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-13T23:38:21+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart +0.0012 (IC 99 % -0.0001 à +0.0024).",
+ "difference": 0.0012493592290384874,
+ "ci_low": -8.168192539525667e-05,
+ "ci_high": 0.0024419168419721163,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": 0.0011575738970840512
+  },
+  "2026": {
+   "races": 181,
+   "difference": 0.0016479408363102377
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 9,
+  "roi_challenger": -0.08296277145811781,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": 7.200000000000001,
+  "net_difference_low": -10.599999999999998,
+  "net_difference_high": 27.799999999999997
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": 0.019070226624218065,
+ "beta_low": -0.04004046209586083,
+ "beta_high": 0.07818091534429696,
+ "per_sd": 1.0192532248173034,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 395
+ }
+}

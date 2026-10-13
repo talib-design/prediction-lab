@@ -1,0 +1,54 @@
+{
+ "experiment": "usual_q:MONTE:obj1",
+ "candidate": "usual_q",
+ "label": "Cote inhabituelle pour ce cheval",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-13T23:38:21+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0001 (IC 99 % -0.0001 à +0.0004). Probablement déjà dans la cote.",
+ "difference": 0.00011375094907370927,
+ "ci_low": -0.0001483046415474564,
+ "ci_high": 0.0003804017543505408,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": 9.420955763494554e-05
+  },
+  "2026": {
+   "races": 181,
+   "difference": 0.00019861025112270542
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 1,
+  "roi_challenger": -0.08746122026887282,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": -1.5,
+  "net_difference_low": -4.5,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": 0.004157964026281909,
+ "beta_low": -0.06185325066463403,
+ "beta_high": 0.07016917871719784,
+ "per_sd": 1.0041666203521094,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 395
+ }
+}

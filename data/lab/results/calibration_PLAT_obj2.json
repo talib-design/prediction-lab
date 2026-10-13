@@ -1,0 +1,40 @@
+{
+ "experiment": "calibration:PLAT:obj2",
+ "candidate": "calibration",
+ "label": "Calibrer les probabilités du modèle",
+ "discipline": "PLAT",
+ "kind": "calibration",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-10-13T23:35:12+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0001 (IC 99 % -0.0002 à +0.0003). Probablement déjà dans la cote.",
+ "difference": 5.0988720688686416e-05,
+ "ci_low": -0.0002408875832789238,
+ "ci_high": 0.00032040200428117043,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": 9.622740878964172e-05
+  },
+  "2026": {
+   "races": 742,
+   "difference": -0.000169717547404923
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "tau": 1.01,
+ "lambda": {
+  "champion": 10.0
+ },
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 47
+ }
+}

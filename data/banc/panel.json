@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-13T05:01:06+00:00",
+ "updated_at": "2026-10-13T23:38:02+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-13T00:11:55+00:00",
+   "at": "2026-10-13T23:34:01+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16584430177280887
+   "confirmation_roi": -0.16656837887573736
   },
   "ATTELE": {
-   "at": "2026-10-13T04:22:47+00:00",
+   "at": "2026-10-13T23:36:43+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1355256002747501
+   "confirmation_roi": -0.13530446393742523
   },
   "MONTE": {
-   "at": "2026-10-13T05:01:06+00:00",
+   "at": "2026-10-13T23:38:02+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07499747689835715
+   "confirmation_roi": -0.07617924032943149
   }
  },
  "strategies": [
@@ -32073,6 +32073,182 @@
       "to": "2026-12-31",
       "bets": 49,
       "roi": 0.0020408163265306367
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "38cae770fb",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "mus_last_band": "Gagnant de sa dernière course",
+    "blinkers_cat": "Oeillères australiennes"
+   },
+   "label": "Oeillères : Oeillères australiennes · Classement Marché+ : 2e-3e de Marché+ · Dernière course : Gagnant de sa dernière course",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-13T23:34:01+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-13",
+    "bets": 293,
+    "roi": 0.15290102389078508,
+    "low": -0.13724410039446278,
+    "high": 0.44304614817603294,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 90,
+      "roi": 0.24777777777777765
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 122,
+      "roi": 0.17704918032786887
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 81,
+      "roi": 0.011111111111111072
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6a5564088e",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "blinkers_change": "Retire ses oeillères"
+   },
+   "label": "Oeillères vs dernière course : Retire ses oeillères · Valeur selon Marché+ : Cote un peu basse (0,75-0,9) · Classement Marché+ : 2e-3e de Marché+",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-13T23:34:01+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-13",
+    "bets": 205,
+    "roi": 0.24,
+    "low": -0.14671184596518339,
+    "high": 0.6267118459651834,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 82,
+      "roi": 0.3085365853658537
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 68,
+      "roi": 0.004411764705882337
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 55,
+      "roi": 0.42909090909090897
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "1eb8cd8382",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "sex_cat": "Femelle",
+    "class_change": "Même niveau",
+    "duo_form": "Duo jockey-entraîneur en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Niveau vs dernière course : Même niveau · Duo jockey-entraîneur : Duo jockey-entraîneur en réussite (≥ ×1,2 vs cote) · Sexe : Femelle",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-13T23:38:02+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-13",
+    "bets": 356,
+    "roi": 0.0941011235955056,
+    "low": -0.27964268795097724,
+    "high": 0.46784493514198844,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 65,
+      "roi": 0.39692307692307693
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 155,
+      "roi": 0.02709677419354839
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 136,
+      "roi": 0.025735294117646967
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "2b9b4c952e",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "field_band": "Grand (≥ 14)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Taille du peloton : Grand (≥ 14) · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Valeur selon Marché+ : Cote un peu basse (0,75-0,9)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-13T23:38:02+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-13",
+    "bets": 467,
+    "roi": 0.23554603854389722,
+    "low": -0.2825372874339239,
+    "high": 0.7536293645217184,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 183,
+      "roi": 0.04972677595628405
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 166,
+      "roi": 0.16084337349397582
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 118,
+      "roi": 0.6288135593220339
      }
     ]
    },

@@ -1,0 +1,54 @@
+{
+ "experiment": "usual_q:PLAT:obj2",
+ "candidate": "usual_q",
+ "label": "Cote inhabituelle pour ce cheval",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-10-13T23:35:12+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart -0.0008 (IC 99 % -0.0025 à +0.0006).",
+ "difference": -0.0008338048099417071,
+ "ci_low": -0.0024666468350183495,
+ "ci_high": 0.0006454191706314813,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.0007482989549954324
+  },
+  "2026": {
+   "races": 742,
+   "difference": -0.0012509627545583017
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 166,
+  "roi_challenger": -0.1329034846400733,
+  "roi_champion": -0.1280032095369097,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -42.75,
+  "net_difference_low": -138.1,
+  "net_difference_high": 50.20749999999998
+ },
+ "lambda": {
+  "champion": 10.0,
+  "challenger": 10.0
+ },
+ "beta": -0.08174030703512451,
+ "beta_low": -0.12293187241086208,
+ "beta_high": -0.04054874165938695,
+ "per_sd": 0.9215112376109398,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 47
+ }
+}
