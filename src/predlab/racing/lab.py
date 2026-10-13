@@ -425,6 +425,61 @@ CANDIDATES = (
 )
 
 
+# Critères a posteriori de l'agent critique, suite (METHODOLOGY §14).
+CANDIDATES = (
+    *CANDIDATES,
+    # ajouté par l'agent critique le 2026-10-13
+    Candidate(
+        "heavy_q",
+        "Cote sur terrain lourd",
+        "Critère a posteriori (agent critique) : au plat, la cote ne se trompe pas de la "
+        "même façon sur terrain très souple, lourd ou collant que sur terrain bon ou sur "
+        "PSF. Mesure : log q × 1 si le terrain de la course (pénétromètre du programme, "
+        "going_cat) est « Très souple » ou « Lourd ou collant », 0 sinon, pour que le "
+        "modèle pondère la cote selon le terrain. Le dossier du 2026-10-13 y fait penser : "
+        "sur l'historique reconstitué, le modèle bat le favori sur terrain bon (+151,40 €, "
+        "IC 90 % +31,99 € à +278,39 €) et sur PSF standard (+205,10 €, IC 90 % +26,05 € à "
+        "+420,43 €), mais pas sur terrain très souple (−2,00 €), lourd (−8,60 €) ou collant "
+        "(−67,05 €, IC 90 % −154,01 € à +5,74 €).",
+        ("PLAT",),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (
+                pl.col("log_q")
+                * pl.col("going_cat").is_in(["Très souple", "Lourd ou collant"]).cast(pl.Float64)
+            )
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+        fresh_from=date(2026, 10, 15),
+    ),
+    # ajouté par l'agent critique le 2026-10-13
+    Candidate(
+        "handicap_q",
+        "Cote dans les handicaps",
+        "Critère a posteriori (agent critique) : au plat, la cote ne se trompe pas de la "
+        "même façon dans les handicaps, où les poids sont fixés pour égaliser les chances, "
+        "que dans les courses à conditions. Mesure : log q × 1 si la catégorie de la course "
+        "contient HANDICAP, 0 sinon. Le dossier du 2026-10-13 y fait penser : sur "
+        "l'historique reconstitué, le modèle bat le favori en handicap de catégorie divisé "
+        "(+208,90 €, IC 90 % +67,91 € à +360,56 €, 439 courses où les choix diffèrent) et "
+        "en handicap divisé (+199,60 €, IC 90 % −24,71 € à +417,02 €), mais pas dans les "
+        "courses à conditions (−120,75 €, IC 90 % −254,07 € à +23,51 €). Recoupe en partie "
+        "open_race (les handicaps sont souvent des courses ouvertes).",
+        ("PLAT",),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (
+                pl.col("log_q")
+                * pl.col("category").fill_null("").str.contains("HANDICAP").cast(pl.Float64)
+            )
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+        fresh_from=date(2026, 10, 15),
+    ),
+)
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 
