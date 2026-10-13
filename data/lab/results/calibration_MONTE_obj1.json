@@ -1,0 +1,40 @@
+{
+ "experiment": "calibration:MONTE:obj1",
+ "candidate": "calibration",
+ "label": "Calibrer les probabilités du modèle",
+ "discipline": "MONTE",
+ "kind": "calibration",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-13T05:01:38+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Pas de différence démontrée : écart +0.0005 (IC 99 % -0.0021 à +0.0030).",
+ "difference": 0.000521039512824934,
+ "ci_low": -0.002126226815600752,
+ "ci_high": 0.0030270558424908634,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": 0.0005843144947742745
+  },
+  "2026": {
+   "races": 181,
+   "difference": 0.00024626528181840744
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "tau": 1.04,
+ "lambda": {
+  "champion": 1000.0
+ },
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 392
+ }
+}

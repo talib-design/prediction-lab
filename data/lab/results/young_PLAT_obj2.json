@@ -1,0 +1,54 @@
+{
+ "experiment": "young:PLAT:obj2",
+ "candidate": "young",
+ "label": "Jeune cheval en progrès",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-10-13T02:47:42+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0004 (IC 99 % -0.0004 à +0.0012). Probablement déjà dans la cote.",
+ "difference": 0.00037119082968615336,
+ "ci_low": -0.00035554244034010556,
+ "ci_high": 0.0011739135719408052,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": 0.00045220711768913626
+  },
+  "2026": {
+   "races": 742,
+   "difference": -2.406383685131104e-05
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 17,
+  "roi_challenger": -0.12944750114626324,
+  "roi_champion": -0.1280032095369097,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -12.600000000000001,
+  "net_difference_low": -46.205,
+  "net_difference_high": 19.81249999999999
+ },
+ "lambda": {
+  "champion": 10.0,
+  "challenger": 10.0
+ },
+ "beta": -0.12015408508433097,
+ "beta_low": -0.2548032697946106,
+ "beta_high": 0.01449509962594868,
+ "per_sd": 0.8867837860350574,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 31
+ }
+}
