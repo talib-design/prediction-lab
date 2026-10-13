@@ -1,5 +1,6 @@
 import { Card, Empty, Failure, Kpi, Loading, PageHead } from "../../components/ui";
 import { EM_RANKS, Grid, emLogic } from "../../components/em";
+import { EmPnl } from "../../components/EmPnl";
 import { api } from "../../lib/api";
 import { dateTime, euros, fmt, int, longDay, shortDay, signedPct } from "../../lib/format";
 import { useApi } from "../../lib/hooks";
@@ -87,6 +88,23 @@ export function EmCarnet() {
             </Card>
           );
         })}
+
+        {c.curves ? (
+          <EmPnl
+            curves={c.curves}
+            title="Gains et pertes par grille, tirages réels"
+            note="Grilles figées avant chaque tirage, notées avec le résultat et les rapports officiels."
+          />
+        ) : (
+          <Card title="Gains et pertes par grille">
+            <Empty title="Le suivi démarre après le premier tirage noté">
+              <p className="small">
+                {c.next_draw ? `Premier point après le tirage du ${shortDay(c.next_draw)}. ` : ""}En attendant, le même suivi
+                reconstitué sur 847 tirages depuis 2018 est dans <a href="#/euromillions/logiques">Logiques vs hasard</a>.
+              </p>
+            </Empty>
+          </Card>
+        )}
 
         <Card title="Bilan par logique" flush>
           {summary.length === 0 ? (

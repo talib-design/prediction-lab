@@ -20,7 +20,7 @@ from predlab.lottery.analysis import (
     popularity_tests,
     run_battery,
 )
-from predlab.lottery.backtest_em import run_d1, run_d2
+from predlab.lottery.backtest_em import run_curves, run_d1, run_d2
 from predlab.lottery.euromillions import (
     EuroMillionsFormatError,
     EuroMillionsStore,
@@ -212,7 +212,9 @@ def backtest() -> None:
     dates_e, pools_e = store.arrays(EM_2016_09)
     result_e, grid = run_d1(EM_2016_09, dates_e, pools_e)
     typer.echo(f"grille ère 2016-09 : {grid['n_targets']} tirages évalués")
-    payouts = run_d2(result_e, era.rapports[len(era) - grid["n_targets"] :], "2016-09")
+    target_rapports = era.rapports[len(era) - grid["n_targets"] :]
+    payouts = run_d2(result_e, target_rapports, "2016-09")
+    curves = run_curves(result_e, target_rapports, "2016-09")
 
     out = paths.lottery / "backtest_v1.json"
     _write_json(
@@ -223,6 +225,7 @@ def backtest() -> None:
             "balls_2004": balls,
             "grid_2016_09": grid,
             "payouts_2016_09": payouts,
+            "curves_2016_09": curves,
         },
     )
     for label, block in (("boules 2004-2026", balls), ("grille 2016-09", grid)):

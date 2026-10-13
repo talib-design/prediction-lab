@@ -37,6 +37,17 @@ depuis le tag `archive/loterie-emploi-2026-09-28`) ; la collecte des courses n'e
   cheval, boule à étoile (le logo EuroMillions est une marque, non reproduit). API en lecture
   seule `/api/euromillions/{carnet,analysis,backtest,data}`. Après mise à jour : relancer
   `bash ops/install_dashboard.sh` pour que le serveur charge les nouvelles routes.
+- **Gains et pertes par grille** (2026-10-07, demande de Chris : « comme pour les courses »,
+  avec un P&L par logique, la meilleure mise en avant, une série de courbes). Une carte par
+  grille (8 logiques + témoin) classée par gain net, la première marquée « en tête », plus
+  le total des 9 grilles ; courbes cumulées de toutes les grilles (celle en tête en couleur,
+  le témoin en pointillé, les autres en gris), bande des 95 % du hasard, vue « écart au
+  hasard », périodes Dernier / 1S … Tout, chiffres tirage par tirage. Dans Carnet (tirages
+  réels, dès le 9/10) et dans Logiques vs hasard (reconstitution des 847 tirages depuis 2018 :
+  toutes les logiques dans la bande ; le total des 9 grilles, −16 164 € pour 19 057,50 €
+  misés, fait mieux que 2 % seulement des tirages refaits au hasard, juste hors bande, sans
+  logique qui sorte du lot). Bande du total calculée en gardant les vraies grilles et en tirant
+  les numéros au hasard, pour tenir compte des grilles en double.
 
 ## Mac en veille : courses non jouées — 2026-10-06
 

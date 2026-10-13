@@ -52,7 +52,7 @@ export function Grid({
 }
 
 /** Width of an element, kept in sync with its layout (so chart text stays at its real size). */
-function useWidth<T extends HTMLElement>(fallback: number): [React.RefObject<T | null>, number] {
+export function useWidth<T extends HTMLElement>(fallback: number): [React.RefObject<T | null>, number] {
   const ref = useRef<T>(null);
   const [width, setWidth] = useState(fallback);
   useEffect(() => {

@@ -731,12 +731,33 @@ export interface EmLogicSummary {
   roi: number;
 }
 
+export interface EmBand {
+  q025: number[];
+  q500: number[];
+  q975: number[];
+}
+
+/** Gains and losses over time: per-draw payout of each grid, chance bands on the
+ *  cumulative net (one random grid; the same k grids against random draws). */
+export interface EmCurves {
+  dates: string[];
+  price: number;
+  players: number;
+  n_grids: number;
+  grids: Record<string, (number | null)[]>;
+  single_band: EmBand;
+  total_band: EmBand;
+  percentile: Record<string, number>;
+  total_percentile: number;
+}
+
 export interface EmCarnetResponse {
   last_draw: EmDraw | null;
   next_draw: string | null;
   pending: EmGrid[];
   draws: { draw_date: string; balls: number[] | null; stars: number[] | null; grids: EmSettledGrid[] }[];
   summary: Record<string, EmLogicSummary>;
+  curves: EmCurves | null;
   chain_ok: boolean;
   agent_log: string[];
 }
@@ -846,6 +867,7 @@ export interface EmBacktestResponse {
       witness_r1: EmPayoutLine;
       logics: Record<string, EmPayoutLine>;
     };
+    curves_2016_09?: EmCurves;
   } | null;
 }
 

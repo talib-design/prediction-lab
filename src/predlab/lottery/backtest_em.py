@@ -259,3 +259,56 @@ def run_d2(result: BacktestResult, rapports: np.ndarray, era: str) -> dict[str, 
         info["percentile_vs_players"] = float((p_mean < np.nanmean(pay)).mean())
         out["logics"][run.model_name] = info
     return out
+
+
+def _topk_numbers(run: ModelRun, pool: NumberPool) -> np.ndarray:
+    """The TopK grid of every draw, rebuilt from the stored probabilities (same rule as
+    :class:`TopKPolicy`: highest probability first, ties to the lower number)."""
+    probs = run.predicted_probs[pool.name]
+    out = np.empty((probs.shape[0], pool.k), dtype=np.int64)
+    idx = np.arange(pool.size)
+    for i, p in enumerate(probs):
+        order = np.lexsort((idx, -p))
+        out[i] = np.sort(order[: pool.k]) + pool.low
+    return out
+
+
+def run_curves(result: BacktestResult, rapports: np.ndarray, era: str) -> dict[str, Any]:
+    """Gains/losses over time for every logic and the witness (era 2016-09 grids)."""
+    from predlab.lottery.curves_em import GridSeries, payout_curves
+
+    uniform = result.run_for("uniform")
+    balls, stars = result.spec.pool("main"), result.spec.pool("stars")
+    grids: dict[str, GridSeries] = {}
+    for run in result.runs:
+        if run.model_name == "uniform":
+            continue
+        gb, gs = _topk_numbers(run, balls), _topk_numbers(run, stars)
+        hits_b = np.take_along_axis(run.outcomes["main"], gb - balls.low, axis=1).sum(axis=1)
+        hits_s = np.take_along_axis(run.outcomes["stars"], gs - stars.low, axis=1).sum(axis=1)
+        if not (
+            np.array_equal(hits_b, run.matches["main"])
+            and np.array_equal(hits_s, run.matches["stars"])
+        ):
+            raise AssertionError(f"{run.model_name}: rebuilt grids disagree with the engine")
+        pay, _ = grid_payouts(hits_b, hits_s, rapports, era)
+        grids[run.model_name] = GridSeries([None if np.isnan(v) else float(v) for v in pay], gb, gs)
+    wb = np.array([witness_grid(d, result.spec.pools)["main"] for d in uniform.target_dates])
+    ws = np.array([witness_grid(d, result.spec.pools)["stars"] for d in uniform.target_dates])
+    w_pay, _ = grid_payouts(
+        _witness_matches(uniform, result.spec, "main"),
+        _witness_matches(uniform, result.spec, "stars"),
+        rapports,
+        era,
+    )
+    grids["temoin_r1"] = GridSeries([None if np.isnan(v) else float(v) for v in w_pay], wb, ws)
+    return payout_curves(
+        uniform.target_dates,
+        uniform.outcomes["main"],
+        uniform.outcomes["stars"],
+        rapports,
+        era,
+        grids,
+        balls=balls,
+        stars=stars,
+    )

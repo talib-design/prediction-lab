@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, Empty, Failure, Kpi, Loading, PageHead, Segmented } from "../../components/ui";
 import { ChanceBand, emLogic } from "../../components/em";
+import { EmPnl } from "../../components/EmPnl";
 import { api, type EmPoolBlock, type EmRunBlock } from "../../lib/api";
 import { euros, fmt, int, shortDay, signedPct } from "../../lib/format";
 import { useApi } from "../../lib/hooks";
@@ -132,6 +133,15 @@ export function EmBacktest() {
           <Kpi label="Gain moyen d'une grille" value={euros(rp["0.5"] ?? null)} sub={`joueur au hasard, pour ${euros(pay.price_eur)} misés`} />
           <Kpi label="Rendement au hasard" value={signedPct(pay.random_players.roi_median, 0)} sub="médiane de 1 000 joueurs, hors jackpot" />
         </div>
+
+        {bt.curves_2016_09 && (
+          <EmPnl
+            curves={bt.curves_2016_09}
+            title="Gains et pertes par grille, reconstitution depuis 2018"
+            defaultGap
+            note="Reconstitution : chaque grille calculée avec les seuls tirages précédents, payée au rapport officiel."
+          />
+        )}
 
         <Card
           title="Numéros trouvés par tirage"

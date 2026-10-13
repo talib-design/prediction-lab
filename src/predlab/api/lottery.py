@@ -17,7 +17,7 @@ from fastapi import APIRouter
 from predlab.core.hashing import AppendOnlyLedger, LedgerCorruptionError
 from predlab.core.paths import Paths
 from predlab.lottery.euromillions import EuroMillionsStore
-from predlab.lottery.forward_em import Carnet, next_draw_date, summarise
+from predlab.lottery.forward_em import Carnet, forward_curves, next_draw_date, summarise
 from predlab.registry.hypotheses import HypothesisRegistry
 
 RECENT_DRAWS = 12
@@ -111,6 +111,7 @@ def lottery_router(paths: Paths) -> APIRouter:
             "pending": pending,
             "draws": settled_draws,
             "summary": summarise(book),
+            "curves": forward_curves(book, store) if store.exists() else None,
             "chain_ok": chain_ok,
             "agent_log": _tail(paths.logs / "lottery.log", LOG_LINES),
         }

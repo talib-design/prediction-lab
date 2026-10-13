@@ -8,9 +8,13 @@ holding two kinds of record:
 * ``result`` -- written once the official result and payouts are in the store.
 
 Timing: sales close at 20:00 Paris on draw day, at tobacconists and online (Chris,
-2026-10-06), so a grid for draw day D is only frozen before 20:00 Paris on D; the exact
-draw time is not verified, so results are only looked for after 23:30 Paris. A draw missed by the Mac (asleep, offline) is
-simply not played; nothing is ever back-filled.
+2026-10-06), so a grid for draw day D is only frozen before 20:00 Paris on D. FDJ states
+the draw at about 21:05 Paris and the results published at about 21:45 on its site and
+app (https://www.fdj.fr/mag/questions/euromillions-my-million-heure, read 2026-10-13), so
+results are looked for from 22:00 Paris. When the FDJ archive does not hold the draw yet,
+nothing is written and the next run tries again; how soon the archive follows the site
+is not verified. A draw missed by the Mac (asleep, offline) is simply not played; nothing
+is ever back-filled.
 
 The witness (em-R1) plays every draw with a grid derived from the date alone.
 """
@@ -39,7 +43,7 @@ from predlab.lottery.payouts import GRID_PRICE_EUR, grid_payouts
 from predlab.lottery.selection import TopKPolicy
 
 FREEZE_CUTOFF = time(20, 0)  # Paris, on draw day: sales close at 20:00 (Chris)
-RESULTS_FROM = time(23, 30)  # Paris, on draw day
+RESULTS_FROM = time(22, 0)  # Paris, on draw day: draw ~21:05, results published ~21:45 (FDJ)
 WITNESS = "temoin_r1"
 
 
@@ -219,3 +223,54 @@ def summarise(carnet: Carnet) -> dict[str, Any]:
             "roi": float(sum(pays) / (GRID_PRICE_EUR * n) - 1) if n else float("nan"),
         }
     return out
+
+
+def forward_curves(carnet: Carnet, store: EuroMillionsStore) -> dict[str, Any] | None:
+    """Gains/losses over the settled forward draws, with the chance bands.
+
+    Only draws where every logic of the carnet was settled are kept, so that the total
+    "all grids" curve always means the same set of grids.
+    """
+    from predlab.lottery.analysis import incidence
+    from predlab.lottery.curves_em import GridSeries, payout_curves
+
+    results = carnet.results()
+    if not results:
+        return None
+    grids_by_key = {(g["draw_date"], g["logic"]): g for g in carnet.grids()}
+    logics = list(dict.fromkeys(r["logic"] for r in results))
+    by_draw: dict[str, dict[str, dict[str, Any]]] = {}
+    for r in results:
+        by_draw.setdefault(r["draw_date"], {})[r["logic"]] = r
+    days = sorted(d for d, rows in by_draw.items() if all(lg in rows for lg in logics))
+    df = store.read()
+    index = {d.isoformat(): i for i, d in enumerate(df["draw_date"].to_list())}
+    days = [d for d in days if d in index]
+    if not days:
+        return None
+    rows = [index[d] for d in days]
+    spec = EM_2016_09
+    balls = np.array([df["main_numbers"][i].to_list() for i in rows], dtype=np.int64)
+    stars = np.array([df["stars_numbers"][i].to_list() for i in rows], dtype=np.int64)
+    rapports = np.array(
+        [[np.nan if v is None else v for v in df["rapports"][i].to_list()] for i in rows],
+        dtype=np.float64,
+    )
+    grids = {
+        lg: GridSeries(
+            [by_draw[d][lg]["payout_eur"] if by_draw[d][lg]["rank"] else 0.0 for d in days],
+            np.array([grids_by_key[(d, lg)]["balls"] for d in days], dtype=np.int64),
+            np.array([grids_by_key[(d, lg)]["stars"] for d in days], dtype=np.int64),
+        )
+        for lg in logics
+    }
+    return payout_curves(
+        [date.fromisoformat(d) for d in days],
+        incidence(balls, spec.pool("main")),
+        incidence(stars, spec.pool("stars")),
+        rapports,
+        spec.era,
+        grids,
+        balls=spec.pool("main"),
+        stars=spec.pool("stars"),
+    )

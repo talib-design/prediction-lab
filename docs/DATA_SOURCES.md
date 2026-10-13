@@ -145,7 +145,11 @@ Constats :
   ≤ 4 %) ; en 2011-05, les rangs 6 (4+0) et 7 (3+2) sont inversés par rapport à 2016-09.
 - **Clôture des ventes** : 20 h le jour du tirage, en bureau de tabac et en ligne (Chris,
   2026-10-06). Le carnet fige ses grilles avant 20 h.
-- **Non vérifié** : heure exacte du tirage (les résultats ne sont cherchés qu'après 23 h 30),
+- **Heure du tirage** : vers 21 h 05 (heure de Paris), résultats publiés vers 21 h 45 sur le site et
+  l'application ; vente en ligne jusqu'à 20 h 15 selon la
+  [FDJ](https://www.fdj.fr/mag/questions/euromillions-my-million-heure) (lu le 2026-10-13). Les résultats sont
+  cherchés à partir de 22 h 00 ; si l'archive n'a pas encore le tirage, l'agent réessaie au passage suivant.
+- **Non vérifié** : délai entre la publication sur le site et la mise à jour de l'archive CSV ;
   constance du prix de 2,50 EUR depuis 2016.
 
 ## Autres sources

@@ -16,6 +16,7 @@ from predlab.lottery.forward_em import (
     Carnet,
     can_freeze,
     fetch_current_archive,
+    forward_curves,
     freeze_next,
     latest_due_draw,
     next_draw_date,
@@ -63,7 +64,8 @@ def make_store(tmp_path: Path, days: list[date], seed: int = 0) -> EuroMillionsS
 def test_calendar_rules() -> None:
     assert next_draw_date(date(2026, 10, 6)) == date(2026, 10, 9)  # Tue -> Fri
     assert next_draw_date(date(2026, 10, 9)) == date(2026, 10, 13)  # Fri -> Tue
-    assert latest_due_draw(paris(2026, 10, 9, 22, 0)) == date(2026, 10, 6)
+    assert latest_due_draw(paris(2026, 10, 9, 21, 59)) == date(2026, 10, 6)
+    assert latest_due_draw(paris(2026, 10, 9, 22, 0)) == date(2026, 10, 9)
     assert latest_due_draw(paris(2026, 10, 9, 23, 45)) == date(2026, 10, 9)
     assert latest_due_draw(paris(2026, 10, 11, 9, 0)) == date(2026, 10, 9)
     assert can_freeze(date(2026, 10, 9), paris(2026, 10, 9, 19, 59))
@@ -108,6 +110,9 @@ def test_settle_after_the_result_arrives(tmp_path: Path) -> None:
     assert settle(carnet, full, now + timedelta(days=4)) == []
     summary = summarise(carnet)
     assert summary[WITNESS]["draws"] == 1
+    curves = forward_curves(carnet, full)
+    assert curves is not None and curves["n_grids"] == len(frozen)
+    assert len(curves["dates"]) == 1 and len(curves["total_band"]["q500"]) == 1
     assert summary[WITNESS]["staked_eur"] == pytest.approx(2.5)
     carnet.ledger.verify()
 
