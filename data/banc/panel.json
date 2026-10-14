@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-13T23:38:02+00:00",
+ "updated_at": "2026-10-14T23:38:08+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-13T23:34:01+00:00",
+   "at": "2026-10-14T23:34:09+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16656837887573736
+   "confirmation_roi": -0.16716867800536941
   },
   "ATTELE": {
-   "at": "2026-10-13T23:36:43+00:00",
+   "at": "2026-10-14T23:36:48+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13530446393742523
+   "confirmation_roi": -0.13547601934844364
   },
   "MONTE": {
-   "at": "2026-10-13T23:38:02+00:00",
+   "at": "2026-10-14T23:38:08+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07617924032943149
+   "confirmation_roi": -0.0775665451828776
   }
  },
  "strategies": [
@@ -32249,6 +32249,138 @@
       "to": "2026-12-31",
       "bets": 118,
       "roi": 0.6288135593220339
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "a15d8ffd15",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "venue": "CABOURG",
+    "dist_change": "Même distance"
+   },
+   "label": "Distance vs dernière course : Même distance · Cote : Cote 3 à 5 · Hippodrome : CABOURG",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-14T23:36:48+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-14",
+    "bets": 200,
+    "roi": 0.10000000000000009,
+    "low": -0.18377544384355743,
+    "high": 0.3837754438435576,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 68,
+      "roi": 0.07352941176470584
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 68,
+      "roi": 0.10294117647058831
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 64,
+      "roi": 0.125
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e47bf02c65",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "2-3 ans",
+    "venue": "REIMS",
+    "blinkers_change": "Équipement inchangé"
+   },
+   "label": "Âge : 2-3 ans · Oeillères vs dernière course : Équipement inchangé · Hippodrome : REIMS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-14T23:36:48+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-14",
+    "bets": 248,
+    "roi": 0.0879032258064516,
+    "low": -0.1966388171105209,
+    "high": 0.3724452687234241,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 107,
+      "roi": 0.03831775700934581
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 90,
+      "roi": 0.15222222222222226
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 51,
+      "roi": 0.07843137254901955
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "60513116c5",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 8 à 13",
+    "sky_cat": "Ensoleillé",
+    "class_change": "Même niveau"
+   },
+   "label": "Niveau vs dernière course : Même niveau · Cote : Cote 8 à 13 · Ciel : Ensoleillé",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-14T23:38:08+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-14",
+    "bets": 292,
+    "roi": 0.18287671232876712,
+    "low": -0.2305425329624694,
+    "high": 0.5962959576200036,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 71,
+      "roi": 0.34788732394366195
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 89,
+      "roi": 0.0730337078651686
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 132,
+      "roi": 0.168181818181818
      }
     ]
    },
