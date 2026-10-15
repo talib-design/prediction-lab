@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-14T23:38:08+00:00",
+ "updated_at": "2026-10-15T23:41:21+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-14T23:34:09+00:00",
+   "at": "2026-10-15T23:35:27+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16716867800536941
+   "confirmation_roi": -0.1671725792820014
   },
   "ATTELE": {
-   "at": "2026-10-14T23:36:48+00:00",
+   "at": "2026-10-15T23:39:21+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13547601934844364
+   "confirmation_roi": -0.13564021557380654
   },
   "MONTE": {
-   "at": "2026-10-14T23:38:08+00:00",
+   "at": "2026-10-15T23:41:21+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.0775665451828776
+   "confirmation_roi": -0.07761823829193197
   }
  },
  "strategies": [
@@ -32381,6 +32381,94 @@
       "to": "2026-12-31",
       "bets": 132,
       "roi": 0.168181818181818
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "69c435feb8",
+   "discipline": "MONTE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "sex_cat": "Femelle",
+    "dist_change": "Même distance"
+   },
+   "label": "Distance vs dernière course : Même distance · Rang dans la cote : Favori · Sexe : Femelle",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-15T23:41:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-15",
+    "bets": 333,
+    "roi": 0.012012012012011963,
+    "low": -0.07061390073086315,
+    "high": 0.09463792475488708,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 116,
+      "roi": 0.00775862068965516
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 122,
+      "roi": 0.0180327868852459
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 95,
+      "roi": 0.0094736842105263
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6a0f979223",
+   "discipline": "MONTE",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "jockey_form": "Jockey dans la norme",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Âge : 6-7 ans · Jockey : Jockey dans la norme · Entraîneur : Entraîneur dans la norme",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-15T23:41:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-15",
+    "bets": 556,
+    "roi": 0.010071942446043147,
+    "low": -0.11463264027563776,
+    "high": 0.13477652516772404,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 49,
+      "roi": 0.06530612244897971
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 216,
+      "roi": 0.010185185185185075
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 291,
+      "roi": 0.0006872852233676952
      }
     ]
    },
