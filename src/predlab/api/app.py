@@ -16,7 +16,9 @@ from __future__ import annotations
 
 import contextlib
 import json
+import threading
 from collections import defaultdict
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from functools import lru_cache
@@ -53,7 +55,7 @@ from predlab.racing.sources.pmu.parser import (
     parse_participants,
     parse_programme_detailed,
 )
-from predlab.racing.store.raw import Capture, RawStore
+from predlab.racing.store.raw import Capture, ManifestRewoundError, RawStore
 from predlab.registry.hypotheses import HypothesisRegistry
 
 TARGETS = ("PLAT", "ATTELE", "MONTE")
@@ -64,23 +66,69 @@ WEB_DIST = Path(__file__).resolve().parents[3] / "web" / "dist"
 # ------------------------------------------------------------------------ caching
 
 
-@dataclass
-class IndexCache:
-    """Manifest index, rebuilt only when a manifest file changed size."""
+@dataclass(frozen=True)
+class IndexSnapshot:
+    """The manifest index at one moment, with the counters the status page needs.
 
-    store: RawStore
-    signature: tuple[tuple[str, int], ...] = ()
+    Never mutated once built: a request holding a snapshot keeps a coherent view while
+    a newer one is being prepared.
+    """
+
     index: dict[str, list[Capture]] = field(default_factory=dict)
+    count: int = 0
+    failed: int = 0
+    last: datetime | None = None
+
+
+class IndexCache:
+    """Manifest index, extended with what the collector appended since the last call.
+
+    The manifests are append-only and weigh 150 MB and growing, while today's one grows
+    every few minutes. Rebuilding the index from scratch each time made the first page
+    load after every collection take seconds. Closed days are now parsed once; each call
+    reads only the bytes added since, under one lock so that simultaneous requests wait
+    for a single update instead of each redoing it. A manifest that shrank or vanished
+    (history rewritten) triggers a full rebuild.
+    """
+
+    def __init__(self, store: RawStore) -> None:
+        self.store = store
+        self._lock = threading.Lock()
+        self._offsets: dict[str, int] = {}
+        self._snapshot = IndexSnapshot()
+
+    def snapshot(self) -> IndexSnapshot:
+        with self._lock:
+            try:
+                new, offsets = self.store.captures_since(self._offsets)
+            except ManifestRewoundError:
+                self._offsets, self._snapshot = {}, IndexSnapshot()
+                new, offsets = self.store.captures_since({})
+            if new:
+                self._snapshot = self._extend(self._snapshot, new)
+            self._offsets = offsets
+            return self._snapshot
 
     def get(self) -> dict[str, list[Capture]]:
-        files = (
-            sorted(self.store.manifests.glob("*.jsonl")) if self.store.manifests.exists() else []
+        return self.snapshot().index
+
+    @staticmethod
+    def _extend(snap: IndexSnapshot, new: list[Capture]) -> IndexSnapshot:
+        fresh: dict[str, list[Capture]] = defaultdict(list)
+        for capture in new:
+            fresh[capture.key].append(capture)
+        index = dict(snap.index)  # copy-on-write: readers of the old snapshot are unaffected
+        for key, items in fresh.items():
+            merged = [*snap.index.get(key, ()), *items]
+            merged.sort(key=lambda c: c.retrieved_at)  # nearly sorted already: cheap
+            index[key] = merged
+        newest = max(c.retrieved_at for c in new)
+        return IndexSnapshot(
+            index,
+            snap.count + len(new),
+            snap.failed + sum(1 for c in new if not c.ok),
+            newest if snap.last is None else max(snap.last, newest),
         )
-        sig = tuple((f.name, f.stat().st_size) for f in files)
-        if sig != self.signature:
-            self.index = self.store.index()
-            self.signature = sig
-        return self.index
 
 
 @lru_cache(maxsize=256)
@@ -171,7 +219,17 @@ def _alpha_for(paths: Paths, discipline: str) -> float | None:
 
 def create_app(paths: Paths | None = None) -> FastAPI:
     lab = Lab(paths or default_paths())
-    app = FastAPI(title="Prediction Lab", version=__version__, docs_url="/api/docs")
+
+    @contextlib.asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        # The first build parses every manifest (seconds). Do it now, off the request path;
+        # a request arriving meanwhile waits on the same lock instead of starting its own.
+        threading.Thread(target=lab.cache.snapshot, name="index-warmup", daemon=True).start()
+        yield
+
+    app = FastAPI(
+        title="Prediction Lab", version=__version__, docs_url="/api/docs", lifespan=lifespan
+    )
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:
@@ -1226,9 +1284,8 @@ def _tail(path: Path, n: int = 5) -> list[str]:
 
 def _status(lab: Lab) -> dict[str, Any]:
     paths = lab.paths
-    index = lab.cache.get()
-    captures = [c for items in index.values() for c in items]
-    last = max((c.retrieved_at for c in captures), default=None)
+    snap = lab.cache.snapshot()
+    last = snap.last
     today = paris_day(utcnow())
     backfill = []
     from predlab.racing.backfill import DEFAULT_PLAN, parse_plan, targets
@@ -1281,8 +1338,8 @@ def _status(lab: Lab) -> dict[str, Any]:
         )
     return {
         "now": _iso(utcnow()),
-        "captures": len(captures),
-        "failed_captures": sum(1 for c in captures if not c.ok),
+        "captures": snap.count,
+        "failed_captures": snap.failed,
         "last_capture": _iso(last),
         "minutes_since_last_capture": round(minutes_between(last, utcnow()), 1) if last else None,
         "collect_log": _tail(paths.logs / "collect.log"),

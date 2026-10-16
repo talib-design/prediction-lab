@@ -1,6 +1,28 @@
 # Statut — Phase 3 : baselines, backtest, paris fictifs, tableau de bord v0
 
-Dernière mise à jour : 2026-10-07.
+Dernière mise à jour : 2026-10-16.
+
+## Tableau de bord lent : index des captures incrémental — 2026-10-16
+
+- **Constat** (Chris : « le site est super lent, plein de squelettes »). Mesuré le 2026-10-16 :
+  à froid, `/api/status` répondait en 9,6 s alors que `/api/banc` prenait 0,4 s ; la liste des
+  courses (`/api/races`) attendait la même chose. Cause : le serveur reconstruisait en entier
+  l'index des journaux de captures (157 Mo, environ 238 000 lignes, + 5 à 16 Mo par jour)
+  dès que la taille d'un journal changeait, donc après chaque collecte (toutes les ~5 min),
+  et sa page se rafraîchit seule toutes les 2 min.
+- **Correctif** : `IndexCache` (`src/predlab/api/app.py`) ne lit plus que les octets ajoutés
+  depuis le dernier appel (`RawStore.captures_since`, lignes entières seulement, lecture sous
+  verrou partagé puis analyse hors verrou). Un verrou évite que plusieurs requêtes refassent
+  chacune la mise à jour, le cache est chauffé au démarrage, et les compteurs de
+  `/api/status` sont tenus à jour au lieu de parcourir 238 000 captures. Un journal qui
+  rétrécit ou disparaît déclenche une reconstruction complète.
+- **Mesuré sur les vrais journaux** : premier build 3,1 s (une fois, au démarrage, hors du
+  chemin des requêtes ; l'ancien rebuild complet : 2,4 s) ; appel sans changement 3 ms ;
+  mise à jour de 20 captures environ 1,5 ms. Non mesuré : le temps de réponse réel des pages
+  sur le Mac après redémarrage du serveur.
+- Tests : `tests/test_index_cache.py` (équivalence avec le rebuild complet à chaque étape,
+  ligne à moitié écrite, journal raccourci, ligne malformée, accès simultanés).
+  `bash ops/install_dashboard.sh` pour que le serveur charge le correctif.
 
 ## EuroMillions — reprise de la loterie, 2026-10-06
 

@@ -24,9 +24,10 @@ from __future__ import annotations
 import fcntl
 import gzip
 import hashlib
+import json
 import os
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -36,6 +37,14 @@ from typing import Any
 from predlab import __version__
 from predlab.core.hashing import AppendOnlyLedger
 from predlab.racing.sources.pmu.client import FetchResult
+
+
+class ManifestRewoundError(RuntimeError):
+    """A manifest is shorter than what a reader already consumed, or has vanished.
+
+    Manifests are append-only, so this means history was rewritten (or the store was
+    swapped): an incremental reader must start over rather than trust its offsets.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -157,6 +166,54 @@ class RawStore:
                 if ledger.path.exists():
                     out.extend(Capture.from_record(r) for r in ledger.records())
         return out
+
+    def captures_since(self, offsets: Mapping[str, int]) -> tuple[list[Capture], dict[str, int]]:
+        """Captures appended since ``offsets`` (manifest file name -> bytes already read).
+
+        Returns the new captures (file order, then append order) and the new offsets.
+        Pass ``{}`` to read everything. Only whole lines are consumed, so a line another
+        process is still writing is picked up on the next call. Bytes are read under the
+        shared lock (writers wait only for the copy) and parsed after it is released.
+        Raises :class:`ManifestRewoundError` when a manifest shrank or vanished.
+        """
+        new_offsets = dict(offsets)
+        if not self.manifests.exists():
+            if offsets:
+                raise ManifestRewoundError(f"{self.manifests} vanished")
+            return [], new_offsets
+        files = sorted(self.manifests.glob("*.jsonl"))
+        sizes = {f.name: f.stat().st_size for f in files}
+        if sizes == dict(offsets):
+            return [], new_offsets  # nothing appended: no lock, no read
+        if missing := set(offsets) - set(sizes):
+            raise ManifestRewoundError(f"manifest(s) vanished: {sorted(missing)}")
+        chunks: list[tuple[str, int, bytes]] = []
+        with self._manifest_lock(shared=True):
+            for f in files:
+                done = offsets.get(f.name, 0)
+                size = f.stat().st_size
+                if size < done:
+                    raise ManifestRewoundError(f"{f.name} is shorter ({size}) than read ({done})")
+                new_offsets[f.name] = done
+                if size == done:
+                    continue
+                with f.open("rb") as fh:
+                    fh.seek(done)
+                    chunk = fh.read()
+                whole = chunk[: chunk.rfind(b"\n") + 1]
+                if whole:
+                    chunks.append((f.name, done, whole))
+                    new_offsets[f.name] = done + len(whole)
+        out: list[Capture] = []
+        for name, start, whole in chunks:
+            for line in whole.split(b"\n"):
+                if not line.strip():
+                    continue
+                try:
+                    out.append(Capture.from_record(json.loads(line)))
+                except json.JSONDecodeError as exc:
+                    raise ValueError(f"{name} (from byte {start}): malformed JSON") from exc
+        return out, new_offsets
 
     def index(self, days: Iterable[date] | None = None) -> dict[str, list[Capture]]:
         """Captures grouped by key, oldest first."""
