@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-16T23:41:05+00:00",
+ "updated_at": "2026-10-17T23:38:09+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-16T23:35:20+00:00",
+   "at": "2026-10-17T23:34:08+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16676211438765912
+   "confirmation_roi": -0.1670267018151012
   },
   "ATTELE": {
-   "at": "2026-10-16T23:39:12+00:00",
+   "at": "2026-10-17T23:36:49+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13515957370659
+   "confirmation_roi": -0.1345789125519151
   },
   "MONTE": {
-   "at": "2026-10-16T23:41:05+00:00",
+   "at": "2026-10-17T23:38:09+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07323501818065044
+   "confirmation_roi": -0.07409629177206012
   }
  },
  "strategies": [
@@ -32645,6 +32645,138 @@
       "to": "2026-12-31",
       "bets": 100,
       "roi": 0.2590000000000001
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "1c6d6f2b4b",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "weight_band": "Plus léger (≤ −1,5 kg)",
+    "rest_band": "≤ 14 jours",
+    "class_change": "Descend de niveau (allocation −25 %)"
+   },
+   "label": "Niveau vs dernière course : Descend de niveau (allocation −25 %) · Repos : ≤ 14 jours · Poids porté : Plus léger (≤ −1,5 kg)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-17T23:34:08+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-17",
+    "bets": 339,
+    "roi": 0.08643067846607666,
+    "low": -0.15743776370095075,
+    "high": 0.33029912063310407,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 127,
+      "roi": 0.06614173228346454
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 114,
+      "roi": 0.13684210526315788
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 98,
+      "roi": 0.054081632653061096
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "02b73c7dd9",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "4e-6e cote",
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "shoeing_cat": "Déferré des 4"
+   },
+   "label": "Valeur selon Marché+ : Cote juste (0,9-1,05) · Rang dans la cote : 4e-6e cote · Ferrure : Déferré des 4",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-17T23:36:49+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-17",
+    "bets": 1650,
+    "roi": 0.04284848484848491,
+    "low": -0.10935748632479278,
+    "high": 0.1950544560217626,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 559,
+      "roi": 0.0692307692307692
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 550,
+      "roi": 0.05418181818181811
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 541,
+      "roi": 0.004066543438077774
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e23f577067",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "trainer_form": "Entraîneur peu connu",
+    "duo_form": "Duo jockey-entraîneur en difficulté (≤ ×0,8 vs cote)"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur en difficulté (≤ ×0,8 vs cote) · Valeur selon Marché+ : Cote un peu basse (0,75-0,9) · Entraîneur : Entraîneur peu connu",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-17T23:36:49+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-17",
+    "bets": 436,
+    "roi": 0.338302752293578,
+    "low": -0.2511108272195772,
+    "high": 0.9277163318067332,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 243,
+      "roi": 0.2300411522633743
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 146,
+      "roi": 0.5027397260273974
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 47,
+      "roi": 0.3872340425531915
      }
     ]
    },
