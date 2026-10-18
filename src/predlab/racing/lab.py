@@ -478,6 +478,29 @@ CANDIDATES = (
         ),
         fresh_from=date(2026, 10, 15),
     ),
+    # ajouté par l'agent critique le 2026-10-18
+    Candidate(
+        "dist_q",
+        "Cote selon la distance (trot)",
+        "Critère a posteriori (agent critique) : au trot, la cote ne se trompe pas de la "
+        "même façon sur les longues distances que sur les courtes. Mesure : log q × "
+        "(distance de la course en mètres − 2 400) / 1 000, pour que le modèle pondère la "
+        "cote selon la distance. Le dossier du 2026-10-18 y fait penser : sur l'historique "
+        "reconstitué, l'avance du modèle sur le favori à l'attelé vient des courses de "
+        "2 700 m et plus (+270,80 €, IC 90 % +76,78 € à +459,25 €, 834 courses où les choix "
+        "diffèrent, pour +233,10 € au total), rien entre 2 200 et 2 699 m (+6,10 €), une "
+        "perte non démontrée sous 2 200 m (−43,80 €) ; au monté, même dessin (2 700 m et "
+        "plus : +59,00 €, IC 90 % +14,90 € à +99,61 €, 61 courses où les choix diffèrent). "
+        "Recoupe en partie autostart_q (les départs à l'autostart sont souvent plus courts).",
+        ("ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (pl.col("log_q") * (pl.col("distance_m").cast(pl.Float64) - 2400.0) / 1000.0)
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+        fresh_from=date(2026, 10, 20),
+    ),
 )
 
 BY_ID = {c.id: c for c in CANDIDATES}
