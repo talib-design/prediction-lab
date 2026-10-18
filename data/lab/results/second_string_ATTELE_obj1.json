@@ -1,0 +1,54 @@
+{
+ "experiment": "second_string:ATTELE:obj1",
+ "candidate": "second_string",
+ "label": "Second couteau de l'écurie",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-18T23:41:12+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0000 (IC 99 % -0.0001 à +0.0001). Probablement déjà dans la cote.",
+ "difference": -3.308104021413077e-05,
+ "ci_low": -0.00013569374188434507,
+ "ci_high": 8.219614888170103e-05,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -1.867918971164449e-05
+  },
+  "2026": {
+   "races": 1033,
+   "difference": -9.000529539481948e-05
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 2,
+  "roi_challenger": -0.09069585613760756,
+  "roi_champion": -0.09084245504300237,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": 1.5,
+  "net_difference_low": -1.1999999999999997,
+  "net_difference_high": 5.699999999999999
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 1.0
+ },
+ "beta": -0.0050088541583873224,
+ "beta_low": -0.038111654020525944,
+ "beta_high": 0.028093945703751295,
+ "per_sd": 0.9950036692335966,
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 133
+ }
+}

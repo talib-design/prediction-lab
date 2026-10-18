@@ -1,0 +1,54 @@
+{
+ "experiment": "self_driven:MONTE:obj1",
+ "candidate": "self_driven",
+ "label": "L'entraîneur drive ou monte lui-même",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-18T23:43:35+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart +0.0001 (IC 99 % -0.0003 à +0.0006). Probablement déjà dans la cote.",
+ "difference": 0.00012713241122576653,
+ "ci_low": -0.00030350423181644214,
+ "ci_high": 0.0005729890697783452,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": 0.00020272608773609052
+  },
+  "2026": {
+   "races": 181,
+   "difference": -0.0002011362613549774
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 2,
+  "roi_challenger": -0.0871509824198552,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": -0.8999999999999999,
+  "net_difference_low": -2.6999999999999997,
+  "net_difference_high": 0.0
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": -0.004371161184484535,
+ "beta_low": -0.06347363750033916,
+ "beta_high": 0.05473131513137009,
+ "per_sd": 0.9956383784357649,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 408
+ }
+}

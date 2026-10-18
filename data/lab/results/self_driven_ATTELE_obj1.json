@@ -1,0 +1,54 @@
+{
+ "experiment": "self_driven:ATTELE:obj1",
+ "candidate": "self_driven",
+ "label": "L'entraîneur drive ou monte lui-même",
+ "discipline": "ATTELE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-18T23:41:12+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0005 (IC 99 % -0.0015 à +0.0006). Probablement déjà dans la cote.",
+ "difference": -0.0004544184035617123,
+ "ci_low": -0.0014677639082941248,
+ "ci_high": 0.0005708197026122295,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 4083,
+   "difference": -0.0005873501538611718
+  },
+  "2026": {
+   "races": 1033,
+   "difference": 7.100302574389513e-05
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 5116,
+  "races_where_picks_differ": 77,
+  "roi_challenger": -0.09295347928068809,
+  "roi_champion": -0.09084245504300237,
+  "roi_favourite": -0.0884089132134479,
+  "net_difference": -21.60000000000001,
+  "net_difference_low": -85.51,
+  "net_difference_high": 40.0025
+ },
+ "lambda": {
+  "champion": 1.0,
+  "challenger": 1.0
+ },
+ "beta": -0.032493960236146084,
+ "beta_low": -0.05713877963454678,
+ "beta_high": -0.007849140837745391,
+ "per_sd": 0.9680282964759644,
+ "races": {
+  "train": 15555,
+  "validation": 4076,
+  "test": 5116,
+  "vault": 133
+ }
+}

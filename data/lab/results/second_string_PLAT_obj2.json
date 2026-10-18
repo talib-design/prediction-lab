@@ -1,0 +1,54 @@
+{
+ "experiment": "second_string:PLAT:obj2",
+ "candidate": "second_string",
+ "label": "Second couteau de l'écurie",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-10-18T23:37:24+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0003 (IC 99 % -0.0008 à +0.0002). Probablement déjà dans la cote.",
+ "difference": -0.0003031360380152476,
+ "ci_low": -0.0008295311715947694,
+ "ci_high": 0.00019885115639331342,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": -0.00038871231234153863
+  },
+  "2026": {
+   "races": 742,
+   "difference": 0.00011436546206719671
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 13,
+  "roi_challenger": -0.13059376432828973,
+  "roi_champion": -0.1280032095369097,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -22.599999999999998,
+  "net_difference_low": -51.39999999999999,
+  "net_difference_high": -1.1950000000000047
+ },
+ "lambda": {
+  "champion": 10.0,
+  "challenger": 10.0
+ },
+ "beta": 0.017150067046847826,
+ "beta_low": -0.013064317430656166,
+ "beta_high": 0.047364451524351814,
+ "per_sd": 1.0172979737736667,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 111
+ }
+}
