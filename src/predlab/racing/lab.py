@@ -503,6 +503,76 @@ CANDIDATES = (
     ),
 )
 
+
+# Critères du générateur d'idées, suite (METHODOLOGY §13).
+def _person_key(col: str) -> pl.Expr:
+    """« Initiale|NOM » d'un jockey, driver ou entraîneur, pour reconnaître la même personne
+    sous deux écritures (« A. ANGOT » / « Alexandre ANGOT », « Sté. Ent. » et « (S) »
+    retirés). Deux membres d'une même famille gardent des initiales différentes."""
+    name = (
+        pl.col(col)
+        .fill_null("")
+        .str.to_uppercase()
+        .str.replace_all(r"\(S\)", "")
+        .str.replace(r"^\s*ST[EÉ]\.?\s*ENT\.?\s*", "")
+        .str.replace(r"^\s*(MME|MLLE)\.?\s+", "")
+        .str.strip_chars()
+    )
+    surname = name.str.extract(r"([A-ZÀ-Ÿ'\-]+)\s*$")
+    return name.str.slice(0, 1) + "|" + surname
+
+
+def _stable_second_string() -> pl.Expr:
+    stable = ["race_id", "trainer"]
+    return (
+        (
+            (pl.len().over(stable) > 1)
+            & pl.col("trainer").is_not_null()
+            & (pl.col("odds").rank("min").over(stable) > 1)
+        )
+        .cast(pl.Float64)
+        .fill_null(0.0)
+    )
+
+
+CANDIDATES = (
+    *CANDIDATES,
+    # ajouté par le générateur d'idées le 2026-10-18
+    Candidate(
+        "self_driven",
+        "L'entraîneur drive ou monte lui-même",
+        "Au trot, un entraîneur qui mène lui-même son cheval plutôt que de le confier à un "
+        "driver ou un jockey extérieur (souvent un nom connu, que le public suit) dit quelque "
+        "chose de ses intentions que la cote n'intègre pas entièrement, dans un sens que le "
+        "test dira. Mesure : 1 si le jockey ou driver et l'entraîneur sont la même personne "
+        "(même initiale et même nom, après retrait de « Sté. Ent. », « Mme », « Mlle » et "
+        "« (S) »), 0 sinon. Attelé et monté (au plat, moins de 1 % des partants). Différent "
+        "de duo, qui mesure la réussite passée d'un couple jockey-entraîneur, pas le fait "
+        "que ce soit la même personne. Présence vérifiée avant l'ajout, sans regard sur les "
+        "résultats : 30 % des partants de l'attelé, 5 % du monté depuis 2025.",
+        ("ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (_person_key("jockey") == _person_key("trainer")).cast(pl.Float64).fill_null(0.0)
+        ),
+    ),
+    # ajouté par le générateur d'idées le 2026-10-18
+    Candidate(
+        "second_string",
+        "Second couteau de l'écurie",
+        "Quand un entraîneur présente plusieurs chevaux dans la même course, le public se "
+        "porte sur celui qu'il croit être son premier choix ; les autres partants de "
+        "l'écurie sont mal cotés, dans un sens que le test dira. Mesure : 1 si l'entraîneur "
+        "a au moins deux partants dans la course et que ce cheval n'a pas la plus petite "
+        "cote à 25 min parmi eux (égalité de cote : aucun des deux n'est second), 0 sinon. "
+        "Plat, attelé et monté. Présence vérifiée avant l'ajout, sans regard sur les "
+        "résultats : 10 % des partants du plat, 8 % de l'attelé, 5 % du monté depuis 2025.",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=_stable_second_string,
+    ),
+)
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 

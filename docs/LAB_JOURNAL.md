@@ -5,6 +5,75 @@ récente en tête. Les critères ajoutés ici sont écrits sans aucun regard sur
 avec les résultats ; ils sont pré-enregistrés puis testés une seule fois par la passe
 de nuit.
 
+## 2026-10-18
+
+### Critères ajoutés (2)
+
+- **`self_driven` — L'entraîneur drive ou monte lui-même** (attelé, monté ; origine
+  automatisée). 1 si le jockey ou driver et l'entraîneur sont la même personne (même
+  initiale et même nom, après retrait de « Sté. Ent. », « Mme », « Mlle », « (S) »), 0
+  sinon. Pourquoi : au trot, mener soi-même son cheval ou le confier à un catch-driver
+  connu est un choix de l'entourage ; le public suit les grands noms de drivers, peut-être
+  plus que le choix ne le mérite. Aucun critère ni facteur ne lit ce fait : `duo` mesure
+  la réussite passée d'un couple jockey-entraîneur, `f_jockey` celle du driver seul. Sens
+  non présumé. Appariement des noms contrôlé à l'oeil (« A. ANGOT » = « Alexandre
+  ANGOT » ; « J.ET. ABRIVARD » ≠ « M. ABRIVARD »). Présence (colonne seule, depuis
+  2025) : 30 % des partants de l'attelé, 5 % du monté ; plat exclu (0,7 %).
+- **`second_string` — Second couteau de l'écurie** (plat, attelé, monté ; origine
+  automatisée). 1 si l'entraîneur a au moins deux partants dans la course et que ce cheval
+  n'a pas la plus petite cote à 25 min parmi eux, 0 sinon. Pourquoi : le public se porte
+  sur le premier choix supposé de l'écurie et néglige les autres ; aucun critère du
+  catalogue ne regarde les autres partants du même entraîneur. Sens non présumé.
+  Calculable pour une course à venir (tout se lit dans la course elle-même). Présence :
+  10 % des partants du plat, 8 % de l'attelé, 5 % du monté depuis 2025.
+
+Écartés avant écriture : réussite du cheval sur l'hippodrome du jour (aucune colonne
+d'historique par hippodrome ; un calcul dans le tableau ne se referait pas pour une course
+à venir), tendance de la musique (voisine de `musique_top3`, `last_win`, `f_form`),
+sexe en course mixte (déjà décrit par le banc via `sex_cat`, sans hypothèse nette),
+toute pondération de la cote selon la classe, le terrain, la distance ou le type de
+départ (domaine des critères a posteriori de l'agent critique).
+
+Vérifications : ruff, format, pyright sur `racing/lab.py`, tests arena / lab / facteurs
+(23 tests, le critère se calcule aussi pour une course à venir) : tout passe.
+
+### Labo de la semaine (2026-10-11 → 2026-10-18, registre `data/hypotheses.jsonl`)
+
+- **Promotions** : aucune. Champions inchangés : plat Marché+ v2 (v1 + `logq2`),
+  attelé et monté Marché+ v1.
+- **Essais au coffre** : aucun (coffre consommé jusqu'au 2026-10-09 au plat, au
+  2026-10-08 à l'attelé, jamais au monté).
+- **Retenus** : aucun nouveau. Toujours en attente du coffre (passe du 2026-10-17) :
+  `class_drop` plat contre v2 (96/600 courses jamais utilisées), `logq2` attelé contre
+  v1 (116/600).
+- **Rejetés** : aucun.
+- **Non concluants (testés cette semaine)** :
+  - plat contre v2 : `jockey_change`, `duo`, `musique_top3`, `fls_field`, `last_win`,
+    `young`, `calibration`, `other_disc`, `usual_q` (−0,0008, IC 99 % −0,0025 à
+    +0,0006) ;
+  - attelé : `trainer_opinion` (prévoit mieux, −0,0005, IC 99 % −0,0010 à −0,0000, gain
+    chaque année, mais −31 € face au choix du champion sur 5 116 courses : filtre argent),
+    `other_disc`, `usual_q` ;
+  - monté : `dq_rate`, `logq2` (−0,0058, IC 99 % −0,0196 à +0,0084), `fls_field`,
+    `last_win`, `young`, `calibration`, `trainer_opinion`, `other_disc`, `usual_q`.
+- **En cours** : règle `value105` (plat 165/600, attelé 146/600, monté 35/600 courses
+  fraîches au 2026-10-17) ; mouvement de cote `drift` (plat 254, attelé 233, monté
+  50 courses suivies en direct sur 1 000) ; critères a posteriori de l'agent critique en
+  attente de leurs courses fraîches.
+
+### Historique 2020 (`data/raw/pmu/backfill_done_v2*.json`)
+
+- Plat : 2 478 jours, le plus ancien 2020-01-01, le plus récent 2026-10-15.
+- Attelé : 2 471 jours, le plus ancien 2020-01-01.
+- Monté : 1 485 jours, le plus ancien **toujours 2022-09-18** : aucun jour plus ancien
+  ajouté depuis le 2026-10-11 (+7 jours, tous récents). Le journal de nuit
+  (`data/logs/backfill.out.log`) montre chaque nuit « MONTE — backfill: 6 requêtes,
+  0 courses, 0 jours complétés, jusqu'au 2024-01-23, arrêt : done, échecs : 6 ». Cause
+  non examinée : je ne sais pas pourquoi le rattrapage du monté ne descend pas sous
+  2022-09-18. À l'attelé, les dernières nuits, un passage sur deux s'arrête aussi sur
+  « réseau indisponible (20 échecs d'affilée) » au 2021-05-12, sans effet visible sur le
+  total.
+
 ## 2026-10-11
 
 ### Critères ajoutés (2)
