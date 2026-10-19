@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-18T23:43:07+00:00",
+ "updated_at": "2026-10-19T23:43:04+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-18T23:35:43+00:00",
+   "at": "2026-10-19T23:35:45+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16720934521779637
+   "confirmation_roi": -0.16652250593267887
   },
   "ATTELE": {
-   "at": "2026-10-18T23:39:38+00:00",
+   "at": "2026-10-19T23:39:38+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1340440910285206
+   "confirmation_roi": -0.13399503146511077
   },
   "MONTE": {
-   "at": "2026-10-18T23:43:07+00:00",
+   "at": "2026-10-19T23:43:04+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07533258203661301
+   "confirmation_roi": -0.07534857385041246
   }
  },
  "strategies": [
@@ -32997,6 +32997,182 @@
       "to": "2026-12-31",
       "bets": 67,
       "roi": 0.0880597014925375
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "05ed40daec",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "weight_band": "Plus léger (≤ −1,5 kg)",
+    "draw_band": "Milieu",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Position au départ : Milieu · Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Poids porté : Plus léger (≤ −1,5 kg)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-19T23:35:45+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-19",
+    "bets": 593,
+    "roi": 0.1976391231028669,
+    "low": -0.15108334955660074,
+    "high": 0.5463615957623346,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 91,
+      "roi": 0.6780219780219778
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 246,
+      "roi": 0.03252032520325199
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 256,
+      "roi": 0.185546875
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "ad918d4a0d",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "4 ans",
+    "venue": "DEAUVILLE",
+    "mus_form_band": "Régulier : 3 top 3 ou plus sur 5"
+   },
+   "label": "Âge : 4 ans · Régularité récente : Régulier : 3 top 3 ou plus sur 5 · Hippodrome : DEAUVILLE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-19T23:35:45+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-19",
+    "bets": 621,
+    "roi": 0.05523349436392899,
+    "low": -0.08399942038315664,
+    "high": 0.19446640911101462,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 220,
+      "roi": 0.058409090909090855
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 224,
+      "roi": 0.03526785714285707
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 177,
+      "roi": 0.07655367231638421
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "71fe6372a1",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "sex_cat": "Mâle",
+    "sky_cat": "Ensoleillé",
+    "duo_form": "Duo jockey-entraîneur en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur en réussite (≥ ×1,2 vs cote) · Sexe : Mâle · Ciel : Ensoleillé",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-19T23:39:38+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-19",
+    "bets": 472,
+    "roi": 0.21080508474576276,
+    "low": -0.21417816316427118,
+    "high": 0.6357883326557967,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 123,
+      "roi": 0.13008130081300817
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 124,
+      "roi": 0.09112903225806468
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 225,
+      "roi": 0.3208888888888888
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "8af932bc8f",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "sex_cat": "Mâle",
+    "sky_cat": "Ensoleillé",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Sexe : Mâle · Ciel : Ensoleillé",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-19T23:39:38+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-19",
+    "bets": 328,
+    "roi": 0.3789634146341463,
+    "low": -0.2408311860905752,
+    "high": 0.9987580153588678,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 98,
+      "roi": 0.34387755102040796
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 100,
+      "roi": 0.40800000000000014
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 130,
+      "roi": 0.3830769230769231
      }
     ]
    },
