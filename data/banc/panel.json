@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-19T23:43:04+00:00",
+ "updated_at": "2026-10-20T23:39:14+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-19T23:35:45+00:00",
+   "at": "2026-10-20T23:34:07+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16652250593267887
+   "confirmation_roi": -0.16684816247361223
   },
   "ATTELE": {
-   "at": "2026-10-19T23:39:38+00:00",
+   "at": "2026-10-20T23:36:50+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13399503146511077
+   "confirmation_roi": -0.1340090981432839
   },
   "MONTE": {
-   "at": "2026-10-19T23:43:04+00:00",
+   "at": "2026-10-20T23:39:14+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07534857385041246
+   "confirmation_roi": -0.07887970029742378
   }
  },
  "strategies": [
@@ -33173,6 +33173,182 @@
       "to": "2026-12-31",
       "bets": 130,
       "roi": 0.3830769230769231
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "49bf3a8803",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "1er de Marché+",
+    "model_edge_band": "Cote généreuse (p × cote ≥ 1,05)",
+    "temp_band": "Doux (17-24 °C)"
+   },
+   "label": "Valeur selon Marché+ : Cote généreuse (p × cote ≥ 1,05) · Classement Marché+ : 1er de Marché+ · Température : Doux (17-24 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-20T23:34:07+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-20",
+    "bets": 301,
+    "roi": 0.10099667774086374,
+    "low": -0.15550135446629482,
+    "high": 0.3574947099480223,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 163,
+      "roi": 0.02822085889570558
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 61,
+      "roi": 0.18688524590163946
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 77,
+      "roi": 0.18701298701298708
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "d105d491d0",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "venue": "PONT DE VIVAUX",
+    "going_lean": "Neutre sur ce terrain"
+   },
+   "label": "Âge : 6-7 ans · Le cheval sur ce terrain : Neutre sur ce terrain · Hippodrome : PONT DE VIVAUX",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-20T23:34:07+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-20",
+    "bets": 359,
+    "roi": 0.25571030640668524,
+    "low": -0.15745829983574977,
+    "high": 0.6688789126491202,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 82,
+      "roi": 0.4829268292682929
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 164,
+      "roi": 0.3164634146341463
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 113,
+      "roi": 0.0026548672566371057
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "ce24f153ae",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "rest_band": "≤ 14 jours",
+    "going_cat": "Très souple",
+    "going_lean": "Réussit sur ce terrain"
+   },
+   "label": "Terrain : Très souple · Le cheval sur ce terrain : Réussit sur ce terrain · Repos : ≤ 14 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-20T23:34:07+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-20",
+    "bets": 279,
+    "roi": 0.07383512544802873,
+    "low": -0.14649109035673344,
+    "high": 0.2941613412527909,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 84,
+      "roi": 0.05119047619047623
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 88,
+      "roi": 0.15681818181818175
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 107,
+      "roi": 0.02336448598130847
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "97ae6414e1",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 8 à 13",
+    "blinkers_change": "Équipement inchangé",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Oeillères vs dernière course : Équipement inchangé · Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Cote : Cote 8 à 13",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-20T23:39:14+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-20",
+    "bets": 239,
+    "roi": 0.14895397489539763,
+    "low": -0.2870740682917649,
+    "high": 0.5849820180825602,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 57,
+      "roi": 0.10877192982456152
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 95,
+      "roi": 0.08842105263157896
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 87,
+      "roi": 0.24137931034482762
      }
     ]
    },
