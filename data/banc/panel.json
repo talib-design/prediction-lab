@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-20T23:39:14+00:00",
+ "updated_at": "2026-10-21T23:45:45+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-20T23:34:07+00:00",
+   "at": "2026-10-21T23:36:00+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16684816247361223
+   "confirmation_roi": -0.16785006420934437
   },
   "ATTELE": {
-   "at": "2026-10-20T23:36:50+00:00",
+   "at": "2026-10-21T23:41:10+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1340090981432839
+   "confirmation_roi": -0.13416847425201484
   },
   "MONTE": {
-   "at": "2026-10-20T23:39:14+00:00",
+   "at": "2026-10-21T23:45:45+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07887970029742378
+   "confirmation_roi": -0.07903701181662376
   }
  },
  "strategies": [
@@ -33349,6 +33349,182 @@
       "to": "2026-12-31",
       "bets": 87,
       "roi": 0.24137931034482762
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c747ecf91f",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "field_band": "Moyen (9-13)",
+    "sky_cat": "Pluie ou averses",
+    "blinkers_change": "Retire ses oeillères"
+   },
+   "label": "Oeillères vs dernière course : Retire ses oeillères · Taille du peloton : Moyen (9-13) · Ciel : Pluie ou averses",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-21T23:36:00+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-21",
+    "bets": 219,
+    "roi": 0.7762557077625571,
+    "low": -0.1368128855234536,
+    "high": 1.689324301048568,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 72,
+      "roi": 1.5236111111111108
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 96,
+      "roi": 0.5062499999999999
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 51,
+      "roi": 0.2294117647058822
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "aa89b04f41",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "sky_cat": "Pluie ou averses",
+    "category_cat": "Handicap",
+    "blinkers_change": "Retire ses oeillères"
+   },
+   "label": "Oeillères vs dernière course : Retire ses oeillères · Type de course : Handicap · Ciel : Pluie ou averses",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-21T23:36:00+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-21",
+    "bets": 328,
+    "roi": 0.4847560975609757,
+    "low": -0.15227042488655695,
+    "high": 1.1217826200085084,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 115,
+      "roi": 0.7895652173913044
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 120,
+      "roi": 0.18833333333333324
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 93,
+      "roi": 0.4903225806451612
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "685f00eada",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "1er de Marché+",
+    "rest_band": "Première course connue",
+    "shoeing_cat": "Déferré des 4"
+   },
+   "label": "Classement Marché+ : 1er de Marché+ · Repos : Première course connue · Ferrure : Déferré des 4",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-21T23:41:10+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-21",
+    "bets": 215,
+    "roi": 0.0695348837209302,
+    "low": -0.05137409272159435,
+    "high": 0.19044386016345474,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 127,
+      "roi": 0.07834645669291329
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 48,
+      "roi": 0.09166666666666656
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 40,
+      "roi": 0.015000000000000124
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "0b992f7274",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "draw_band": "Intérieur (1er tiers)",
+    "sky_cat": "Pluie ou averses"
+   },
+   "label": "Position au départ : Intérieur (1er tiers) · Cote : Cote 3 à 5 · Ciel : Pluie ou averses",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-21T23:41:10+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-21",
+    "bets": 204,
+    "roi": 0.005392156862745079,
+    "low": -0.1152152782399434,
+    "high": 0.12599959196543356,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 66,
+      "roi": 0.0060606060606061
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 74,
+      "roi": 0.0013513513513512265
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 64,
+      "roi": 0.009374999999999911
      }
     ]
    },
