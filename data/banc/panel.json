@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-21T23:45:45+00:00",
+ "updated_at": "2026-10-22T23:43:15+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-21T23:36:00+00:00",
+   "at": "2026-10-22T23:35:56+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16785006420934437
+   "confirmation_roi": -0.16773099061857855
   },
   "ATTELE": {
-   "at": "2026-10-21T23:41:10+00:00",
+   "at": "2026-10-22T23:39:49+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13416847425201484
+   "confirmation_roi": -0.13418489835191422
   },
   "MONTE": {
-   "at": "2026-10-21T23:45:45+00:00",
+   "at": "2026-10-22T23:43:15+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07903701181662376
+   "confirmation_roi": -0.07835415714117963
   }
  },
  "strategies": [
@@ -33525,6 +33525,50 @@
       "to": "2026-12-31",
       "bets": 64,
       "roi": 0.009374999999999911
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "a5c42f2666",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "rest_band": "≤ 14 jours",
+    "field_band": "Grand (≥ 14)",
+    "blinkers_cat": "Oeillères classiques"
+   },
+   "label": "Oeillères : Oeillères classiques · Taille du peloton : Grand (≥ 14) · Repos : ≤ 14 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-22T23:35:56+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-22",
+    "bets": 1099,
+    "roi": 0.18735213830755248,
+    "low": -0.11139108308583312,
+    "high": 0.4860953597009381,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 360,
+      "roi": 0.34138888888888874
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 448,
+      "roi": 0.16026785714285707
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 291,
+      "roi": 0.03848797250859093
      }
     ]
    },
