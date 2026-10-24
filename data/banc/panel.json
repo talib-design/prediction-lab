@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-22T23:43:15+00:00",
+ "updated_at": "2026-10-24T06:53:20+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-22T23:35:56+00:00",
+   "at": "2026-10-23T23:43:35+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16773099061857855
+   "confirmation_roi": -0.16787125210367093
   },
   "ATTELE": {
-   "at": "2026-10-22T23:39:49+00:00",
+   "at": "2026-10-24T05:41:33+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13418489835191422
+   "confirmation_roi": -0.13435407079383546
   },
   "MONTE": {
-   "at": "2026-10-22T23:43:15+00:00",
+   "at": "2026-10-24T06:53:20+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.07835415714117963
+   "confirmation_roi": -0.07982707638365655
   }
  },
  "strategies": [
@@ -33569,6 +33569,269 @@
       "to": "2026-12-31",
       "bets": 291,
       "roi": 0.03848797250859093
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "44712fc5f1",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "venue": "LYON LA SOIE",
+    "blinkers_change": "Équipement inchangé",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Oeillères vs dernière course : Équipement inchangé · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Hippodrome : LYON LA SOIE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-23T23:43:35+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-23",
+    "bets": 356,
+    "roi": 0.3339887640449437,
+    "low": -0.15190666789251484,
+    "high": 0.8198841959824023,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 158,
+      "roi": 0.12151898734177213
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 143,
+      "roi": 0.5195804195804197
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 55,
+      "roi": 0.4618181818181819
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "0a86f7e3fc",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "Favori",
+    "sky_cat": "Pluie ou averses",
+    "dist_change": "Même distance"
+   },
+   "label": "Distance vs dernière course : Même distance · Rang dans la cote : Favori · Ciel : Pluie ou averses",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-24T05:41:33+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-23",
+    "bets": 672,
+    "roi": 0.040327380952380976,
+    "low": -0.07604062510186603,
+    "high": 0.156695387006628,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 220,
+      "roi": 0.03409090909090917
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 231,
+      "roi": 0.0714285714285714
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 221,
+      "roi": 0.014027149321266918
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "17c1e43882",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "age_band": "8 ans et +"
+   },
+   "label": "Âge : 8 ans et + · Valeur selon Marché+ : Cote un peu basse (0,75-0,9) · Cote : Cote 3 à 5",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-24T05:41:33+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-23",
+    "bets": 345,
+    "roi": 0.017681159420289916,
+    "low": -0.08216039662535132,
+    "high": 0.11752271546593115,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 105,
+      "roi": 0.010476190476190528
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 149,
+      "roi": 0.024161073825503365
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 91,
+      "roi": 0.015384615384615552
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "7a5b2a4793",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "field_band": "Grand (≥ 14)",
+    "venue": "STRASBOURG",
+    "jockey_change_cat": "Jockey prévu"
+   },
+   "label": "Taille du peloton : Grand (≥ 14) · Changement de jockey : Jockey prévu · Hippodrome : STRASBOURG",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-24T05:41:33+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-23",
+    "bets": 217,
+    "roi": 0.08847926267281103,
+    "low": -0.3273601830164502,
+    "high": 0.5043187083620723,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 86,
+      "roi": 0.04069767441860472
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 87,
+      "roi": 0.1367816091954024
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 44,
+      "roi": 0.0863636363636362
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "258d3fb0ba",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "field_band": "Grand (≥ 14)",
+    "venue": "STRASBOURG"
+   },
+   "label": "Taille du peloton : Grand (≥ 14) · Hippodrome : STRASBOURG",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-24T05:41:33+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-23",
+    "bets": 218,
+    "roi": 0.08348623853211024,
+    "low": -0.33056082178558127,
+    "high": 0.49753329884980174,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 86,
+      "roi": 0.0406976744186045
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 88,
+      "roi": 0.12386363636363651
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 44,
+      "roi": 0.08636363636363642
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "baa82ab33c",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "field_band": "Grand (≥ 14)",
+    "venue": "STRASBOURG",
+    "blinkers_change": "Équipement inchangé"
+   },
+   "label": "Oeillères vs dernière course : Équipement inchangé · Taille du peloton : Grand (≥ 14) · Hippodrome : STRASBOURG",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-24T05:41:33+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-23",
+    "bets": 203,
+    "roi": 0.054187192118226646,
+    "low": -0.38461974098596813,
+    "high": 0.4929941252224214,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 76,
+      "roi": 0.07631578947368411
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 84,
+      "roi": 0.03452380952380962
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 43,
+      "roi": 0.05348837209302326
      }
     ]
    },
