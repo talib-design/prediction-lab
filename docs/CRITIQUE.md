@@ -4,6 +4,199 @@ Une entrée par semaine, la plus récente en tête (METHODOLOGY §14). Tous les 
 viennent du dossier de la semaine (`data/lab/dossier/dossier_<jour>.json`) ; ce qui vient
 d'ailleurs (journaux) est signalé comme tel et donné sans chiffre. Aucun conseil de pari.
 
+## Semaine du 2026-10-18 au 2026-10-24
+
+Source : `dossier_2026-10-25` (généré le 2026-10-25 à 10:06 UTC). Pas de recouvrement avec
+l'entrée précédente (11 → 17/10). Ce qui vient des journaux (`data/logs/*.log`, git) est
+signalé comme tel.
+
+### a. Carnet en direct : favori contre modèle
+
+| Discipline | Période | Courses | Favori | Modèle |
+|---|---|---|---|---|
+| Plat | semaine | 83 | −54,85 € (−33,0 %) | −44,85 € (−27,0 %) |
+| Plat | depuis le 2026-09-30 | 274 | −112,05 € (−20,4 %) | −94,05 € (−17,2 %) |
+| Attelé | semaine | 56 | −30,85 € (−27,5 %) | −28,95 € (−25,9 %) |
+| Attelé | depuis le 2026-10-05 | 199 | −41,25 € (−10,4 %) | −55,55 € (−14,0 %) |
+| Monté | semaine | 12 | +4,40 € (+18,3 %) | +4,40 € (+18,3 %) |
+| Monté | depuis le 2026-10-05 | 44 | −2,50 € (−2,8 %) | +3,30 € (+3,8 %) |
+
+- **Plat** : deuxième semaine noire d'affilée pour le favori (−33,0 % sur 83 courses). Le
+  modèle a quitté le favori sur 14 courses et y gagne +10,00 € (favori −18,80 €, modèle
+  −8,80 €, somme des lignes du dossier), soit tout l'écart de la semaine. Modèle mieux sur 4 :
+  ParisLongchamp R1C3 le 18/10 (son [4] gagne : +5,40 € contre −2,00 €), Deauville R4C1 le 21/10
+  (son [3] gagne : +3,70 € contre −2,00 €), Clairefontaine R1C3 le 20/10 (+0,60 € contre
+  −2,00 €), Deauville R4C4 le 22/10 (0,00 € contre −0,20 €). Moins bien sur 3 : ParisLongchamp
+  R1C4 le 18/10 (+0,20 € contre −2,00 €), Lyon la Soie R2C4 le 21/10 (−0,40 € contre −2,00 €) et
+  R5C3 le 23/10 (+0,10 € contre −2,00 €). Les 7 autres finissent à égalité (6 perdent des deux
+  côtés, Pau R3C3 −0,50 € des deux côtés). Depuis le 30/09 : **+18,00 €** pour le modèle sur
+  274 courses (+8,00 € sur 191 la semaine dernière). Deux gagnants à 3,70 € et 5,40 € font
+  l'essentiel : c'est encore du bruit.
+- **Attelé** : 3 courses différentes, +1,90 € pour le modèle. Vincennes R1C7 le 23/10 (son [5]
+  gagne : +4,90 € contre −2,00 €) compense Amiens R4C2 le 18/10 (le favori [12] gagne : +3,00 €
+  contre −2,00 €) ; Caen R3C7 perd des deux côtés. Depuis le 05/10 : −14,30 € (−16,20 € la
+  semaine dernière).
+- **Monté** : mêmes choix sur les 12 courses. Depuis le 05/10 : +5,80 €, inchangé.
+- **Le carnet de la semaine est incomplet** (d.1) : le 24/10, 3 courses seulement (2 attelé,
+  1 monté, aucune de plat). L'attelé passe de 90 courses la semaine dernière à 56.
+
+### b. Où le modèle gagne ou perd sur l'historique (reconstitution walk-forward)
+
+Avertissement : une quarantaine de segments par discipline, qui se recouvrent ; quand le
+total est positif, beaucoup de sous-segments le sont mécaniquement, et quelques-uns sortiront
+du lot par hasard. Ce sont des pistes, pas des preuves. Segments « trop peu » omis.
+
+**Plat** — 23 409 courses (2020-03-01 → 2026-10-24), 2 922 où les choix diffèrent :
+modèle − favori **+541,85 €** (IC 90 % +178,75 € à +899,11 €). Stable (+537,75 €).
+
+- Gagne (IC excluant 0) : favori à 5 ou plus **+549,30 €** (IC +258,72 € à +835,40 €,
+  1 484) ; choix coté 5 à 10 **+617,00 €** (IC +333,07 € à +897,67 €, 1 861) ; 15 partants et
+  plus +245,70 € (IC +41,84 € à +474,81 €, 911) ; 1 400 – 1 799 m +204,40 € (IC +15,65 € à
+  +408,84 €, 873) ; handicap de catégorie divisé +208,90 € (IC +69,30 € à +355,13 €, 440) ;
+  Chantilly +128,90 € (IC +8,07 € à +253,40 €, 296) ; Saint-Cloud +111,20 € (IC +15,20 € à
+  +203,63 €, 197) ; T2 +228,00 € (IC +26,50 € à +412,12 €, 752) ; PSF standard +203,20 € (IC
+  +21,52 € à +401,22 €, 812) ; terrain bon +149,20 € (IC +23,28 € à +270,31 €, 320) ; bon souple
+  +171,90 € (IC +4,24 € à +328,50 €, 597, à la limite) ; hors quinté +473,25 € (IC +124,94 € à
+  +822,01 €, 2 794).
+- Perd ou rien, **non démontré** : courses à conditions −118,15 € (IC −250,57 € à +13,11 €,
+  561) ; favori entre 3 et 5 −56,10 € (IC −271,64 € à +155,01 €, 1 247) ; choix coté 3 à 5
+  −60,70 € (IC −230,02 € à +127,37 €, 946) ; terrain collant −67,05 € (IC −148,11 € à
+  +17,07 €, 159) ; Cagnes-sur-Mer −25,10 € (IC −88,10 € à +40,70 €, 110) ; ParisLongchamp
+  −12,50 € (IC −97,21 € à +67,81 €, 141) ; 8 partants ou moins −8,90 € (IC −120,42 € à
+  +104,12 €, 428).
+- Carte inchangée pour la troisième semaine : l'avance vient des courses où le favori est
+  faible et où le modèle prend un cheval coté 5 à 10. Les trois critères a posteriori qui en
+  sont tirés attendent leurs courses (e).
+- La réserve de la semaine dernière tient : depuis le 10/10, le plat est rejoué avec v2
+  (`logq2`, choisi en regardant 2025-2026).
+
+**Attelé** — 26 713 courses (2020-02-01 → 2026-10-24), 1 369 où les choix diffèrent :
+modèle − favori +235,00 € (IC 90 % −15,04 € à +449,96 €) : **non démontré**.
+
+- Gagne (IC excluant 0) : **2 700 m et plus +265,80 €** (IC +63,77 € à +456,25 €, 835) ;
+  favori entre 3 et 5 +209,50 € (IC +22,33 € à +396,81 €, 910) ; choix coté 5 à 10 +225,00 €
+  (IC +52,56 € à +395,93 €, 573) ; 9 – 11 partants +116,50 € (IC +26,17 € à +203,03 €, 252) ;
+  12 – 14 partants +162,90 € (IC +12,00 € à +318,31 €, 533) ; catégorie INCONNU +217,70 € (IC
+  +45,48 € à +389,61 €, 606) ; catégorie « autre » +100,50 € (IC +42,79 € à +165,90 €, 109) ;
+  hors quinté +266,60 € (IC +16,28 € à +493,22 €, 1 319) ; T1 +130,20 € (IC +18,39 € à
+  +238,79 €, 336) ; T3 +159,70 € (IC +15,10 € à +306,11 €, 393).
+- **Non démontré**, dont deux segments qui changent de verdict sans changer de chiffre :
+  **AUTOSTART −106,50 €** (IC −214,22 € à +1,31 €, 263) et NATIONALE_AUTOSTART +39,60 € (IC
+  −2,62 € à +83,21 €, 51). La semaine dernière, mêmes montants et mêmes effectifs, leurs IC
+  excluaient 0 (−225,33 € à −3,36 € ; +1,28 € à +80,70 €). Aucune course nouvelle n'y est
+  entrée : seul le tirage du bootstrap a bougé (d.4). Les autres : moins de 2 200 m −36,90 € (IC
+  −124,96 € à +57,20 €, 200) ; 15 partants et plus −33,90 € (IC −195,43 € à +130,34 €, 555) ;
+  T4 −65,80 € (IC −178,18 € à +47,71 €, 295) ; quinté −31,60 € (IC −73,11 € à +9,93 €, 50) ;
+  Enghien −48,20 € (IC −99,91 € à +5,60 €, 74).
+- Lecture (hypothèse) : mêmes deux histoires que la semaine dernière, la distance (≥ 2 700 m,
+  plus que le total à lui seul) et la taille du champ (9 à 14 partants positifs, 15 et plus
+  rien). `dist_q` et `autostart_q` attendent leurs courses ; `fls_field` (taille du champ) a
+  déjà été testé, non concluant.
+
+**Monté** — 2 944 courses (2023-02-01 → 2026-10-24), 87 où les choix diffèrent : +44,50 €
+(IC 90 % −4,22 € à +98,52 €), non démontré. Segments non « trop peu » : 2 700 m et plus
++59,00 € (IC +15,69 € à +101,50 €, 61) ; favori 3 – 5 +25,90 € (IC −16,31 € à +65,71 €, 56),
+INCONNU +22,90 € (IC −17,91 € à +61,81 €, 61) et hors quinté +44,50 € (IC −6,70 € à +94,90 €,
+87), non démontrés.
+
+### c. Calibration du choix du modèle (annoncé → observé)
+
+| Bande | Plat | Attelé | Monté |
+|---|---|---|---|
+| 10 – 20 % | 16,6 → 16,8 % (7 136) | 17,7 → 19,2 % (2 800) | 17,5 → 18,4 % (294) |
+| 20 – 30 % | 24,5 → 24,5 % (9 086) | 25,0 → 24,5 % (9 377) | **24,9 → 29,1 %** (1 083) |
+| 30 – 40 % | 34,3 → 32,7 % (4 098) | 34,5 → 32,5 % (6 556) | 34,5 → 33,2 % (729) |
+| 40 – 50 % | 44,3 → 45,9 % (1 841) | **44,6 → 38,7 %** (3 553) | 44,8 → 39,4 % (381) |
+| 50 – 100 % | **58,7 → 54,3 %** (1 243) | **61,7 → 50,4 %** (4 422) | 61,0 → 51,4 % (457) |
+
+(Bande 0 – 10 % : 3 courses par discipline, omise.)
+
+- **Attelé (v1)** : la surconfiance sur les gros favoris ne bouge pas. Écart en erreurs-types
+  (calcul de l'agent, √(p(1−p)/n)) : 15 pour la bande 50 – 100 %, 7 pour 40 – 50 %. Ce n'est
+  pas du hasard. C'est le défaut que `logq2` corrige au registre ; il attend toujours le coffre.
+- **Plat (v2)** : 4,4 points d'écart sur 1 243 courses en haut, environ 3 erreurs-types (calcul
+  de l'agent). `logq2` est dans v2 et ne l'a pas absorbé. La calibration τ testée sur v2 n'y
+  peut rien (+0,0001, IC 99 % −0,0002 à +0,0003) : un exposant commun à tous les chevaux ne
+  corrige pas un défaut du seul haut de tableau.
+- **Monté** : forme en S. Sous-confiant de 4,2 points à 20 – 30 % (environ 3 erreurs-types,
+  calcul de l'agent), trop confiant au-dessus de 40 %, sur de petits effectifs.
+
+### d. Santé des données
+
+1. **Collecteur presque à l'arrêt depuis la nuit du 23 au 24/10** (journal
+   `collect.log`, hors dossier). Il passait environ 220 à 240 fois par jour du 14 au 23/10,
+   toutes les 6 à 7 minutes. Après le dernier passage normal (23/10, 23:43 UTC), rien jusqu'à
+   06:11 UTC, puis un passage toutes les 45 min à 3 h 30 en journée et 8 h la nuit du 24 au 25 :
+   10 passages le 24/10, 7 le 25/10 jusqu'à 19:08 UTC. Effet : le carnet n'a figé que 3 courses
+   le 24/10 (dossier) et 4 le 25/10 sur 89 visées (journal), avec jusqu'à 7 courses « sans
+   marché complet » par passage. Même profil que le 06/10 (Mac en veille).
+   Pourtant l'agent de veille se dit « éveillé » du 22/10 12:23 au 25/10 15:56 (heure de Paris,
+   `keepawake.log`). **Je ne sais pas** pourquoi : capot fermé, autre veille, ou passages
+   devenus très lents. À 15:56 (Paris) aujourd'hui, l'agent de veille s'est relâché :
+   **batterie à 9 %**. La passe de nuit de ce soir est menacée si le Mac n'est pas branché.
+2. **Erreur de nuit attelé corrigée** : 0 erreur consignée cette semaine. Chaque nuit écrit
+   « 1 course(s) écartée(s) (2022-04-21/R4C1) » (journal). Question 1 de la semaine dernière
+   close. Mais le correctif n'est **pas commité** : `racing/events.py`, `cli.py` et le test
+   sont modifiés depuis le 18/10 sans commit, au milieu de 22 fichiers modifiés (`git status`).
+3. **Rattrapage** : +8 jours par discipline en sept jours (plat 2 477 → 2 485, attelé
+   2 470 → 2 478, monté 1 484 → 1 492), un jour par nuit. D'après le journal, l'attelé bute
+   chaque nuit sur 2021-05-12 (20 échecs réseau d'affilée), troisième semaine.
+4. **Bootstrap non reproductible** : à montant et effectif égaux, les IC 90 % bougent de
+   quelques euros d'un dossier à l'autre (AUTOSTART, NATIONALE_AUTOSTART, Chantilly plat :
+   +7,18 € → +8,07 € en borne basse). Quand un segment frôle 0, son verdict dépend du tirage.
+   **Je ne sais pas** si la graine change chaque nuit ou si le rééchantillonnage dépend de
+   l'ensemble des courses.
+5. **Deux comptes du coffre** : le dossier donne 192/600 au plat et 278/600 à l'attelé ; la
+   nuit du labo écrit « 186/600 » (`class_drop`) et « 185/600 courses jamais utilisées »
+   (`logq2` attelé) (journal du 25/10). À l'attelé, l'écart est de 93 courses. **Je ne sais
+   pas** lequel compte pour l'essai.
+6. Toujours présents : « En attente de l'historique 2020 de cette discipline » (attelé, monté)
+   alors que l'historique est prêt ; le libellé « reconstitution walk-forward depuis 2024 »
+   pour des tableaux qui partent de 2020 ; des tests à écart exactement nul, IC compris
+   (`other_disc`, `last_win` à l'attelé et au monté, `young` au monté).
+7. Le dossier est sorti à 10:06 UTC (vers 23:40 UTC d'habitude) : d'après le journal, le labo
+   a tourné de 08:28 à 09:52 UTC le 25/10, après la passe de nuit de 23:57.
+
+### e. Labo
+
+- **Aucun test conclu cette semaine** dans les trois disciplines : les derniers datent de la
+  nuit du 18/10 (`second_string`, `self_driven`, tous non concluants). Rien n'était prêt.
+- **Plat** (Marché+ v2, 12 facteurs) : 1 retenu (`class_drop`, au coffre 192/600 selon le
+  dossier), 12 non concluants, 4 en test. Courses fraîches : règle 1,05 à 255/600 ;
+  `open_race` 155/1 000 ; `heavy_q` et `handicap_q` 126/1 000 ; mouvement de cote 342/1 000
+  suivies en direct (journal). Les quatre premiers ont gagné 90 courses en sept jours : à ce
+  rythme, `open_race` atteint 1 000 vers fin décembre ou début janvier (calcul de l'agent). Si le collecteur reste
+  dégradé, ce sera plus tard pour le mouvement de cote, qui dépend du suivi en direct ; **je
+  ne sais pas** si les courses fraîches des autres critères en dépendent aussi.
+- **Attelé** (v1) : 2 retenus, 15 non concluants, 3 en test ; coffre 278/600 (dossier) ou
+  185/600 (journal) pour `logq2`. Courses fraîches : règle 1,05 à 215/600, `autostart_q`
+  130/1 000, `dist_q` 45/1 000 depuis le 20/10 (+69 courses en sept jours).
+- **Monté** (v1) : 17 non concluants, 2 en test (règle 1,05 : 49/600 ; `dist_q` 11/1 000).
+  Coffre 574/600, sans candidat.
+- Générateur d'idées : il tournait pendant cette critique (`racing/lab.py` modifié à 19:12 UTC
+  le 25/10, non commité). Je n'y ai pas touché et ne le commente pas.
+
+### f. Pistes
+
+**Aucun critère a posteriori cette semaine.** La carte n'a pas bougé, cinq critères a
+posteriori attendent déjà des courses fraîches (trois au plat, deux au trot), et le seul
+segment nouveau (bon souple, au plat) frôle 0 et recoupe `heavy_q`. Un sixième critère
+n'ajouterait qu'un test de plus sur les mêmes courses.
+
+Questions pour Chris :
+
+1. **Brancher le Mac** (batterie 9 % à 15:56, heure de Paris) et vérifier pourquoi le collecteur ne passe plus
+   qu'une fois toutes les 1 à 3 heures depuis la nuit du 23/10 (capot fermé ? `pmset -g log`
+   du 24/10). Le carnet de dimanche est déjà presque perdu.
+2. Commiter le correctif de l'attelé (`events.py`, `cli.py`, test) ? Il tourne chaque nuit
+   mais n'existe que dans le dossier de travail.
+3. Fixer la graine du bootstrap du dossier, pour qu'un segment ne change pas de verdict sans
+   course nouvelle ?
+4. Coffre : quel compte fait foi, celui du dossier (278 à l'attelé) ou celui du labo (185) ?
+5. Toujours ouvertes : rattrapage attelé bloqué sur 2021-05-12 ; couverture 2020-2022 du
+   monté ; règle du coffre quand deux candidats sont retenus à un jour d'écart ; filtre argent
+   avec un minimum de courses différentes.
+
 ## Semaine du 2026-10-11 au 2026-10-17
 
 Source : `dossier_2026-10-18` (généré le 2026-10-17 à 23:38 UTC). Les 11 et 12/10 figuraient
