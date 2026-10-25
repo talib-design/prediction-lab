@@ -573,6 +573,66 @@ CANDIDATES = (
     ),
 )
 
+
+# Critères du générateur d'idées, suite (METHODOLOGY §13).
+def _horse_win_vs_place() -> pl.Expr:
+    """Win record against the market minus top-3 record against the market, horse's past
+    strictly before the day, both shrunk with ``K_PEOPLE``; 0 without a known past."""
+
+    def ae(hits: str, expected: str) -> pl.Expr:
+        return (
+            (pl.col(hits).fill_null(0) + K_PEOPLE) / (pl.col(expected).fill_null(0.0) + K_PEOPLE)
+        ).log()
+
+    return (ae("h_wins", "h_exp") - ae("h_top3", "h_exp3")).fill_null(0.0).fill_nan(0.0)
+
+
+CANDIDATES = (
+    *CANDIDATES,
+    # ajouté par le générateur d'idées le 2026-10-25
+    Candidate(
+        "accessit",
+        "Abonné aux places",
+        "Le public lit la musique en places : un cheval souvent dans les trois premiers mais "
+        "rarement vainqueur (« abonné aux places ») paraît régulier et attire les paris, un "
+        "cheval qui gagne plus qu'il ne se place paraît irrégulier ; la cote gagnant ne "
+        "distingue pas assez les deux profils, dans un sens que le test dira. Mesure : "
+        "log((victoires + 3) / (victoires attendues + 3)) − log((places dans les 3 + 3) / "
+        "(places attendues + 3)), sur les courses du cheval strictement antérieures au jour "
+        "(h_wins, h_exp, h_top3, h_exp3 : attendu = somme des probabilités de la cote, "
+        "places par Harville), 0 sans passé connu. Négatif pour l'abonné aux places, "
+        "positif pour le cheval « qui sait gagner ». Plat, attelé et monté. Différent de "
+        "f_form (places gagnées sur la cote, sans séparer victoire et place), de "
+        "musique_top3 (places seules) et de last_win. Présence vérifiée avant l'ajout, sans "
+        "regard sur les résultats : non nul pour 90 % des partants du plat, 93 % de "
+        "l'attelé, 81 % du monté depuis 2025 (écart-type 0,2).",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=_horse_win_vs_place,
+    ),
+    # ajouté par le générateur d'idées le 2026-10-25
+    Candidate(
+        "weight_dist",
+        "Le poids pèse plus sur la distance",
+        "Croyance turfiste classique : un kilo de plus coûte davantage sur une longue "
+        "distance que sur un sprint. Marché+ (f_weight) donne au poids le même effet à "
+        "toutes les distances ; le public, lui, regarde surtout le poids affiché. Le critère "
+        "laisse le modèle faire varier l'effet du poids avec la distance, dans un sens que "
+        "le test dira. Mesure : écart du poids porté au poids moyen de la course, en kg "
+        "(weight_diff), × (distance de la course en mètres − 2 000) / 1 000, 0 si le poids "
+        "est inconnu. Plat seulement (la croyance vient du galop ; pas de poids à "
+        "l'attelé). La cote n'entre pas dans la mesure. Présence vérifiée avant l'ajout, sans regard sur les résultats : non nul pour 82 % des partants du plat "
+        "depuis 2025 (1 % à 99 % : −3,0 à +3,0).",
+        ("PLAT",),
+        Origin.AUTOMATED,
+        expr=lambda: (
+            (pl.col("weight_diff") * (pl.col("distance_m").cast(pl.Float64) - 2000.0) / 1000.0)
+            .fill_null(0.0)
+            .fill_nan(0.0)
+        ),
+    ),
+)
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 

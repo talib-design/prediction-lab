@@ -5,6 +5,64 @@ récente en tête. Les critères ajoutés ici sont écrits sans aucun regard sur
 avec les résultats ; ils sont pré-enregistrés puis testés une seule fois par la passe
 de nuit.
 
+## 2026-10-25
+
+### Critères ajoutés (2)
+
+- **`accessit` — Abonné aux places** (plat, attelé, monté ; origine automatisée).
+  log((victoires + 3) / (victoires attendues + 3)) − log((places dans les 3 + 3) /
+  (places attendues + 3)) sur le passé du cheval strictement antérieur au jour (`h_wins`,
+  `h_exp`, `h_top3`, `h_exp3`), 0 sans passé. Négatif pour le cheval souvent placé mais
+  rarement vainqueur, positif pour celui « qui sait gagner ». Pourquoi : le public lit la
+  musique en places ; la cote gagnant sépare peut-être mal ces deux profils. Aucun critère
+  ni facteur ne sépare victoire et place pour le cheval : `f_form` compte des places
+  gagnées sur la cote, `musique_top3` les places seules, `last_win` la dernière course.
+  Sens non présumé. Présence (colonne seule, depuis 2025) : non nul pour 90 % des partants
+  du plat, 93 % de l'attelé, 81 % du monté ; écart-type 0,2.
+- **`weight_dist` — Le poids pèse plus sur la distance** (plat ; origine automatisée).
+  Écart du poids porté au poids moyen de la course (kg, `weight_diff`) × (distance − 2 000)
+  / 1 000, 0 si poids inconnu. Pourquoi : croyance turfiste classique (un kilo coûte plus
+  sur la distance qu'au sprint) ; `f_weight` donne au poids le même effet partout. La cote
+  n'entre pas dans la mesure. Sens non présumé. Présence : non nul pour 82 % des partants
+  du plat depuis 2025 (1 % à 99 % : −3,0 à +3,0). Attelé exclu (pas de poids).
+
+Écartés avant écriture : femme jockey (au plat, où s'applique la décharge, aucun nom de
+jockey ne porte « Mme » ou « Mlle » : non détectable ; présent au trot, 3 % à l'attelé,
+22 % au monté, sans hypothèse nette), préférence du cheval pour la distance (aucun
+historique par distance), forme récente de l'entraîneur (les cumuls n'ont pas de fenêtre
+récente), nombre de partants de l'entraîneur sur la réunion (ne se calcule pas pour une
+course à venir vue seule), cheval peu exposé (voisin de `young` et `f_new`).
+
+Vérifications : ruff, format, pyright sur `racing/lab.py`, tests arena / lab / facteurs
+(23 tests, le critère se calcule aussi pour une course à venir) : tout passe.
+
+### Labo de la semaine (2026-10-18 → 2026-10-25, registre `data/hypotheses.jsonl`)
+
+- **Promotions** : aucune. Champions inchangés : plat Marché+ v2 (v1 + `logq2`), attelé
+  et monté Marché+ v1.
+- **Essais au coffre** : aucun. Toujours en attente de courses jamais utilisées :
+  `class_drop` plat contre v2 (186/600), `logq2` attelé contre v1 (185/600).
+- **Retenus** : aucun nouveau. **Rejetés** : aucun.
+- **Non concluants (testés dans la passe du 2026-10-18 au soir)** :
+  - `second_string` : plat −0,0003 (IC 99 % −0,0008 à +0,0002), attelé −0,0000
+    (−0,0001 à +0,0001), monté −0,0000 (−0,0008 à +0,0008) ;
+  - `self_driven` : attelé −0,0005 (−0,0015 à +0,0006), monté +0,0001 (−0,0003 à
+    +0,0006).
+- **En cours** (passe du 2026-10-25) : règle `value105` (plat 255/600, attelé 215/600,
+  monté 49/600 courses fraîches) ; mouvement de cote `drift` (plat 342, attelé 296,
+  monté 63 courses suivies en direct sur 1 000) ; critères a posteriori de l'agent
+  critique en attente de leurs courses fraîches.
+
+### Historique 2020 (`data/raw/pmu/backfill_done_v2*.json`)
+
+- Plat : 2 485 jours, le plus ancien 2020-01-01, le plus récent 2026-10-22.
+- Attelé : 2 478 jours, le plus ancien 2020-01-01.
+- Monté : 1 492 jours, le plus ancien **toujours 2022-09-18** (+7 jours en une semaine,
+  tous récents). Le journal de nuit montre encore « MONTE — backfill : 6 requêtes,
+  0 courses, … jusqu'au 2024-01-23, échecs : 6 » et, à l'attelé, des passages arrêtés sur
+  « réseau indisponible (20 échecs d'affilée) » au 2021-05-12. Je ne sais pas pourquoi le
+  monté ne descend pas sous 2022-09-18.
+
 ## 2026-10-18
 
 ### Critères ajoutés (2)
