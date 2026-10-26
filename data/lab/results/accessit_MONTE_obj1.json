@@ -1,0 +1,54 @@
+{
+ "experiment": "accessit:MONTE:obj1",
+ "candidate": "accessit",
+ "label": "Abonné aux places",
+ "discipline": "MONTE",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 1,
+ "tested_at": "2026-10-26T07:15:14+00:00",
+ "status": "INCONCLUSIVE",
+ "conclusion": "Aucun gain mesurable : écart -0.0000 (IC 99 % -0.0007 à +0.0007). Probablement déjà dans la cote.",
+ "difference": -3.7006670287174585e-05,
+ "ci_low": -0.0007348089700600164,
+ "ci_high": 0.0007336349993967489,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 786,
+   "difference": -6.633412768462594e-05
+  },
+  "2026": {
+   "races": 181,
+   "difference": 9.034902868739317e-05
+  }
+ },
+ "test_days": [
+  "2025-01-01",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 967,
+  "races_where_picks_differ": 5,
+  "roi_challenger": -0.08497931747673215,
+  "roi_champion": -0.08668562564632887,
+  "roi_favourite": -0.08952947259565669,
+  "net_difference": 3.3,
+  "net_difference_low": -6.202499999999998,
+  "net_difference_high": 14.604999999999995
+ },
+ "lambda": {
+  "champion": 1000.0,
+  "challenger": 1000.0
+ },
+ "beta": 0.008003035651207635,
+ "beta_low": -0.0511204064628638,
+ "beta_high": 0.06712647776527908,
+ "per_sd": 1.0080351455427357,
+ "races": {
+  "train": 1076,
+  "validation": 802,
+  "test": 967,
+  "vault": 422
+ }
+}

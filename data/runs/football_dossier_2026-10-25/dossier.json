@@ -1,0 +1,869 @@
+{
+  "generated_at": "2026-10-25T19:08:49.234503+00:00",
+  "window_days": 7,
+  "carnet": {
+    "frozen": 9,
+    "settled": 9,
+    "scored": 9,
+    "h8_needed": 100,
+    "h8_ready": false,
+    "plus_2_5": {
+      "prevue": 0.681804111111111,
+      "observee": 0.7777777777777778,
+      "log_loss": 0.592032987164048
+    },
+    "les_deux_marquent": {
+      "prevue": 0.6221618888888889,
+      "observee": 0.6666666666666666,
+      "log_loss": 0.6493827351019235
+    },
+    "score_exact": {
+      "top1_trouve": 0.0
+    },
+    "1x2": {
+      "log_loss_marche": 0.8463700190182795,
+      "log_loss_labo": 0.845005012144078
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "fb-H1",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-backtest-v1/H1",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H2",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-backtest-v1/H2",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H3",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-backtest-v1/H3",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H4",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-forward-cl/H4",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H5",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-forward-cl/H5",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H6",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-weather-v1/H6",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H7",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-backtest-v1/H7",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H8",
+      "status": "PROPOSED",
+      "revision": 0,
+      "experiment": "football-derived-markets/H8",
+      "conclusion": ""
+    },
+    {
+      "id": "fb-H9",
+      "status": "REJECTED",
+      "revision": 1,
+      "experiment": "football-signals-v1/H9",
+      "conclusion": "REJETÉE : aucun gain au-dessus de 0,001 ; gain moyen -0.00002 de log loss par match (IC 95 % [-0.00008 ; +0.00003]), p = 0.3097, p corrigé (Holm) = 1.0000, plancher de détection 0.00008, 13430 matchs de test ; témoin placebo : gain -0.00006, p = 0.5705."
+    },
+    {
+      "id": "fb-H10",
+      "status": "REJECTED",
+      "revision": 1,
+      "experiment": "football-signals-v1/H10",
+      "conclusion": "REJETÉE : aucun gain au-dessus de 0,001 ; gain moyen -0.00001 de log loss par match (IC 95 % [-0.00009 ; +0.00007]), p = 0.8584, p corrigé (Holm) = 1.0000, plancher de détection 0.00011, 13310 matchs de test ; témoin placebo : gain -0.00002, p = 0.5395."
+    },
+    {
+      "id": "fb-H11",
+      "status": "REJECTED",
+      "revision": 1,
+      "experiment": "football-signals-v1/H11",
+      "conclusion": "REJETÉE : aucun gain au-dessus de 0,001 ; gain moyen +0.00000 de log loss par match (IC 95 % [-0.00003 ; +0.00003]), p = 0.9120, p corrigé (Holm) = 1.0000, plancher de détection 0.00004, 13421 matchs de test ; témoin placebo : gain +0.00002, p = 0.7023."
+    },
+    {
+      "id": "fb-H12",
+      "status": "REJECTED",
+      "revision": 1,
+      "experiment": "football-signals-v1/H12",
+      "conclusion": "REJETÉE : aucun gain au-dessus de 0,001 ; gain moyen -0.00005 de log loss par match (IC 95 % [-0.00026 ; +0.00016]), p = 0.6517, p corrigé (Holm) = 1.0000, plancher de détection 0.00030, 7379 matchs de test ; témoin placebo : gain -0.00001, p = 0.8430."
+    },
+    {
+      "id": "fb-H13",
+      "status": "REJECTED",
+      "revision": 1,
+      "experiment": "football-signals-v1/H13",
+      "conclusion": "REJETÉE : aucun gain au-dessus de 0,001 ; gain moyen -0.00012 de log loss par match (IC 95 % [-0.00054 ; +0.00028]), p = 0.5859, p corrigé (Holm) = 1.0000, plancher de détection 0.00059, 6228 matchs de test ; témoin placebo : gain -0.00012, p = 0.2146."
+    },
+    {
+      "id": "fb-H14",
+      "status": "REJECTED",
+      "revision": 1,
+      "experiment": "football-signals-v1/H14",
+      "conclusion": "REJETÉE : aucun gain au-dessus de 0,001 ; gain moyen +0.00031 de log loss par match (IC 95 % [-0.00005 ; +0.00066]), p = 0.1052, plancher de détection 0.00051, 13430 matchs de test."
+    }
+  ],
+  "signals": {
+    "run": "football_signals_2026-10-21",
+    "protocol": "football-signals-v1",
+    "rows": [
+      {
+        "id": "fb-H9",
+        "name": "repos et calendrier",
+        "verdict": "REJECTED",
+        "n_test": 13430,
+        "gain": -2.4468635372851497e-05,
+        "ic95": [
+          -8.014255431009027e-05,
+          2.9791586421511573e-05
+        ],
+        "p_holm": 1.0
+      },
+      {
+        "id": "fb-H10",
+        "name": "forme en tirs cadrés",
+        "verdict": "REJECTED",
+        "n_test": 13310,
+        "gain": -6.9431416442076e-06,
+        "ic95": [
+          -8.669804208295343e-05,
+          6.749902087774455e-05
+        ],
+        "p_holm": 1.0
+      },
+      {
+        "id": "fb-H11",
+        "name": "mouvement de Pinnacle",
+        "verdict": "REJECTED",
+        "n_test": 13421,
+        "gain": 1.7705687418740472e-06,
+        "ic95": [
+          -2.7272748295155507e-05,
+          3.115969790454588e-05
+        ],
+        "p_holm": 1.0
+      },
+      {
+        "id": "fb-H12",
+        "name": "meilleure cote contre moyenne",
+        "verdict": "REJECTED",
+        "n_test": 7379,
+        "gain": -4.9724961342016037e-05,
+        "ic95": [
+          -0.00026177402366227775,
+          0.00015746508113373986
+        ],
+        "p_holm": 1.0
+      },
+      {
+        "id": "fb-H13",
+        "name": "Pinnacle contre moyenne",
+        "verdict": "REJECTED",
+        "n_test": 6228,
+        "gain": -0.00012028983708015866,
+        "ic95": [
+          -0.0005416121403367774,
+          0.0002839025862097327
+        ],
+        "p_holm": 1.0
+      },
+      {
+        "id": "fb-H14",
+        "name": "calibration du marché",
+        "verdict": "REJECTED",
+        "n_test": 13430,
+        "gain": 0.00030640465935418163,
+        "ic95": [
+          -5.452636979294385e-05,
+          0.0006600602928166695
+        ],
+        "p_holm": null
+      }
+    ]
+  },
+  "power": {
+    "available": true,
+    "source": "football_derive_2026-10-17",
+    "n": 5553,
+    "gap": 0.002771982538361677,
+    "sd_per_match": 0.06159475614718149,
+    "scored_now": 9,
+    "ic_half_width_now": 0.04024116821241814,
+    "ic_half_width_at_100": 0.012072350463725443,
+    "matches_to_exclude_zero_at_observed_gap": 1897,
+    "note": "Écart-type par match déduit de l'IC de derive-check ; demi-largeur d'IC = 1,96 × écart-type / racine(n)."
+  },
+  "captures": {
+    "calendrier": {
+      "ok": 112,
+      "failed": 0,
+      "last_ok": "2026-10-25T07:51:31.237556+00:00",
+      "last_failure": null
+    },
+    "cotes": {
+      "ok": 17,
+      "failed": 0,
+      "last_ok": "2026-10-21T21:03:10.479928+00:00",
+      "last_failure": null
+    },
+    "scores": {
+      "ok": 25,
+      "failed": 0,
+      "last_ok": "2026-10-21T21:03:10.856422+00:00",
+      "last_failure": null
+    },
+    "credits": {
+      "used": 59,
+      "cap": 400
+    }
+  },
+  "agent": {
+    "now": {
+      "state": "ok",
+      "last_pass": "2026-10-25T19:06:00+00:00",
+      "age_minutes": 2,
+      "every_minutes": 5,
+      "silent_after_minutes": 15,
+      "needed": false,
+      "alert": false,
+      "title": null,
+      "live": false,
+      "next_kickoff": null,
+      "message": "Dernier passage il y a 2 min (attendu toutes les 5 min)."
+    },
+    "passes_7_days": 882,
+    "passes_expected_since_start": 1404,
+    "first_pass_ever": "2026-10-20T22:11:00+00:00",
+    "gaps_over_30_min": [
+      {
+        "from": "2026-10-22T08:41:00+00:00",
+        "to": "2026-10-22T10:17:00+00:00",
+        "minutes": 96,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-23T23:33:00+00:00",
+        "to": "2026-10-24T03:34:00+00:00",
+        "minutes": 241,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T03:34:00+00:00",
+        "to": "2026-10-24T06:50:00+00:00",
+        "minutes": 196,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T06:50:00+00:00",
+        "to": "2026-10-24T08:15:00+00:00",
+        "minutes": 85,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T08:15:00+00:00",
+        "to": "2026-10-24T09:39:00+00:00",
+        "minutes": 84,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T09:39:00+00:00",
+        "to": "2026-10-24T10:37:00+00:00",
+        "minutes": 58,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T10:37:00+00:00",
+        "to": "2026-10-24T11:38:00+00:00",
+        "minutes": 61,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T11:38:00+00:00",
+        "to": "2026-10-24T13:06:00+00:00",
+        "minutes": 88,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T13:06:00+00:00",
+        "to": "2026-10-24T14:24:00+00:00",
+        "minutes": 78,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T14:24:00+00:00",
+        "to": "2026-10-24T15:32:00+00:00",
+        "minutes": 68,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T15:32:00+00:00",
+        "to": "2026-10-24T17:17:00+00:00",
+        "minutes": 105,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T17:17:00+00:00",
+        "to": "2026-10-24T18:53:00+00:00",
+        "minutes": 96,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T19:23:00+00:00",
+        "to": "2026-10-24T20:50:00+00:00",
+        "minutes": 87,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-24T20:50:00+00:00",
+        "to": "2026-10-25T04:48:00+00:00",
+        "minutes": 478,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T04:48:00+00:00",
+        "to": "2026-10-25T07:51:00+00:00",
+        "minutes": 183,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T07:51:00+00:00",
+        "to": "2026-10-25T09:28:00+00:00",
+        "minutes": 97,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T09:28:00+00:00",
+        "to": "2026-10-25T10:44:00+00:00",
+        "minutes": 76,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T10:44:00+00:00",
+        "to": "2026-10-25T11:59:00+00:00",
+        "minutes": 75,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T11:59:00+00:00",
+        "to": "2026-10-25T14:17:00+00:00",
+        "minutes": 138,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T14:17:00+00:00",
+        "to": "2026-10-25T14:56:00+00:00",
+        "minutes": 39,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T14:56:00+00:00",
+        "to": "2026-10-25T17:42:00+00:00",
+        "minutes": 166,
+        "match_in_the_window": false
+      },
+      {
+        "from": "2026-10-25T17:42:00+00:00",
+        "to": "2026-10-25T19:06:00+00:00",
+        "minutes": 84,
+        "match_in_the_window": false
+      }
+    ],
+    "error_log_lines": 0,
+    "error_log_tail": []
+  },
+  "matches": {
+    "available": true,
+    "rows": [
+      {
+        "kickoff": "2026-10-20T16:45:00+00:00",
+        "match": "Sabah FK – Borussia Dortmund",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T16:45:00+00:00",
+        "match": "Fenerbahçe SK – SK Slavia Praha",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "Manchester City FC – PAE AEK",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "VfB Stuttgart – Club Atlético de Madrid",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "Liverpool FC – Villarreal CF",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "AS Roma – ŠK Slovan Bratislava",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "FC Porto – PSV",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "SSC Napoli – FK Bodø/Glimt",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-20T19:00:00+00:00",
+        "match": "Paris Saint-Germain FC – FC Barcelona",
+        "status": "FINISHED",
+        "frozen": false,
+        "settled": false,
+        "scored": false,
+        "before_agent": true
+      },
+      {
+        "kickoff": "2026-10-21T16:45:00+00:00",
+        "match": "Como 1907 – Manchester United FC",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T16:45:00+00:00",
+        "match": "Lille OSC – Galatasaray SK",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Real Madrid CF – RB Leipzig",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "FC Internazionale Milano – FK Shakhtar Donetsk",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "FC Bayern München – Arsenal FC",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Club Brugge KV – Racing Club de Lens",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Aston Villa FC – Viking FK",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Sporting Clube de Portugal – LASK Linz",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Real Betis Balompié – Feyenoord Rotterdam",
+        "status": "FINISHED",
+        "frozen": true,
+        "settled": true,
+        "scored": true,
+        "before_agent": false
+      }
+    ],
+    "finished": 18,
+    "finished_before_agent": 9,
+    "finished_missed_while_agent_ran": 0
+  },
+  "market_structure": {
+    "captured_at": "2026-10-21T21:03:10.479928+00:00",
+    "events": 11,
+    "with_pinnacle": 4,
+    "mean_sd_between_books": [
+      0.09989632901498843,
+      0.06560993304144853,
+      0.05848396061867455
+    ],
+    "rows": [
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Bayern Munich – Arsenal",
+        "n_books": 28,
+        "mean": [
+          0.09631998345328611,
+          0.8340198074400682,
+          0.06966020910664569
+        ],
+        "sd_between_books": [
+          0.1483590356375942,
+          0.17958525380499735,
+          0.054185569606364135
+        ],
+        "range": [
+          0.7295592286377017,
+          0.7448893894417186,
+          0.21950791637259334
+        ],
+        "overround_mean": 0.1590055210191872,
+        "pinnacle": {
+          "probs": [
+            0.17234258175392927,
+            0.6733670872814237,
+            0.154290330964647
+          ],
+          "minus_mean": [
+            0.07602259830064316,
+            -0.1606527201586445,
+            0.08463012185800131
+          ],
+          "overround": 0.060767191888589034
+        }
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Club Brugge – RC Lens",
+        "n_books": 3,
+        "mean": [
+          0.5328503530056627,
+          0.24428753082270108,
+          0.22286211617163607
+        ],
+        "sd_between_books": [
+          0.2821596751448679,
+          0.1259297815829323,
+          0.15622989356193565
+        ],
+        "range": [
+          0.5985510590169884,
+          0.26713740753189674,
+          0.3314136514850917
+        ],
+        "overround_mean": 1.3080640816085387,
+        "pinnacle": null
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Real Betis – Feyenoord",
+        "n_books": 19,
+        "mean": [
+          0.9157284179733384,
+          0.07777911922733732,
+          0.006492462799324379
+        ],
+        "sd_between_books": [
+          0.045152195548653774,
+          0.0392823840680831,
+          0.00704818287515552
+        ],
+        "range": [
+          0.1888444439235487,
+          0.15850564005290232,
+          0.0313154089146156
+        ],
+        "overround_mean": 0.05229495698514933,
+        "pinnacle": {
+          "probs": [
+            0.8320989432480626,
+            0.14985668172239988,
+            0.018044375029537593
+          ],
+          "minus_mean": [
+            -0.08362947472527582,
+            0.07207756249506256,
+            0.011551912230213214
+          ],
+          "overround": 0.054193121592073235
+        }
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Inter Milan – Shakhtar Donetsk",
+        "n_books": 20,
+        "mean": [
+          0.885529144444634,
+          0.0975448591052508,
+          0.01692599645011527
+        ],
+        "sd_between_books": [
+          0.14678005301901026,
+          0.10743493137968954,
+          0.04057170136317605
+        ],
+        "range": [
+          0.7110059186926347,
+          0.5205663223294474,
+          0.19043959636318733
+        ],
+        "overround_mean": 0.05582213154601421,
+        "pinnacle": {
+          "probs": [
+            0.8050996000001481,
+            0.17055969982049815,
+            0.024340700179353695
+          ],
+          "minus_mean": [
+            -0.08042954444448591,
+            0.07301484071524734,
+            0.007414703729238425
+          ],
+          "overround": 0.05261215769885896
+        }
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Sporting Lisbon – LASK",
+        "n_books": 26,
+        "mean": [
+          0.032976844505453,
+          0.1257319236096286,
+          0.8412912318849184
+        ],
+        "sd_between_books": [
+          0.07372622973051811,
+          0.06130482249349634,
+          0.12777826855134344
+        ],
+        "range": [
+          0.2847406510822496,
+          0.26755502677190784,
+          0.5522956778541575
+        ],
+        "overround_mean": 0.15933573461218925,
+        "pinnacle": {
+          "probs": [
+            0.013395350004496489,
+            0.06602516778172585,
+            0.9205794822137776
+          ],
+          "minus_mean": [
+            -0.01958149450095651,
+            -0.05970675582790275,
+            0.07928825032885922
+          ],
+          "overround": 0.034545056436299904
+        }
+      },
+      {
+        "kickoff": "2026-10-21T19:00:00+00:00",
+        "match": "Real Madrid – RB Leipzig",
+        "n_books": 4,
+        "mean": [
+          0.6421069204285993,
+          0.1898641049820824,
+          0.16802897458931843
+        ],
+        "sd_between_books": [
+          0.3090469704355642,
+          0.1441102810115535,
+          0.1653053813995433
+        ],
+        "range": [
+          0.635926610945926,
+          0.30614020711883194,
+          0.3314310311489657
+        ],
+        "overround_mean": 0.9888026478412898,
+        "pinnacle": null
+      },
+      {
+        "kickoff": "2026-11-03T20:00:00+00:00",
+        "match": "Atlético Madrid – Bayern Munich",
+        "n_books": 8,
+        "mean": [
+          0.2846951750587228,
+          0.27134102460124104,
+          0.4439638003400361
+        ],
+        "sd_between_books": [
+          0.004586212317185188,
+          0.008499201346507113,
+          0.0060099494804518525
+        ],
+        "range": [
+          0.015109251510925181,
+          0.02729477481523629,
+          0.02022344906195883
+        ],
+        "overround_mean": 0.10729307092153212,
+        "pinnacle": null
+      },
+      {
+        "kickoff": "2026-11-03T20:00:00+00:00",
+        "match": "Villarreal – Paris Saint Germain",
+        "n_books": 10,
+        "mean": [
+          0.2399330221361014,
+          0.24671515737043065,
+          0.513351820493468
+        ],
+        "sd_between_books": [
+          0.003492239357937561,
+          0.0035351179464083,
+          0.003293243213364776
+        ],
+        "range": [
+          0.011537978187549008,
+          0.010575520598650884,
+          0.0128725899651011
+        ],
+        "overround_mean": 0.09133776284337228,
+        "pinnacle": null
+      },
+      {
+        "kickoff": "2026-11-04T17:45:00+00:00",
+        "match": "AEK Athens – Real Madrid",
+        "n_books": 15,
+        "mean": [
+          0.14048767182605515,
+          0.18956887431932037,
+          0.6699434538546245
+        ],
+        "sd_between_books": [
+          0.03586198802727955,
+          0.02188976109367864,
+          0.0546991743103834
+        ],
+        "range": [
+          0.10825171431152586,
+          0.07262918779967098,
+          0.17694767748163875
+        ],
+        "overround_mean": 0.15879920586638008,
+        "pinnacle": null
+      },
+      {
+        "kickoff": "2026-11-04T20:00:00+00:00",
+        "match": "Slavia Praha – Arsenal",
+        "n_books": 9,
+        "mean": [
+          0.12763188253388316,
+          0.19563940267681754,
+          0.6767287147892993
+        ],
+        "sd_between_books": [
+          0.008744017979890384,
+          0.004911960535433055,
+          0.011859009567030218
+        ],
+        "range": [
+          0.031151120614516484,
+          0.01466413972970862,
+          0.041586263591138595
+        ],
+        "overround_mean": 0.09057382626666362,
+        "pinnacle": null
+      },
+      {
+        "kickoff": "2026-11-04T20:00:00+00:00",
+        "match": "Porto – Napoli",
+        "n_books": 17,
+        "mean": [
+          0.4436245098306188,
+          0.26705163585697633,
+          0.28932385431240476
+        ],
+        "sd_between_books": [
+          0.04095100196637162,
+          0.02522576819315454,
+          0.016343192876671592
+        ],
+        "range": [
+          0.13958028306490966,
+          0.08651209174769386,
+          0.05518240484656928
+        ],
+        "overround_mean": 0.27895546085811745,
+        "pinnacle": null
+      }
+    ],
+    "note": "Descriptif sur un seul relevé, à plus de 2 h du coup d'envoi : aucun verdict, aucune mise. Aucun seuil « normal » n'est établi pour ces écarts : Je ne sais pas."
+  }
+}

@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-25T09:51:39+00:00",
+ "updated_at": "2026-10-26T07:14:38+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-25T06:49:59+00:00",
+   "at": "2026-10-26T06:36:16+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.1675221942476678
+   "confirmation_roi": -0.16729714390469383
   },
   "ATTELE": {
-   "at": "2026-10-25T08:51:53+00:00",
+   "at": "2026-10-26T07:09:49+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13411993721026597
+   "confirmation_roi": -0.13420127376812524
   },
   "MONTE": {
-   "at": "2026-10-25T09:51:39+00:00",
+   "at": "2026-10-26T07:14:38+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.08062335187247022
+   "confirmation_roi": -0.08131193265073561
   }
  },
  "strategies": [
@@ -33964,6 +33964,270 @@
       "to": "2026-12-31",
       "bets": 66,
       "roi": 0.343939393939394
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c23496eaea",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "sky_cat": "Nuageux ou couvert",
+    "jockey_form": "Jockey peu connu"
+   },
+   "label": "Jockey : Jockey peu connu · Cote : Cote 3 à 5 · Ciel : Nuageux ou couvert",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-26T06:36:16+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-25",
+    "bets": 674,
+    "roi": 0.06988130563798234,
+    "low": -0.07889533375518021,
+    "high": 0.21865794503114488,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 472,
+      "roi": 0.045762711864406835
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 125,
+      "roi": 0.1624000000000001
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 77,
+      "roi": 0.06753246753246755
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "9b9870eeca",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "model_rank_band": "2e-3e de Marché+",
+    "temp_band": "Frais (10-17 °C)"
+   },
+   "label": "Classement Marché+ : 2e-3e de Marché+ · Rang dans la cote : Favori · Température : Frais (10-17 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-26T07:09:49+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-25",
+    "bets": 201,
+    "roi": 0.05870646766169152,
+    "low": -0.07943802699403049,
+    "high": 0.19685096231741353,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 109,
+      "roi": 0.01192660550458724
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 49,
+      "roi": 0.11836734693877538
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 43,
+      "roi": 0.10930232558139541
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6d3b11430f",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "sky_cat": "Nuageux ou couvert",
+    "venue": "SALON DE PROVENCE",
+    "dist_change": "Même distance"
+   },
+   "label": "Distance vs dernière course : Même distance · Ciel : Nuageux ou couvert · Hippodrome : SALON DE PROVENCE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-26T07:09:49+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-25",
+    "bets": 215,
+    "roi": 0.10232558139534875,
+    "low": -0.27815047551964234,
+    "high": 0.48280163831033984,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 66,
+      "roi": 0.021212121212121016
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 95,
+      "roi": 0.1378947368421053
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 54,
+      "roi": 0.13888888888888884
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "797332e31a",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 8 à 13",
+    "jockey_form": "Jockey dans la norme",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Jockey : Jockey dans la norme · Cote : Cote 8 à 13",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-26T07:14:38+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-25",
+    "bets": 218,
+    "roi": 0.1807339449541283,
+    "low": -0.28428219931445403,
+    "high": 0.6457500892227106,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 59,
+      "roi": 0.07118644067796609
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 78,
+      "roi": 0.04743589743589749
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 81,
+      "roi": 0.38888888888888884
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6d62f9df45",
+   "discipline": "MONTE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "1er de Marché+",
+    "sex_cat": "Femelle",
+    "class_change": "Même niveau"
+   },
+   "label": "Niveau vs dernière course : Même niveau · Classement Marché+ : 1er de Marché+ · Sexe : Femelle",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-26T07:14:38+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-25",
+    "bets": 372,
+    "roi": 0.0239247311827957,
+    "low": -0.05246936587551776,
+    "high": 0.10031882824110916,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 99,
+      "roi": 0.025252525252525304
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 154,
+      "roi": 0.04025974025974022
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 119,
+      "roi": 0.001680672268907557
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "f559c03ca5",
+   "discipline": "MONTE",
+   "bet": "SP",
+   "criteria": {
+    "model_edge_band": "Cote un peu basse (0,75-0,9)",
+    "rest_band": "15-30 jours",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Valeur selon Marché+ : Cote un peu basse (0,75-0,9) · Repos : 15-30 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-26T07:14:38+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-25",
+    "bets": 200,
+    "roi": 0.05600000000000005,
+    "low": -0.11428376582300559,
+    "high": 0.2262837658230057,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 41,
+      "roi": 0.06585365853658542
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 86,
+      "roi": 0.0662790697674418
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 73,
+      "roi": 0.03835616438356171
      }
     ]
    },
