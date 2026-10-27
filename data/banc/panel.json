@@ -1,23 +1,23 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-26T07:14:38+00:00",
+ "updated_at": "2026-10-27T00:42:42+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-26T06:36:16+00:00",
+   "at": "2026-10-27T00:35:15+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16729714390469383
+   "confirmation_roi": -0.16604780990638285
   },
   "ATTELE": {
-   "at": "2026-10-26T07:09:49+00:00",
+   "at": "2026-10-27T00:39:08+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13420127376812524
+   "confirmation_roi": -0.13461848903797194
   },
   "MONTE": {
-   "at": "2026-10-26T07:14:38+00:00",
+   "at": "2026-10-27T00:42:42+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
@@ -34228,6 +34228,137 @@
       "to": "2026-12-31",
       "bets": 73,
       "roi": 0.03835616438356171
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "25dc5a1990",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "field_band": "Grand (≥ 14)",
+    "class_change": "Descend de niveau (allocation −25 %)",
+    "blinkers_cat": "Oeillères classiques"
+   },
+   "label": "Oeillères : Oeillères classiques · Niveau vs dernière course : Descend de niveau (allocation −25 %) · Taille du peloton : Grand (≥ 14)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-27T00:35:15+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-26",
+    "bets": 488,
+    "roi": 0.37561475409836054,
+    "low": -0.08525473123468102,
+    "high": 0.836484239431402,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 163,
+      "roi": 0.696319018404908
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 203,
+      "roi": 0.20541871921182264
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 122,
+      "roi": 0.23032786885245904
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c41a51d186",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "venue": "LE CROISE LAROCHE"
+   },
+   "label": "Classement Marché+ : 2e-3e de Marché+ · Hippodrome : LE CROISE LAROCHE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-27T00:39:08+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-26",
+    "bets": 488,
+    "roi": 0.017008196721311375,
+    "low": -0.08401552331985805,
+    "high": 0.1180319167624808,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 176,
+      "roi": 0.011363636363636465
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 174,
+      "roi": 0.02471264367816084
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 138,
+      "roi": 0.01449275362318847
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6360560aed",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "dist_band": "Longue (≥ 2 700 m)",
+    "venue": "LE CROISE LAROCHE"
+   },
+   "label": "Distance : Longue (≥ 2 700 m) · Classement Marché+ : 2e-3e de Marché+ · Hippodrome : LE CROISE LAROCHE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-27T00:39:08+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-26",
+    "bets": 484,
+    "roi": 0.017355371900826366,
+    "low": -0.0841957268905702,
+    "high": 0.11890647069222293,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 174,
+      "roi": 0.011494252873563315
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 172,
+      "roi": 0.0255813953488373
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 138,
+      "roi": 0.01449275362318847
      }
     ]
    },
