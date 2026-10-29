@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-28T00:42:36+00:00",
+ "updated_at": "2026-10-29T06:50:56+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-28T00:35:17+00:00",
+   "at": "2026-10-29T02:56:01+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16651775661363669
+   "confirmation_roi": -0.16576058648199749
   },
   "ATTELE": {
-   "at": "2026-10-28T00:39:09+00:00",
+   "at": "2026-10-29T04:53:25+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1344227354083803
+   "confirmation_roi": -0.13380845956504844
   },
   "MONTE": {
-   "at": "2026-10-28T00:42:36+00:00",
+   "at": "2026-10-29T06:50:56+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.0821992268345808
+   "confirmation_roi": -0.08238964239132096
   }
  },
  "strategies": [
@@ -34403,6 +34403,94 @@
       "to": "2026-12-31",
       "bets": 134,
       "roi": 0.04701492537313445
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "4d02f557b3",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "weight_band": "Plus léger (≤ −1,5 kg)",
+    "going_cat": "Lourd ou collant",
+    "blinkers_cat": "Oeillères australiennes"
+   },
+   "label": "Oeillères : Oeillères australiennes · Terrain : Lourd ou collant · Poids porté : Plus léger (≤ −1,5 kg)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-29T02:56:01+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-10-28",
+    "bets": 376,
+    "roi": 0.18218085106382986,
+    "low": -0.09307334003902257,
+    "high": 0.4574350421666823,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 201,
+      "roi": 0.22189054726368163
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 135,
+      "roi": 0.10296296296296292
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 40,
+      "roi": 0.25
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "32bb9574e6",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "rest_band": "Rentrée (> 90 jours)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Classement Marché+ : 2e-3e de Marché+ · Repos : Rentrée (> 90 jours)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-29T04:53:25+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-28",
+    "bets": 272,
+    "roi": 0.12977941176470598,
+    "low": -0.2086476555033256,
+    "high": 0.46820647903273754,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 52,
+      "roi": 0.125
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 117,
+      "roi": 0.2008547008547008
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 103,
+      "roi": 0.05145631067961154
      }
     ]
    },
