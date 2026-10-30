@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-29T06:50:56+00:00",
+ "updated_at": "2026-10-30T00:46:48+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-29T02:56:01+00:00",
+   "at": "2026-10-30T00:37:14+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16576058648199749
+   "confirmation_roi": -0.1663021503972052
   },
   "ATTELE": {
-   "at": "2026-10-29T04:53:25+00:00",
+   "at": "2026-10-30T00:42:13+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13380845956504844
+   "confirmation_roi": -0.13345973651562834
   },
   "MONTE": {
-   "at": "2026-10-29T06:50:56+00:00",
+   "at": "2026-10-30T00:46:48+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.08238964239132096
+   "confirmation_roi": -0.08394913607409432
   }
  },
  "strategies": [
@@ -34491,6 +34491,93 @@
       "to": "2026-12-31",
       "bets": 103,
       "roi": 0.05145631067961154
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "5e3ee02f83",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "Favori",
+    "venue": "GRAIGNES"
+   },
+   "label": "Rang dans la cote : Favori · Hippodrome : GRAIGNES",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-30T00:42:13+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-29",
+    "bets": 213,
+    "roi": 0.09248826291079815,
+    "low": -0.0991742956928133,
+    "high": 0.2841508215144096,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 81,
+      "roi": 0.011111111111111072
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 78,
+      "roi": 0.22820512820512828
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 54,
+      "roi": 0.0185185185185186
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "47440621a1",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 13 à 21",
+    "age_band": "2-3 ans",
+    "venue": "VINCENNES"
+   },
+   "label": "Âge : 2-3 ans · Cote : Cote 13 à 21 · Hippodrome : VINCENNES",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-10-30T00:46:48+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-10-29",
+    "bets": 421,
+    "roi": 0.17624703087885973,
+    "low": -0.3092612640075868,
+    "high": 0.6617553257653063,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 165,
+      "roi": 0.14181818181818184
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 165,
+      "roi": 0.003030303030302939
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 91,
+      "roi": 0.5527472527472528
      }
     ]
    },
