@@ -20,6 +20,62 @@ Lecture du dossier, à ne pas oublier :
 
 <!-- Les entrées commencent ici : « ## Semaine du AAAA-MM-JJ au AAAA-MM-JJ » -->
 
+## Semaine du 2026-10-26 au 2026-11-01
+
+Source des chiffres : `data/runs/football_dossier_2026-11-02/` (généré le 2026-11-02 à 08 h 34 UTC). Ce qui vient des journaux (`data/logs/`) ou de `docs/FOOTBALL.md` est signalé comme tel. Cette tâche était programmée pour le dimanche 2026-11-01 à 09 h 27 UTC et s'est lancée le lundi 2026-11-02 à 08 h 33 UTC, soit environ 23 h plus tard ; cela coïncide avec le retour du Mac en éveil (02/11, 08 h 00 UTC, voir a), mais la cause du retard : Je ne sais pas.
+
+### a. Agent automatique
+
+- État maintenant : dernier passage il y a 4 min (attendu toutes les 5 min), pas d'alerte, journal d'erreurs vide (0 ligne).
+- Passages : 1 101 sur 2 017 attendus depuis le premier passage (2026-10-20 à 22 h 11 UTC), soit 54,6 % (calcul à partir des deux chiffres du dossier), contre 62,8 % la semaine dernière (882 sur 1 404). La régularité continue de se dégrader.
+- 18 trous de plus de 30 minutes entre le 27/10 et le 02/11, aucun avec un match à couvrir : le dossier ne compte aucun match sur la fenêtre. Cumul des durées (somme faite à partir de la liste du dossier) : 4 549 min. Le plus long dure 2 640 min (44 h), du 31/10 à 12 h 00 au 02/11 à 08 h 00 UTC.
+- 8 trous dépassent 119 min (164, 123, 147, 244, 190, 173, 145 et 2 640 min), donc plus que la fenêtre de gel (de 2 h à 1 min avant le coup d'envoi, `docs/FOOTBALL.md`) : un trou de cette taille avant un coup d'envoi ferait manquer le gel. Aucun cas pour l'instant.
+- Cause, d'après les journaux (`keepawake.log`, signalé comme tel) : des lignes « relâché : batterie sous 10 % » précèdent ou coïncident avec le début des trous du 27/10 (17 h 44 UTC, trou dès 17 h 53) et du 28/10 (15 h 50 UTC, trou dès 15 h 48). Des lignes « éveillé : dans la plage (secteur) » coïncident avec la fin des trous du 27/10 (20 h 51 UTC), du 29/10 (09 h 23 UTC) et du grand trou du 02/11 (08 h 00 UTC). L'hypothèse la plus compatible : le Mac n'est pas branché, la batterie passe sous 10 %, le maintien en éveil se relâche, le Mac dort, l'agent ne passe plus. Ce n'est pas prouvé.
+  Les trous du 28/10 à 15 h 48 UTC jusqu'au 29/10 à 09 h 23 UTC tombent tous entre un « relâché » et un « éveillé ». Ce que ce journal n'explique pas : les trous du 30/10 à 23 h 28 UTC jusqu'au 31/10 vers 08 h 37 UTC, qui précèdent le « relâché » du 31/10 (08 h 37 UTC) de plusieurs heures. Je ne sais pas pourquoi le Mac n'était pas branché à ces moments-là, ni ce qui a freiné l'agent avant le 31/10 à 08 h 37 UTC.
+- Prochaine épreuve réelle : le dossier donne le prochain coup d'envoi au 2026-11-03 à 17 h 45 UTC, soit un gel attendu entre 15 h 45 et 17 h 44 UTC. C'est deux heures et quinze minutes plus tôt que le 20 h 00 UTC retenu dans l'entrée précédente. Le dernier relevé de cotes ne contient, pour le 03/11, que deux matchs à 20 h 00 UTC (Atlético–Bayern, Villarreal–PSG) : je ne sais pas à quel match correspond le coup d'envoi de 17 h 45 UTC, ni s'il a des cotes.
+
+### b. Captures et crédits de cotes
+
+- Calendrier : 125 relevés réussis (112 la semaine dernière), 0 échec, dernier le 2026-11-02 à 08 h 00 UTC.
+- Cotes : 17 réussis, 0 échec, dernier toujours le 2026-10-21 à 21 h 03 UTC, soit 12 jours sans relevé. Selon la règle de `docs/FOOTBALL.md` (un appel quand un match commence dans moins de 30 h, au plus un toutes les 12 h), le prochain coup d'envoi du 03/11 à 17 h 45 UTC déclenche un premier appel au plus tôt le 02/11 vers 11 h 45 UTC (déduction de ma part). Cet appel suppose que le Mac soit éveillé à ce moment.
+- Scores : 25 réussis, 0 échec, dernier le 2026-10-21 à 21 h 03 UTC. Le compteur dit que l'appel passe, pas que The Odds API couvre le football sur cet endpoint : Je ne sais pas, et rien n'a été vérifié depuis.
+- Crédits de cotes : 0 sur 400 ce mois-ci. Le compteur est reparti à zéro avec novembre (59 sur 400 en octobre selon l'entrée précédente). `docs/FOOTBALL.md` précise que le jour de remise à zéro du quota côté fournisseur n'est pas vérifié : Je ne sais pas si le plafond local suit le quota réel.
+
+### c. Matchs de la semaine
+
+- Aucun match dans la fenêtre de 7 jours : 0 terminé, 0 avant l'agent, 0 manqué alors que l'agent tournait. Aucune lecture possible sur la qualité des gels cette semaine.
+- Carnet inchangé : 9 prévisions figées, 9 réglées, 9 notées, toutes celles du 21/10. Le cas prolongation / tirs au but n'a toujours jamais été vu sur une vraie capture.
+- Prochain test réel : la journée du 03 et du 04/11 (coups d'envoi du dossier : 17 h 45 et 20 h 00 UTC). Combien de matchs de cette journée sont au calendrier : Je ne sais pas, le dossier ne donne pas ce nombre.
+
+### d. Carnet et puissance
+
+- 9 matchs notés sur les 100 requis pour fb-H8 : aucun écart n'est lisible. Demi-largeur de l'intervalle à 95 % avec 9 matchs : 0,0402 (log loss, écart plus/moins 2,5 buts dérivé contre marché) ; à 100 matchs elle serait de 0,0121. Rien n'a changé depuis la semaine dernière.
+- Point de méthode que je trouve gênant : l'écart moyen observé sur 5 553 matchs historiques est de +0,0028 (`football_derive_2026-10-17`). À 100 matchs, la demi-largeur de 0,0121 serait environ 4,3 fois plus grande que cet écart (rapport calculé). Un verdict fb-H8 « à 100 » ne pourrait donc exclure zéro que si l'écart réel était bien plus grand que celui du passé ; il en faudrait 1 897 pour que l'intervalle exclue zéro si l'écart se confirme. Lire le seuil de 100 comme un verdict serait une erreur ; c'est au mieux un point d'étape. Le seuil t'appartient, je ne le touche pas.
+
+### e. Hypothèses
+
+- Registre inchangé : fb-H1 à fb-H8 PROPOSED (révision 0), fb-H9 à fb-H14 REJECTED (révision 1). Aucun nouveau rapport : le dernier banc reste `football_signals_2026-10-21` (football-signals-v1). Les gains moyens et les intervalles sont identiques à ceux de l'entrée précédente.
+- Ce que les bornes hautes laissent possible (gain de log loss par match, seuil pré-enregistré de 0,001) : de +0,00003 (fb-H9, fb-H11) à +0,00007 (fb-H10), +0,00016 (fb-H12), +0,00028 (fb-H13), jusqu'à +0,00066 (fb-H14, le contrôle de calibration). Toutes sont sous le seuil, donc « rejeté » au sens du protocole ; aucune ne prouve que le signal n'existe pas, elle dit seulement que s'il existe, il pèse moins que ces valeurs sur les championnats testés.
+- fb-H14 est le seul dont le gain moyen est positif et qui frôle zéro : +0,00031, intervalle [-0,00005 ; +0,00066], p = 0,1052 (non corrigé ; le dossier ne donne pas de p de Holm pour lui). Descriptif, pas de verdict. fb-H13 repose sur le plus petit échantillon de test (6 228 matchs).
+- Transfert de ces résultats à la Ligue des champions en direct : non testé, Je ne sais pas.
+
+### f. Structure du marché
+
+- Aucun nouveau relevé : le dossier décrit toujours celui du 2026-10-21 à 21 h 03 UTC (11 matchs, 4 avec Pinnacle). Descriptif sur un seul relevé, aucun seuil « normal » établi : Je ne sais pas.
+- Anomalie de la semaine dernière, non résolue : 6 des 11 matchs sont des matchs du 21/10 relevés après leur coup d'envoi (19 h 00 UTC). Leurs valeurs ne sont pas des cotes d'avant-match (marge moyenne de 1,308 pour Brugge–Lens et de 0,989 pour Real Madrid–Leipzig ; probabilité moyenne du nul de 0,834 pour Bayern–Arsenal). Les écarts Pinnacle moins moyenne des 4 matchs concernés ne sont pas interprétables. Ces 6 lignes tirent aussi l'écart-type moyen entre bookmakers du dossier (0,100 / 0,066 / 0,058).
+- Les 5 matchs de novembre : 8 à 17 bookmakers, aucun Pinnacle, marge moyenne de 0,091 (Villarreal–PSG, Slavia–Arsenal) à 0,279 (Porto–Napoli). Écart-type entre bookmakers très faible pour Atlético–Bayern (0,005 / 0,008 / 0,006) et Villarreal–PSG (0,003 / 0,004 / 0,003), plus élevé pour AEK–Real Madrid (0,036 / 0,022 / 0,055) et Porto–Napoli (0,041 / 0,025 / 0,016). Ce relevé a plus de 12 jours d'avance sur ces coups d'envoi : il ne dit rien de l'état du marché au moment du gel. Anomalie à noter : Pinnacle est absent des 5 matchs de novembre, alors que le backtest prend Pinnacle comme référence.
+
+### g. Pistes
+
+Une seule piste cette semaine : le dossier ne contient ni match ni nouveau rapport, rien d'autre ne justifie une idée. Les deux pistes de la semaine dernière (désaccord entre bookmakers ; où l'écart plus/moins dérivé se creuse) restent ouvertes et inchangées.
+
+1. Le marché au gel contre le marché juste avant le coup d'envoi. Mesure : pour chaque match du carnet, calculer sur le 1X2 la différence de log loss entre la moyenne sans marge utilisée au gel (jusqu'à 2 h avant, cotes de moins de 100 min) et la moyenne sans marge de la dernière capture avant le coup d'envoi, plus le déplacement des probabilités entre les deux. Pourquoi : `docs/FOOTBALL.md` prend la cote de clôture Pinnacle comme référence dans le backtest, mais la moyenne des bookmakers, gelée jusqu'à 2 h avant, dans le direct. Ce ne sont pas la même référence, et le dossier montre que celle du direct varie beaucoup (Pinnacle absent des 5 matchs de novembre, écart-type entre bookmakers de 0,003 à 0,055). Apport : aucun signal contre le marché. Cela dit seulement si « battre la référence » veut dire la même chose dans le backtest et dans le carnet, donc comment lire fb-H4 et fb-H8. Échec : moins de 50 matchs avec les deux relevés (même règle que §14, un sous-ensemble de moins de 50 ne dit rien) ; déplacement trop petit pour être mesuré ; relevés trop éloignés du coup d'envoi (la règle de capture prévoit un appel au plus toutes les 90 min sous 3 h : Je ne sais pas à quelle distance du coup d'envoi tombera le dernier). Origine : l'idée ne vient pas de résultats de matchs, mais comme toute idée du critique elle ne peut être jugée que sur des matchs postérieurs au 2026-11-02, date de cette entrée.
+
+Questions pour Chris :
+1. Le Mac sera-t-il branché sur secteur et éveillé le 03/11 entre 15 h 45 et 17 h 44 UTC (gel avant le coup d'envoi de 17 h 45 UTC) ? Les journaux montrent 4 relâchements « batterie sous 10 % » cette semaine et un trou de 44 h qui s'est terminé hier. Le seuil de 10 % est un réglage du maintien en éveil : la décision t'appartient.
+2. Le seuil de 100 matchs pour fb-H8 : veux-tu le garder comme verdict, en sachant qu'il sera sans doute « non concluant » (demi-largeur 0,0121 contre un écart passé de +0,0028), ou le lire comme un simple point d'étape ?
+3. Les deux questions de la semaine dernière (relevé de cotes du 21/10 à 21 h 03 UTC pris pendant les matchs, et archivage des cotes bookmaker par bookmaker) restent sans réponse visible dans le dépôt : Je ne sais pas si tu les as tranchées. Sais-tu aussi à quel match correspond le coup d'envoi du 03/11 à 17 h 45 UTC ?
+
 ## Semaine du 2026-10-19 au 2026-10-25
 
 Première entrée du journal. Source des chiffres : `data/runs/football_dossier_2026-10-25/` (généré le 2026-10-25 à 19 h 08 UTC). Ce qui vient des journaux (`data/logs/`) est signalé comme tel, sans chiffre.
