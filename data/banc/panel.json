@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-10-31T10:02:50+00:00",
+ "updated_at": "2026-11-02T08:16:38+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-10-31T05:59:04+00:00",
+   "at": "2026-11-02T08:08:48+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16669991727106073
+   "confirmation_roi": -0.1658521925770168
   },
   "ATTELE": {
-   "at": "2026-10-31T07:53:08+00:00",
+   "at": "2026-11-02T08:12:57+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13402371049687206
+   "confirmation_roi": -0.13390536334412845
   },
   "MONTE": {
-   "at": "2026-10-31T10:02:50+00:00",
+   "at": "2026-11-02T08:16:38+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.08487384822193056
+   "confirmation_roi": -0.08558188381302077
   }
  },
  "strategies": [
@@ -34754,6 +34754,94 @@
       "to": "2026-12-31",
       "bets": 55,
       "roi": 0.012727272727272698
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "972ee52b06",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "temp_band": "Frais (10-17 °C)",
+    "dist_change": "Rallonge (≥ 200 m)",
+    "going_lean": "Échoue sur ce terrain"
+   },
+   "label": "Distance vs dernière course : Rallonge (≥ 200 m) · Le cheval sur ce terrain : Échoue sur ce terrain · Température : Frais (10-17 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-02T08:08:48+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-01",
+    "bets": 598,
+    "roi": 0.4637123745819398,
+    "low": -0.021849754772353458,
+    "high": 0.9492745039362331,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 166,
+      "roi": 0.5542168674698795
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 269,
+      "roi": 0.6799256505576208
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 163,
+      "roi": 0.014723926380368235
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "b002497d11",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "Favori",
+    "sex_cat": "Mâle",
+    "going_lean": "Neutre sur ce terrain"
+   },
+   "label": "Le cheval sur ce terrain : Neutre sur ce terrain · Rang dans la cote : Favori · Sexe : Mâle",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-02T08:08:48+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-01",
+    "bets": 259,
+    "roi": 0.11312741312741315,
+    "low": -0.11779144735619448,
+    "high": 0.3440462736110208,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 42,
+      "roi": 0.04761904761904767
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 107,
+      "roi": 0.2364485981308413
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 110,
+      "roi": 0.018181818181818077
      }
     ]
    },
