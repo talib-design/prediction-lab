@@ -633,6 +633,73 @@ CANDIDATES = (
     ),
 )
 
+
+# Critères du générateur d'idées, suite (METHODOLOGY §13).
+def _jockey_absence() -> pl.Expr:
+    """max(0, log(days since the rider's previous ride in this discipline / 7)), days
+    capped to [1, 365]; 0 when the rider rode in the last 7 days or has no known past."""
+    gap = (pl.col("day") - pl.col("j_last")).dt.total_days().cast(pl.Float64)
+    return (gap.clip(1.0, 365.0) / 7.0).log().clip(0.0, None).fill_null(0.0).fill_nan(0.0)
+
+
+def _stable_jockey_share() -> pl.Expr:
+    """Share of the trainer's past runners ridden by this rider, shrunk by 5 runners."""
+    return (
+        (
+            pl.col("jt_n").fill_null(0).cast(pl.Float64)
+            / (pl.col("t_n").fill_null(0).cast(pl.Float64) + 5.0)
+        )
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
+
+
+CANDIDATES = (
+    *CANDIDATES,
+    # ajouté par le générateur d'idées le 2026-11-02
+    Candidate(
+        "jockey_idle",
+        "Jockey ou driver qui revient d'une absence",
+        "Le public regarde le nom du jockey ou du driver, pas son activité récente : un "
+        "cavalier qui n'a pas monté (ou drivé) depuis plusieurs semaines dans la discipline "
+        "(retour de blessure ou de suspension, jockey d'obstacle ou venu de l'étranger, "
+        "driver occasionnel) est mal coté, dans un sens que le test dira. Mesure : max(0, "
+        "log(jours depuis sa précédente monte dans la discipline / 7)), jours bornés à "
+        "[1, 365], d'après j_last (dernière monte strictement antérieure au jour, courses "
+        "françaises du tableau) ; 0 s'il a monté dans les 7 derniers jours ou n'a pas de "
+        "passé connu. Plat et attelé (au monté, beaucoup de jockeys drivent surtout à "
+        "l'attelé : une absence au monté n'y dit rien). Différent de f_rest (repos du "
+        "cheval), de jockey_change (changement de cavalier signalé par le PMU) et de "
+        "f_jockey (réussite du cavalier contre la cote). Présence vérifiée avant l'ajout, "
+        "sans regard sur les résultats : non nul pour 11 % des partants du plat et 28 % de "
+        "l'attelé depuis 2025 (absence de 21 jours ou plus : 4 % et 12 %).",
+        ("PLAT", "ATTELE"),
+        Origin.AUTOMATED,
+        expr=_jockey_absence,
+    ),
+    # ajouté par le générateur d'idées le 2026-11-02
+    Candidate(
+        "stable_jockey",
+        "Jockey habituel de l'écurie",
+        "Le public ne voit pas si le jockey ou le driver du jour est celui que l'entraîneur "
+        "emploie d'habitude ou un cavalier extérieur appelé pour cette course (vedette "
+        "réservée pour un cheval visé, ou remplaçant faute de mieux) ; ce choix de "
+        "l'entourage dit quelque chose que la cote n'intègre pas entièrement, dans un sens "
+        "que le test dira. Mesure : part des partants passés de l'entraîneur montés ou "
+        "drivés par ce cavalier, jt_n / (t_n + 5), sur les courses strictement antérieures "
+        "au jour dans la discipline ; 0 sans passé connu. Plat, attelé et monté. Différent "
+        "de duo (réussite du couple contre la cote, pas sa fréquence), de self_driven (même "
+        "personne ; à l'attelé, l'entraîneur-driver a une part élevée, les deux se "
+        "recoupent en partie) et de jockey_change (changement par rapport à la dernière "
+        "course du cheval). Présence vérifiée avant l'ajout, sans regard sur les résultats : "
+        "non nulle pour 87 % des partants du plat, 88 % de l'attelé, 74 % du monté depuis "
+        "2025 (médianes 0,07, 0,15 et 0,09).",
+        ("PLAT", "ATTELE", "MONTE"),
+        Origin.AUTOMATED,
+        expr=_stable_jockey_share,
+    ),
+)
+
 BY_ID = {c.id: c for c in CANDIDATES}
 
 

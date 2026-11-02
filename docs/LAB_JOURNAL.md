@@ -5,6 +5,75 @@ récente en tête. Les critères ajoutés ici sont écrits sans aucun regard sur
 avec les résultats ; ils sont pré-enregistrés puis testés une seule fois par la passe
 de nuit.
 
+## 2026-11-02
+
+### Critères ajoutés (2)
+
+- **`jockey_idle` — Jockey ou driver qui revient d'une absence** (plat, attelé ; origine
+  automatisée). max(0, log(jours depuis sa précédente monte dans la discipline / 7)),
+  jours bornés à [1, 365], d'après `j_last` (dernière monte strictement antérieure au
+  jour) ; 0 s'il a monté dans les 7 derniers jours ou n'a pas de passé connu. Pourquoi :
+  le public lit le nom du cavalier, pas son activité récente (retour de blessure ou de
+  suspension, jockey d'obstacle ou venu de l'étranger, driver occasionnel). Aucun critère
+  ni facteur ne mesure l'activité du cavalier : `f_rest` porte sur le cheval,
+  `jockey_change` sur le changement signalé, `f_jockey` sur la réussite contre la cote.
+  Sens non présumé. Monté exclu : l'historique est tenu par discipline et beaucoup de
+  jockeys du monté drivent surtout à l'attelé, une absence au monté n'y dirait rien.
+  Présence (colonne seule, depuis 2025) : non nul pour 11 % des partants du plat, 28 % de
+  l'attelé ; absence de 21 jours ou plus : 4 % et 12 %. Écart minimal d'un jour vérifié
+  (la dernière monte est bien antérieure au jour).
+- **`stable_jockey` — Jockey habituel de l'écurie** (plat, attelé, monté ; origine
+  automatisée). Part des partants passés de l'entraîneur montés ou drivés par ce
+  cavalier, `jt_n / (t_n + 5)`, courses strictement antérieures au jour ; 0 sans passé.
+  Pourquoi : le public ne voit pas si le cavalier du jour est celui de la maison ou un
+  extérieur appelé pour cette course (vedette réservée pour un cheval visé, ou
+  remplaçant) ; c'est un choix de l'entourage. Différent de `duo` (réussite du couple,
+  pas sa fréquence) et de `jockey_change` ; recoupe en partie `self_driven` à l'attelé
+  (l'entraîneur-driver a une part élevée). Sens non présumé. Présence : non nulle pour
+  87 % des partants du plat, 88 % de l'attelé, 74 % du monté depuis 2025 (médianes 0,07,
+  0,15, 0,09).
+
+Écartés avant écriture : décharge des apprentis au plat (le tableau n'a que le poids
+porté, `weight_kg` = `weight_raw` / 10 : non détectable), retrait des oeillères et
+distance signée (variantes de `blinkers_first` et `dist_change`), irrégularité de la
+musique (voisine de `accessit` et `musique_top3`), notoriété du jockey par la cote
+moyenne de ses montes (redondante avec `f_jockey` si le biais est propre à chaque
+jockey), toute interaction de la cote avec les conditions de course (domaine des
+critères a posteriori de l'agent critique), absence de l'entraîneur (soeur de
+`jockey_idle`, gardée pour plus tard si celui-ci apporte quelque chose).
+
+Vérifications : ruff, format, pyright sur `racing/lab.py`, tests arena / lab / facteurs
+(23 tests, le critère se calcule aussi pour une course à venir) : tout passe.
+
+### Labo de la semaine (2026-10-25 → 2026-11-02, registre `data/hypotheses.jsonl`)
+
+- **Promotions** : aucune. Champions inchangés : plat Marché+ v2 (v1 + `logq2`), attelé
+  et monté Marché+ v1.
+- **Essais au coffre** : aucun. Toujours en attente de courses jamais utilisées (passe
+  du 2026-11-02) : `class_drop` plat contre v2 (287/600), `logq2` attelé contre v1
+  (296/600).
+- **Retenus** : aucun nouveau. **Rejetés** : aucun.
+- **Non concluants (testés dans la passe du 2026-10-26)** :
+  - `accessit` : plat +0,0000 (IC 99 % −0,0005 à +0,0005), attelé +0,0000 (−0,0000 à
+    +0,0000), monté −0,0000 (−0,0007 à +0,0007) ;
+  - `weight_dist` : plat −0,0000 (−0,0001 à +0,0000).
+- **En cours** (passe du 2026-11-02) : règle `value105` (plat 356/600, attelé 326/600,
+  monté 64/600 courses fraîches) ; mouvement de cote `drift` (plat 416, attelé 359,
+  monté 74 courses suivies en direct sur 1 000) ; critères a posteriori de l'agent
+  critique en attente de leurs courses fraîches.
+- Aucune passe de nuit enregistrée au registre le 2026-11-01 (dernières : 2026-10-31,
+  puis 2026-11-02 vers 8 h UTC). Je ne sais pas pourquoi.
+
+### Historique 2020 (`data/raw/pmu/backfill_done_v2*.json`)
+
+- Plat : 2 493 jours, le plus ancien 2020-01-01, le plus récent 2026-10-30.
+- Attelé : 2 486 jours, le plus ancien 2020-01-01.
+- Monté : 1 500 jours, le plus ancien **toujours 2022-09-18** (+8 jours en une semaine,
+  tous récents). Le journal de nuit du 2026-11-02 montre encore « MONTE — backfill :
+  … jusqu'au 2024-01-23, échecs : 6 » et, à l'attelé, « réseau indisponible (20 échecs
+  d'affilée) » au 2021-05-12. Je ne sais pas pourquoi le monté ne descend pas sous
+  2022-09-18.
+
 ## 2026-10-25
 
 ### Critères ajoutés (2)
