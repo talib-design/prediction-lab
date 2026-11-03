@@ -1,0 +1,54 @@
+{
+ "experiment": "jockey_idle:PLAT:obj2",
+ "candidate": "jockey_idle",
+ "label": "Jockey ou driver qui revient d'une absence",
+ "discipline": "PLAT",
+ "kind": "criterion",
+ "protocol": "obj",
+ "champion_version": 2,
+ "tested_at": "2026-11-03T06:34:47+00:00",
+ "status": "REJECTED",
+ "conclusion": "Rejeté : le critère dégrade la prévision, écart +0.0001 (IC 99 % +0.0000 à +0.0002).",
+ "difference": 9.473638524981058e-05,
+ "ci_low": 1.5873360573355162e-05,
+ "ci_high": 0.00016758366903846003,
+ "level": 0.99,
+ "by_year": {
+  "2025": {
+   "races": 3620,
+   "difference": 0.00010471930690911067
+  },
+  "2026": {
+   "races": 742,
+   "difference": 4.603264346185057e-05
+  }
+ },
+ "test_days": [
+  "2025-01-02",
+  "2026-03-31"
+ ],
+ "money": {
+  "races": 4362,
+  "races_where_picks_differ": 6,
+  "roi_challenger": -0.12975699220541037,
+  "roi_champion": -0.1280032095369097,
+  "roi_favourite": -0.13544818890417232,
+  "net_difference": -15.299999999999999,
+  "net_difference_low": -40.2025,
+  "net_difference_high": 4.800000000000001
+ },
+ "lambda": {
+  "champion": 10.0,
+  "challenger": 10.0
+ },
+ "beta": -0.0024630336065783404,
+ "beta_low": -0.03292662228185961,
+ "beta_high": 0.02800055506870293,
+ "per_sd": 0.9975399971718815,
+ "races": {
+  "train": 13610,
+  "validation": 3644,
+  "test": 4362,
+  "vault": 303
+ }
+}
