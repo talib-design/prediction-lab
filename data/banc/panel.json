@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-04T07:08:52+00:00",
+ "updated_at": "2026-11-05T00:45:24+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-04T06:46:30+00:00",
+   "at": "2026-11-05T00:36:48+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16601137131957838
+   "confirmation_roi": -0.16590838653443732
   },
   "ATTELE": {
-   "at": "2026-11-04T06:58:00+00:00",
+   "at": "2026-11-05T00:41:17+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13306382214314713
+   "confirmation_roi": -0.13309804001105985
   },
   "MONTE": {
-   "at": "2026-11-04T07:08:52+00:00",
+   "at": "2026-11-05T00:45:24+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.08788764518529407
+   "confirmation_roi": -0.08994928238861076
   }
  },
  "strategies": [
@@ -35326,6 +35326,94 @@
       "to": "2026-12-31",
       "bets": 203,
       "roi": 0.1733990147783251
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "d86a98b4e3",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "weight_band": "Plus léger (≤ −1,5 kg)",
+    "mus_form_band": "Parfois placé : 1-2 top 3 sur 5"
+   },
+   "label": "Valeur selon Marché+ : Cote juste (0,9-1,05) · Régularité récente : Parfois placé : 1-2 top 3 sur 5 · Poids porté : Plus léger (≤ −1,5 kg)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-05T00:36:48+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-04",
+    "bets": 1085,
+    "roi": 0.08903225806451598,
+    "low": -0.1088291941565408,
+    "high": 0.28689371028557276,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 439,
+      "roi": 0.19589977220956722
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 387,
+      "roi": 0.02273901808785528
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 259,
+      "roi": 0.006949806949807069
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "4dc2782d30",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "age_band": "4 ans",
+    "temp_band": "Froid (< 10 °C)"
+   },
+   "label": "Âge : 4 ans · Classement Marché+ : 2e-3e de Marché+ · Température : Froid (< 10 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-05T00:36:48+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-04",
+    "bets": 362,
+    "roi": 0.10828729281767946,
+    "low": -0.15708766386885403,
+    "high": 0.37366224950421295,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 103,
+      "roi": 0.08155339805825257
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 185,
+      "roi": 0.1005405405405404
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 74,
+      "roi": 0.16486486486486496
      }
     ]
    },
