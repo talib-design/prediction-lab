@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-05T00:45:24+00:00",
+ "updated_at": "2026-11-06T00:43:47+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-05T00:36:48+00:00",
+   "at": "2026-11-06T00:36:18+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16590838653443732
+   "confirmation_roi": -0.16542110377669836
   },
   "ATTELE": {
-   "at": "2026-11-05T00:41:17+00:00",
+   "at": "2026-11-06T00:40:14+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13309804001105985
+   "confirmation_roi": -0.13317837036105318
   },
   "MONTE": {
-   "at": "2026-11-05T00:45:24+00:00",
+   "at": "2026-11-06T00:43:47+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.08994928238861076
+   "confirmation_roi": -0.09116498488831452
   }
  },
  "strategies": [
@@ -35414,6 +35414,50 @@
       "to": "2026-12-31",
       "bets": 74,
       "roi": 0.16486486486486496
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "fd3db39a7f",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "dist_band": "Mile (1 400-1 900 m)",
+    "trainer_form": "Entraîneur peu connu"
+   },
+   "label": "Distance : Mile (1 400-1 900 m) · Cote : Cote 3 à 5 · Entraîneur : Entraîneur peu connu",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-06T00:36:18+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-05",
+    "bets": 451,
+    "roi": 0.08447893569844789,
+    "low": -0.09443536152762591,
+    "high": 0.26339323292452166,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 343,
+      "roi": 0.03731778425655974
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 68,
+      "roi": 0.2838235294117646
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 40,
+      "roi": 0.1499999999999999
      }
     ]
    },
