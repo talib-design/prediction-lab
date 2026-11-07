@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-06T00:43:47+00:00",
+ "updated_at": "2026-11-07T00:43:39+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-06T00:36:18+00:00",
+   "at": "2026-11-07T00:36:16+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16542110377669836
+   "confirmation_roi": -0.1657502663871306
   },
   "ATTELE": {
-   "at": "2026-11-06T00:40:14+00:00",
+   "at": "2026-11-07T00:40:10+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13317837036105318
+   "confirmation_roi": -0.13301148355637035
   },
   "MONTE": {
-   "at": "2026-11-06T00:43:47+00:00",
+   "at": "2026-11-07T00:43:39+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09116498488831452
+   "confirmation_roi": -0.09264129867817704
   }
  },
  "strategies": [
@@ -35458,6 +35458,138 @@
       "to": "2026-12-31",
       "bets": 40,
       "roi": 0.1499999999999999
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "05a0466a10",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "7e cote et au-delà",
+    "dist_band": "Tenue (≥ 2 400 m)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Distance : Tenue (≥ 2 400 m) · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Rang dans la cote : 7e cote et au-delà",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-07T00:36:16+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-06",
+    "bets": 1194,
+    "roi": 0.2525963149078727,
+    "low": -0.13890343630936375,
+    "high": 0.6440960661251092,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 456,
+      "roi": 0.30263157894736836
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 484,
+      "roi": 0.11652892561983474
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 254,
+      "roi": 0.42204724409448824
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "ef2b5b0f2d",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "class_change": "Descend de niveau (allocation −25 %)",
+    "duo_form": "Duo jockey-entraîneur dans la norme",
+    "going_lean": "Réussit sur ce terrain"
+   },
+   "label": "Niveau vs dernière course : Descend de niveau (allocation −25 %) · Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Le cheval sur ce terrain : Réussit sur ce terrain",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-07T00:36:16+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-06",
+    "bets": 269,
+    "roi": 0.015055762081784385,
+    "low": -0.1429968632353722,
+    "high": 0.17310838739894097,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 41,
+      "roi": 0.06341463414634152
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 118,
+      "roi": 0.011864406779661163
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 110,
+      "roi": 0.00045454545454548523
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e8069df5ab",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "dist_band": "Longue (≥ 2 700 m)",
+    "field_band": "Grand (≥ 14)",
+    "duo_form": "Duo jockey-entraîneur en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Distance : Longue (≥ 2 700 m) · Duo jockey-entraîneur : Duo jockey-entraîneur en réussite (≥ ×1,2 vs cote) · Taille du peloton : Grand (≥ 14)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-07T00:43:39+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-06",
+    "bets": 287,
+    "roi": 0.06306620209059233,
+    "low": -0.31648355666376793,
+    "high": 0.4426159608449526,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 54,
+      "roi": 0.05740740740740735
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 109,
+      "roi": 0.13027522935779823
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 124,
+      "roi": 0.006451612903225712
      }
     ]
    },
