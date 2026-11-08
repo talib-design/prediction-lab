@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-07T00:43:39+00:00",
+ "updated_at": "2026-11-08T00:42:47+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-07T00:36:16+00:00",
+   "at": "2026-11-08T00:35:27+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.1657502663871306
+   "confirmation_roi": -0.16573970316243944
   },
   "ATTELE": {
-   "at": "2026-11-07T00:40:10+00:00",
+   "at": "2026-11-08T00:39:21+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13301148355637035
+   "confirmation_roi": -0.13338827777051732
   },
   "MONTE": {
-   "at": "2026-11-07T00:43:39+00:00",
+   "at": "2026-11-08T00:42:47+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09264129867817704
+   "confirmation_roi": -0.09253982727400842
   }
  },
  "strategies": [
@@ -8113,7 +8113,7 @@
     ]
    },
    "confirmation": null,
-   "eliminated_at": null
+   "eliminated_at": "2026-11-08T00:35:27+00:00"
   },
   {
    "id": "27c09402f5",
@@ -35590,6 +35590,226 @@
       "to": "2026-12-31",
       "bets": 124,
       "roi": 0.006451612903225712
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "25a719934a",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "2e-3e cote",
+    "mus_form_band": "Aucun top 3 sur ses dernières courses",
+    "jockey_form": "Jockey peu connu"
+   },
+   "label": "Jockey : Jockey peu connu · Régularité récente : Aucun top 3 sur ses dernières courses · Rang dans la cote : 2e-3e cote",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-08T00:35:27+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-07",
+    "bets": 327,
+    "roi": 0.2015290519877675,
+    "low": -0.14026897346800438,
+    "high": 0.5433270774435394,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 222,
+      "roi": 0.12387387387387383
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 63,
+      "roi": 0.4476190476190476
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 42,
+      "roi": 0.24285714285714288
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "66d30b0963",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "venue": "DEAUVILLE",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Valeur selon Marché+ : Cote juste (0,9-1,05) · Hippodrome : DEAUVILLE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-08T00:35:27+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-07",
+    "bets": 229,
+    "roi": 0.18602620087336263,
+    "low": -0.03861163864789871,
+    "high": 0.410664040394624,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 100,
+      "roi": 0.15799999999999992
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 88,
+      "roi": 0.20340909090909087
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 41,
+      "roi": 0.2170731707317073
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "41622faf93",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_rank_band": "1er de Marché+",
+    "venue": "LAVAL",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Classement Marché+ : 1er de Marché+ · Entraîneur : Entraîneur dans la norme · Hippodrome : LAVAL",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-08T00:39:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-07",
+    "bets": 205,
+    "roi": 0.0434146341463415,
+    "low": -0.16890910359566702,
+    "high": 0.25573837188835,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 47,
+      "roi": 0.10851063829787244
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 72,
+      "roi": 0.03472222222222232
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 86,
+      "roi": 0.015116279069767424
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "37ae71d1e8",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "1er de Marché+",
+    "venue": "LAVAL",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Classement Marché+ : 1er de Marché+ · Entraîneur : Entraîneur dans la norme · Hippodrome : LAVAL",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-08T00:39:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-07",
+    "bets": 205,
+    "roi": 0.07609756097560982,
+    "low": -0.030698277487489004,
+    "high": 0.18289339943870864,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 47,
+      "roi": 0.07659574468085117
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 72,
+      "roi": 0.054166666666666696
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 86,
+      "roi": 0.09418604651162776
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "d78e0367ae",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "venue": "LAVAL",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Rang dans la cote : Favori · Entraîneur : Entraîneur dans la norme · Hippodrome : LAVAL",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-08T00:39:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-07",
+    "bets": 203,
+    "roi": 0.042857142857142705,
+    "low": -0.06513092031558482,
+    "high": 0.15084520602987023,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 46,
+      "roi": 0.06304347826086953
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 70,
+      "roi": 0.004285714285714226
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 87,
+      "roi": 0.06321839080459779
      }
     ]
    },
