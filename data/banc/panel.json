@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-08T00:42:47+00:00",
+ "updated_at": "2026-11-09T00:42:44+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-08T00:35:27+00:00",
+   "at": "2026-11-09T00:35:16+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16573970316243944
+   "confirmation_roi": -0.16598200243330993
   },
   "ATTELE": {
-   "at": "2026-11-08T00:39:21+00:00",
+   "at": "2026-11-09T00:39:09+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13338827777051732
+   "confirmation_roi": -0.1326952740499113
   },
   "MONTE": {
-   "at": "2026-11-08T00:42:47+00:00",
+   "at": "2026-11-09T00:42:44+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09253982727400842
+   "confirmation_roi": -0.09343129808335722
   }
  },
  "strategies": [
@@ -35810,6 +35810,138 @@
       "to": "2026-12-31",
       "bets": 87,
       "roi": 0.06321839080459779
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "99f9d19d39",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "temp_band": "Froid (< 10 °C)",
+    "going_lean": "Peu d'expérience de ce terrain"
+   },
+   "label": "Le cheval sur ce terrain : Peu d'expérience de ce terrain · Cote : Cote 3 à 5 · Température : Froid (< 10 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-09T00:35:16+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-08",
+    "bets": 380,
+    "roi": 0.07552631578947366,
+    "low": -0.11005863863426499,
+    "high": 0.26111127021321234,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 221,
+      "roi": 0.04027149321266976
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 117,
+      "roi": 0.0034188034188034067
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 42,
+      "roi": 0.4619047619047618
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "b27acdf44a",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "sex_cat": "Hongre",
+    "rest_band": "Première course connue"
+   },
+   "label": "Cote : Cote 3 à 5 · Repos : Première course connue · Sexe : Hongre",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-09T00:35:16+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-08",
+    "bets": 245,
+    "roi": 0.06897959183673463,
+    "low": -0.15400319926044537,
+    "high": 0.29196238293391463,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 147,
+      "roi": 0.045578231292517035
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 46,
+      "roi": 0.023913043478260843
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 52,
+      "roi": 0.17500000000000004
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "50133a8033",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "temp_band": "Froid (< 10 °C)",
+    "jockey_form": "Jockey peu connu"
+   },
+   "label": "Jockey : Jockey peu connu · Valeur selon Marché+ : Cote juste (0,9-1,05) · Température : Froid (< 10 °C)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-09T00:39:09+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-08",
+    "bets": 441,
+    "roi": 0.08390022675736963,
+    "low": -0.250342914541781,
+    "high": 0.41814336805652025,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 181,
+      "roi": 0.06408839779005526
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 188,
+      "roi": 0.04308510638297869
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 72,
+      "roi": 0.2402777777777778
      }
     ]
    },
