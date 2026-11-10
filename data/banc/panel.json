@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-09T00:42:44+00:00",
+ "updated_at": "2026-11-10T00:43:10+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-09T00:35:16+00:00",
+   "at": "2026-11-10T00:35:40+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16598200243330993
+   "confirmation_roi": -0.1656370461227568
   },
   "ATTELE": {
-   "at": "2026-11-09T00:39:09+00:00",
+   "at": "2026-11-10T00:39:37+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1326952740499113
+   "confirmation_roi": -0.13266676663334093
   },
   "MONTE": {
-   "at": "2026-11-09T00:42:44+00:00",
+   "at": "2026-11-10T00:43:10+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09343129808335722
+   "confirmation_roi": -0.09388791211019334
   }
  },
  "strategies": [
@@ -35942,6 +35942,50 @@
       "to": "2026-12-31",
       "bets": 72,
       "roi": 0.2402777777777778
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "69a04571c2",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "dist_change": "Rallonge (≥ 200 m)",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)",
+    "going_lean": "Réussit sur ce terrain"
+   },
+   "label": "Distance vs dernière course : Rallonge (≥ 200 m) · Le cheval sur ce terrain : Réussit sur ce terrain · Jockey : Jockey en réussite (≥ ×1,2 vs cote)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-10T00:35:40+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-09",
+    "bets": 237,
+    "roi": 0.07447257383966255,
+    "low": -0.1654352273668507,
+    "high": 0.3143803750461758,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 86,
+      "roi": 0.086046511627907
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 102,
+      "roi": 0.0980392156862746
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 49,
+      "roi": 0.005102040816326481
      }
     ]
    },
