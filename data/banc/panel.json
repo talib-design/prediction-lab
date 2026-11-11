@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-10T00:43:10+00:00",
+ "updated_at": "2026-11-11T10:50:09+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-10T00:35:40+00:00",
+   "at": "2026-11-11T06:04:39+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.1656370461227568
+   "confirmation_roi": -0.165333307943149
   },
   "ATTELE": {
-   "at": "2026-11-10T00:39:37+00:00",
+   "at": "2026-11-11T09:35:59+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13266676663334093
+   "confirmation_roi": -0.13334362444554448
   },
   "MONTE": {
-   "at": "2026-11-10T00:43:10+00:00",
+   "at": "2026-11-11T10:50:09+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09388791211019334
+   "confirmation_roi": -0.09621331868279284
   }
  },
  "strategies": [
@@ -35986,6 +35986,270 @@
       "to": "2026-12-31",
       "bets": 49,
       "roi": 0.005102040816326481
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "d0a1290410",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "5 ans",
+    "mus_last_band": "Gagnant de sa dernière course",
+    "mus_form_band": "Parfois placé : 1-2 top 3 sur 5"
+   },
+   "label": "Âge : 5 ans · Régularité récente : Parfois placé : 1-2 top 3 sur 5 · Dernière course : Gagnant de sa dernière course",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-11T06:04:39+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-10",
+    "bets": 874,
+    "roi": 0.04393592677345537,
+    "low": -0.16214551139799832,
+    "high": 0.25001736494490906,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 323,
+      "roi": 0.04643962848297223
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 287,
+      "roi": 0.06341463414634152
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 264,
+      "roi": 0.019696969696969546
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "c312f3e7dc",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "6-7 ans",
+    "sky_cat": "Pluie ou averses",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Âge : 6-7 ans · Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Ciel : Pluie ou averses",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-11T06:04:39+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-10",
+    "bets": 261,
+    "roi": 0.0988505747126438,
+    "low": -0.15224895640965896,
+    "high": 0.34995010583494657,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 119,
+      "roi": 0.015126050420168013
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 101,
+      "roi": 0.22475247524752473
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 41,
+      "roi": 0.03170731707317076
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "58eb375738",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "sex_cat": "Femelle",
+    "venue": "LISIEUX",
+    "jockey_form": "Jockey dans la norme"
+   },
+   "label": "Jockey : Jockey dans la norme · Sexe : Femelle · Hippodrome : LISIEUX",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-11T09:35:59+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-10",
+    "bets": 225,
+    "roi": 0.5991111111111111,
+    "low": -0.26785042053041996,
+    "high": 1.4660726427526423,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 46,
+      "roi": 0.22608695652173916
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 83,
+      "roi": 1.2650602409638556
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 96,
+      "roi": 0.2020833333333334
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "6cf92f013f",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "model_edge_band": "Cote juste (0,9-1,05)",
+    "sky_cat": "Nuageux ou couvert",
+    "venue": "MAUQUENCHY"
+   },
+   "label": "Valeur selon Marché+ : Cote juste (0,9-1,05) · Ciel : Nuageux ou couvert · Hippodrome : MAUQUENCHY",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-11T09:35:59+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-10",
+    "bets": 331,
+    "roi": 0.08187311178247736,
+    "low": -0.2679860377268634,
+    "high": 0.43173226129181813,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 121,
+      "roi": 0.023140495867768784
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 112,
+      "roi": 0.025892857142857162
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 98,
+      "roi": 0.21836734693877546
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "1fab7ed951",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "2-3 ans",
+    "temp_band": "Frais (10-17 °C)",
+    "venue": "REIMS"
+   },
+   "label": "Âge : 2-3 ans · Température : Frais (10-17 °C) · Hippodrome : REIMS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-11T09:35:59+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-10",
+    "bets": 203,
+    "roi": 0.2216748768472907,
+    "low": -0.17316185045026322,
+    "high": 0.6165116041448446,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 90,
+      "roi": 0.06000000000000005
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 68,
+      "roi": 0.0897058823529413
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 45,
+      "roi": 0.7444444444444445
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "a6044d9098",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "2-3 ans",
+    "venue": "REIMS",
+    "class_change": "Même niveau"
+   },
+   "label": "Âge : 2-3 ans · Niveau vs dernière course : Même niveau · Hippodrome : REIMS",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-11T09:35:59+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-10",
+    "bets": 201,
+    "roi": 0.054726368159204064,
+    "low": -0.2222927830540461,
+    "high": 0.3317455193724542,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 84,
+      "roi": 0.008333333333333304
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 66,
+      "roi": 0.134848484848485
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 51,
+      "roi": 0.027450980392156765
      }
     ]
    },
