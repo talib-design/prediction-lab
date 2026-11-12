@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-11T10:50:09+00:00",
+ "updated_at": "2026-11-12T08:04:10+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-11T06:04:39+00:00",
+   "at": "2026-11-12T07:18:44+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.165333307943149
+   "confirmation_roi": -0.16454347457340773
   },
   "ATTELE": {
-   "at": "2026-11-11T09:35:59+00:00",
+   "at": "2026-11-12T07:39:56+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13334362444554448
+   "confirmation_roi": -0.13247580653053126
   },
   "MONTE": {
-   "at": "2026-11-11T10:50:09+00:00",
+   "at": "2026-11-12T08:04:10+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09621331868279284
+   "confirmation_roi": -0.09606401424055978
   }
  },
  "strategies": [
@@ -36250,6 +36250,181 @@
       "to": "2026-12-31",
       "bets": 51,
       "roi": 0.027450980392156765
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "18e070dc7a",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "5 ans",
+    "dist_band": "Classique (1 900-2 400 m)",
+    "going_cat": "Très souple"
+   },
+   "label": "Âge : 5 ans · Distance : Classique (1 900-2 400 m) · Terrain : Très souple",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-12T07:18:44+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-11",
+    "bets": 530,
+    "roi": 0.2824528301886793,
+    "low": -0.1523597237410808,
+    "high": 0.7172653841184393,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 235,
+      "roi": 0.23744680851063826
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 194,
+      "roi": 0.08917525773195889
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 101,
+      "roi": 0.7584158415841584
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "5013f00981",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "4e-6e cote",
+    "going_cat": "Souple",
+    "venue": "LA CEPIERE"
+   },
+   "label": "Terrain : Souple · Rang dans la cote : 4e-6e cote · Hippodrome : LA CEPIERE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-12T07:18:44+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-11",
+    "bets": 244,
+    "roi": 0.3663934426229507,
+    "low": -0.16108891497999134,
+    "high": 0.8938758002258927,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 65,
+      "roi": 0.26923076923076916
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 96,
+      "roi": 0.3927083333333332
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 83,
+      "roi": 0.4120481927710844
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "1fe8ebb310",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_band": "Favori",
+    "venue": "LYON LA SOIE"
+   },
+   "label": "Rang dans la cote : Favori · Hippodrome : LYON LA SOIE",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-12T07:39:56+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-11",
+    "bets": 201,
+    "roi": 0.057711442786069655,
+    "low": -0.06148731528306631,
+    "high": 0.17691020085520562,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 75,
+      "roi": 0.05466666666666686
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 66,
+      "roi": 0.019696969696969546
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 60,
+      "roi": 0.10333333333333328
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "7f9a4e29b2",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "odds_range": "Cote 5 à 8",
+    "age_band": "2-3 ans",
+    "duo_form": "Duo jockey-entraîneur en difficulté (≤ ×0,8 vs cote)"
+   },
+   "label": "Âge : 2-3 ans · Duo jockey-entraîneur : Duo jockey-entraîneur en difficulté (≤ ×0,8 vs cote) · Cote : Cote 5 à 8",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-12T07:39:56+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-11",
+    "bets": 213,
+    "roi": 0.04014084507042259,
+    "low": -0.10962648584900583,
+    "high": 0.18990817598985102,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 60,
+      "roi": 0.11333333333333329
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 78,
+      "roi": 0.008333333333333304
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 75,
+      "roi": 0.014666666666666606
      }
     ]
    },
