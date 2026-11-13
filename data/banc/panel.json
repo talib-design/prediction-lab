@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-12T08:04:10+00:00",
+ "updated_at": "2026-11-13T06:39:55+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-12T07:18:44+00:00",
+   "at": "2026-11-13T06:19:31+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16454347457340773
+   "confirmation_roi": -0.16481457344708125
   },
   "ATTELE": {
-   "at": "2026-11-12T07:39:56+00:00",
+   "at": "2026-11-13T06:34:55+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.13247580653053126
+   "confirmation_roi": -0.1327452479812126
   },
   "MONTE": {
-   "at": "2026-11-12T08:04:10+00:00",
+   "at": "2026-11-13T06:39:55+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09606401424055978
+   "confirmation_roi": -0.09698520791688281
   }
  },
  "strategies": [
@@ -11762,7 +11762,7 @@
     ]
    },
    "confirmation": null,
-   "eliminated_at": null
+   "eliminated_at": "2026-11-13T06:19:31+00:00"
   },
   {
    "id": "2b0355370f",
@@ -36425,6 +36425,94 @@
       "to": "2026-12-31",
       "bets": 75,
       "roi": 0.014666666666666606
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "2c1b7ba7f8",
+   "discipline": "PLAT",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "rest_band": "15-30 jours",
+    "mus_form_band": "Aucun top 3 sur ses dernières courses"
+   },
+   "label": "Régularité récente : Aucun top 3 sur ses dernières courses · Cote : Cote 3 à 5 · Repos : 15-30 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-13T06:19:31+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-12",
+    "bets": 359,
+    "roi": 0.1091922005571031,
+    "low": -0.10497092059844851,
+    "high": 0.3233553217126547,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 122,
+      "roi": 0.062295081967213006
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 124,
+      "roi": 0.21693548387096784
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 113,
+      "roi": 0.04159292035398243
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "e7e03f2d86",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "age_band": "2-3 ans",
+    "draw_band": "Intérieur (1er tiers)",
+    "jockey_form": "Jockey en difficulté (≤ ×0,8 vs cote)"
+   },
+   "label": "Âge : 2-3 ans · Position au départ : Intérieur (1er tiers) · Jockey : Jockey en difficulté (≤ ×0,8 vs cote)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-13T06:34:55+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-12",
+    "bets": 201,
+    "roi": 0.045771144278606846,
+    "low": -0.22275676627726199,
+    "high": 0.3142990548344757,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 60,
+      "roi": 0.026666666666666616
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 72,
+      "roi": 0.09722222222222232
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 69,
+      "roi": 0.008695652173913215
      }
     ]
    },
