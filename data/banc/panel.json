@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-13T06:39:55+00:00",
+ "updated_at": "2026-11-14T00:51:30+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-13T06:19:31+00:00",
+   "at": "2026-11-14T00:43:56+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.16481457344708125
+   "confirmation_roi": -0.1650347744236797
   },
   "ATTELE": {
-   "at": "2026-11-13T06:34:55+00:00",
+   "at": "2026-11-14T00:47:57+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1327452479812126
+   "confirmation_roi": -0.1324066696845207
   },
   "MONTE": {
-   "at": "2026-11-13T06:39:55+00:00",
+   "at": "2026-11-14T00:51:30+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09698520791688281
+   "confirmation_roi": -0.09756638694821138
   }
  },
  "strategies": [
@@ -36513,6 +36513,181 @@
       "to": "2026-12-31",
       "bets": 69,
       "roi": 0.008695652173913215
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "a003f2bbac",
+   "discipline": "PLAT",
+   "bet": "SP",
+   "criteria": {
+    "going_cat": "Lourd ou collant",
+    "dist_change": "Rallonge (≥ 200 m)",
+    "jockey_form": "Jockey en difficulté (≤ ×0,8 vs cote)"
+   },
+   "label": "Distance vs dernière course : Rallonge (≥ 200 m) · Terrain : Lourd ou collant · Jockey : Jockey en difficulté (≤ ×0,8 vs cote)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-14T00:43:56+00:00",
+   "exploration": {
+    "from": "2024-01-02",
+    "to": "2026-11-13",
+    "bets": 287,
+    "roi": 0.06829268292682933,
+    "low": -0.1855311752732436,
+    "high": 0.32211654112690224,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 146,
+      "roi": 0.05616438356164366
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 100,
+      "roi": 0.10000000000000009
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 41,
+      "roi": 0.034146341463414664
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "2a7f727d22",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_band": "2e-3e cote",
+    "rest_band": "Première course connue",
+    "shoeing_cat": "Déferré des 4"
+   },
+   "label": "Rang dans la cote : 2e-3e cote · Repos : Première course connue · Ferrure : Déferré des 4",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-14T00:47:57+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-13",
+    "bets": 693,
+    "roi": 0.022510822510822592,
+    "low": -0.1545167500521793,
+    "high": 0.19953839507382448,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 503,
+      "roi": 0.007157057654075594
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 98,
+      "roi": 0.09489795918367339
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 92,
+      "roi": 0.02934782608695663
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "74cee363cc",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "age_band": "4 ans",
+    "trainer_form": "Entraîneur en réussite (≥ ×1,2 vs cote)",
+    "duo_form": "Duo jockey-entraîneur dans la norme"
+   },
+   "label": "Âge : 4 ans · Duo jockey-entraîneur : Duo jockey-entraîneur dans la norme · Entraîneur : Entraîneur en réussite (≥ ×1,2 vs cote)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-14T00:47:57+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-13",
+    "bets": 569,
+    "roi": 0.16326889279437595,
+    "low": -0.2524802450201354,
+    "high": 0.5790180306088872,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 100,
+      "roi": 0.3270000000000002
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 254,
+      "roi": 0.098031496062992
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 215,
+      "roi": 0.16418604651162805
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "8d1398bf4d",
+   "discipline": "ATTELE",
+   "bet": "SP",
+   "criteria": {
+    "model_edge_band": "Cote généreuse (p × cote ≥ 1,05)",
+    "rest_band": "Rentrée (> 90 jours)"
+   },
+   "label": "Valeur selon Marché+ : Cote généreuse (p × cote ≥ 1,05) · Repos : Rentrée (> 90 jours)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-14T00:47:57+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-13",
+    "bets": 251,
+    "roi": 0.026693227091633354,
+    "low": -0.1349265936877005,
+    "high": 0.1883130478709672,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 52,
+      "roi": 0.05192307692307696
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 60,
+      "roi": 0.06166666666666676
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 139,
+      "roi": 0.0021582733812952615
      }
     ]
    },
