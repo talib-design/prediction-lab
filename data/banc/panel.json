@@ -1,27 +1,27 @@
 {
  "banc_version": "1",
- "updated_at": "2026-11-14T00:51:30+00:00",
+ "updated_at": "2026-11-15T14:56:21+00:00",
  "gauge": {
   "PLAT": {
-   "at": "2026-11-14T00:43:56+00:00",
+   "at": "2026-11-15T11:56:35+00:00",
    "tested": 200,
    "confirmed": 0,
    "exploration_roi": 0.18031843951108825,
-   "confirmation_roi": -0.1650347744236797
+   "confirmation_roi": -0.1654358589551518
   },
   "ATTELE": {
-   "at": "2026-11-14T00:47:57+00:00",
+   "at": "2026-11-15T14:51:21+00:00",
    "tested": 165,
    "confirmed": 0,
    "exploration_roi": 0.11445625381266301,
-   "confirmation_roi": -0.1324066696845207
+   "confirmation_roi": -0.13264710451053685
   },
   "MONTE": {
-   "at": "2026-11-14T00:51:30+00:00",
+   "at": "2026-11-15T14:56:21+00:00",
    "tested": 105,
    "confirmed": 0,
    "exploration_roi": 0.16986728554504257,
-   "confirmation_roi": -0.09756638694821138
+   "confirmation_roi": -0.09259308299188564
   }
  },
  "strategies": [
@@ -36688,6 +36688,226 @@
       "to": "2026-12-31",
       "bets": 139,
       "roi": 0.0021582733812952615
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "53eacb77e8",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 3 à 5",
+    "rest_band": "31-90 jours",
+    "trainer_form": "Entraîneur en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Cote : Cote 3 à 5 · Repos : 31-90 jours · Entraîneur : Entraîneur en réussite (≥ ×1,2 vs cote)",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-15T14:51:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-14",
+    "bets": 509,
+    "roi": 0.044990176817288674,
+    "low": -0.10938641519507045,
+    "high": 0.1993667688296478,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 128,
+      "roi": 0.0007812499999999556
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 194,
+      "roi": 0.08144329896907232
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 187,
+      "roi": 0.03743315508021383
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "73afc1a4b0",
+   "discipline": "ATTELE",
+   "bet": "SG",
+   "criteria": {
+    "odds_range": "Cote 8 à 13",
+    "age_band": "4 ans",
+    "venue": "CAEN"
+   },
+   "label": "Âge : 4 ans · Cote : Cote 8 à 13 · Hippodrome : CAEN",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-15T14:51:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-14",
+    "bets": 200,
+    "roi": 0.39349999999999996,
+    "low": -0.1482485107007009,
+    "high": 0.9352485107007008,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 69,
+      "roi": 0.2724637681159421
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 64,
+      "roi": 0.08281249999999996
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 67,
+      "roi": 0.8149253731343284
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "14d14a5e46",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "venue": "VINCENNES",
+    "dist_change": "Même distance",
+    "class_change": "Descend de niveau (allocation −25 %)"
+   },
+   "label": "Niveau vs dernière course : Descend de niveau (allocation −25 %) · Distance vs dernière course : Même distance · Hippodrome : VINCENNES",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-15T14:56:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-14",
+    "bets": 337,
+    "roi": 0.40919881305637973,
+    "low": -0.2845072535220612,
+    "high": 1.1029048796348206,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 100,
+      "roi": 0.405
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 132,
+      "roi": 0.030303030303030276
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 105,
+      "roi": 0.8895238095238096
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "9cd94247dc",
+   "discipline": "MONTE",
+   "bet": "SG",
+   "criteria": {
+    "temp_band": "Frais (10-17 °C)",
+    "dist_change": "Même distance",
+    "trainer_form": "Entraîneur dans la norme"
+   },
+   "label": "Distance vs dernière course : Même distance · Température : Frais (10-17 °C) · Entraîneur : Entraîneur dans la norme",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-15T14:56:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-14",
+    "bets": 576,
+    "roi": 0.20729166666666665,
+    "low": -0.308865241109442,
+    "high": 0.7234485744427753,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 85,
+      "roi": 0.19882352941176462
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 202,
+      "roi": 0.35396039603960405
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 289,
+      "roi": 0.10726643598615926
+     }
+    ]
+   },
+   "confirmation": null,
+   "eliminated_at": null
+  },
+  {
+   "id": "f3998a855e",
+   "discipline": "MONTE",
+   "bet": "SP",
+   "criteria": {
+    "model_rank_band": "2e-3e de Marché+",
+    "rest_band": "31-90 jours",
+    "jockey_form": "Jockey en réussite (≥ ×1,2 vs cote)"
+   },
+   "label": "Jockey : Jockey en réussite (≥ ×1,2 vs cote) · Classement Marché+ : 2e-3e de Marché+ · Repos : 31-90 jours",
+   "reference": false,
+   "origin": "régulière chaque année",
+   "added_at": "2026-11-15T14:56:21+00:00",
+   "exploration": {
+    "from": "2024-01-01",
+    "to": "2026-11-14",
+    "bets": 203,
+    "roi": 0.03842364532019715,
+    "low": -0.10574980763261896,
+    "high": 0.18259709827301326,
+    "periods": [
+     {
+      "from": "2024-01-01",
+      "to": "2024-12-31",
+      "bets": 67,
+      "roi": 0.013432835820895717
+     },
+     {
+      "from": "2025-01-01",
+      "to": "2025-12-31",
+      "bets": 73,
+      "roi": 0.09041095890410955
+     },
+     {
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "bets": 63,
+      "roi": 0.004761904761904745
      }
     ]
    },
